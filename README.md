@@ -67,7 +67,7 @@ Aplicación pensada para facilitar la organización de una tienda de repostería
 ## 📄 Diagrama UML
 
 Disponible como imagen en:  
-`/doc/uml_diagrama_clases.png`
+`./doc/diagrama_uml.pdf`
 
 ---
 
