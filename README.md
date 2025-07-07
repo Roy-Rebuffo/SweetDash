@@ -4,7 +4,7 @@
 
 ## 🎯 Objetivo
 
-Este proyecto nace con la intención de cubrir las necesidades de una repostera que gestiona manualmente sus pedidos, ingredientes y stock. El objetivo es automatizar sus tareas repetitivas, ofrecer un sistema claro y cómodo, y evolucionar hasta un producto profesional con base de datos e interfaz gráfica.
+Aplicación pensada para facilitar la organización de una tienda de repostería. Automatiza el registro de pedidos, la gestión de clientes, productos y control de stock, sustituyendo el uso manual de calendarios y hojas de cálculo.
 
 ---
 
@@ -12,110 +12,67 @@ Este proyecto nace con la intención de cubrir las necesidades de una repostera 
 
 ### 📁 Paquetes
 
-- `modelo`: Clases de dominio (Cliente, Pedido, Producto, Ingrediente, Stock, etc.)
-- `utilidades`: Funciones auxiliares (gestión de fechas, ficheros)
-- `principal`: Clase `Main` y punto de entrada del programa
+- `modelo`: Clases del dominio (Cliente, Pedido, Producto, Stock, etc.)
+- `utilidades`: Funciones de apoyo (fechas, ficheros)
+- `principal`: Punto de entrada del programa (`Main.java`)
 
 ---
 
-## 🔍 Descripción de Clases
+## 🔍 Clases Principales
 
-### 👤 Cliente
-- `id`, `nombre`, `telefono`, `email`
-- `List<Pedido> pedidos`
-
-### 📦 Producto
-- `id`, `nombre`, `descripcion`, `tipo` (Tarta, Salado, etc.)
-- `int cantidadPersonas`
-- `List<Ingrediente> ingredientes`
-
-### 🧂 Ingrediente
-- `nombre`, `cantidad` (ej. "200g")
-
-### 📝 Pedido
-- `id`, `Cliente cliente`
-- `LocalDateTime fechaEntrega`
-- `List<ProductoPedido> productos`
-- `String estado` (Pendiente, En Proceso, Entregado)
-
-### 🍰 ProductoPedido
-- Asocia un producto con una cantidad determinada
-
-### 📆 Calendario
-- Organiza los pedidos por fechas de entrega
-
----
-
-## 📊 Gestión de Stock
-
-### 🧩 StockItem (abstracta)
-- `nombre`, `cantidad`, `unidad`
-- Base común para stock comestible y no comestible
-
-### 📦 StockGeneral
-- Hereda de `StockItem`
-- Ej: cajas, platos, toppers, velas
-
-### 🧁 StockIngrediente
-- Hereda de `StockItem`
-- Ej: harina, azúcar, huevos, frutas
-
-### 🧮 GestorStock
-- `List<StockGeneral>`, `List<StockIngrediente>`
-- Métodos: añadir, eliminar, consultar, actualizar
+- **Cliente**: Guarda los datos del cliente y sus pedidos.
+- **Producto**: Representa tartas o salados con sus ingredientes.
+- **Pedido**: Contiene productos, estado y fecha de entrega.
+- **Ingrediente**: Define nombre y cantidad usada en cada producto.
+- **ProductoPedido**: Relación entre producto y cantidad pedida.
+- **Calendario**: Organiza pedidos por día.
+- **GestorStock**: Controla stock de ingredientes y materiales.
+- **StockItem / StockGeneral / StockIngrediente**: Abstracción del stock disponible.
 
 ---
 
 ## 🔧 Utilidades
 
-### 💾 GestorFicheros
-- Guarda y carga datos desde archivos planos
-
-### 🕒 UtilidadesFecha
-- Formateo y parsing de fechas con `LocalDateTime`
+- **GestorFicheros**: Lectura/escritura de datos en archivos planos.
+- **UtilidadesFecha**: Manejo de fechas con `LocalDateTime`.
 
 ---
 
-## 🔄 Relaciones Principales
+## 🔄 Relaciones Básicas
 
-- `Cliente` → muchos `Pedido`
-- `Pedido` → varios `ProductoPedido`
-- `ProductoPedido` → `Producto`
-- `Producto` → varios `Ingrediente`
-- `GestorStock` → gestiona stock general e ingredientes
-- `Calendario` → organiza los `Pedido` por fecha
+- Un cliente puede tener varios pedidos.
+- Un pedido incluye varios productos.
+- Cada producto contiene ingredientes.
+- El stock está dividido entre ingredientes y elementos de presentación.
 
 ---
 
-## 🧱 Ventajas del Diseño
+## 🧱 Diseño Modular
 
-- Basado en clases y herencia para evitar duplicación
-- Fácilmente ampliable a base de datos y GUI
-- Lógica de negocio limpia y modular
-- Uso de `LocalDateTime` para gestionar pedidos y calendario
+- Código organizado en capas y paquetes claros.
+- Preparado para ampliarse a base de datos o interfaz gráfica.
+- Lógica desacoplada del sistema de almacenamiento.
 
 ---
 
-## 🔮 Futuros Desarrollos
+## 🔮 Futuro
 
-- Conexión con base de datos (SQL o NoSQL)
-- Interfaz gráfica de usuario (JavaFX, web o app)
-- Sistema de notificaciones y alertas
-- Gestión avanzada del stock (previsión, pedidos automáticos)
-- Multiusuario y control de acceso
+- Persistencia con base de datos.
+- Interfaz gráfica (desktop o web).
+- Mejora de flujo de pedidos y gestión de alertas.
+- Panel de administración multiusuario.
 
 ---
 
 ## 📄 Diagrama UML
 
-Incluido en el directorio del proyecto como imagen:  
+Disponible como imagen en:  
 `/doc/uml_diagrama_clases.png`
 
 ---
 
 ## ✅ Estado Actual
 
-- ✔️ Modelo de clases completo
-- ✔️ Diagrama UML creado
-- ✔️ Planificación a futuro
-- 🔜 Comienzo de implementación del código
+- Estructura de clases modelada
+- Diagrama UML preparado
+- En fase de inicio de implementación
