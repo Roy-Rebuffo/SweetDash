@@ -11,6 +11,7 @@ public class Producto {
     private List <Ingrediente> ingredientes;
     private int cantidadPersonas;
     private double precioBase; // Nuevo campo
+    private PlantillaProceso plantilla;
     
     //Getter and Setter
     public String getId() {
@@ -68,14 +69,22 @@ public class Producto {
     public void setPrecioBase(double precioBase) {
         this.precioBase = precioBase;
     }
-    
+
+    public PlantillaProceso getPlantilla() {
+        return plantilla;
+    }
+
+    public void setPlantilla(PlantillaProceso plantilla) {
+        this.plantilla = plantilla;
+    }
     
     //Constructor
     public Producto() {
     }
 
     public Producto(String nombre, String descripcion, String tipo, 
-            List<Ingrediente> ingredientes, int cantidadPersonas, double precioBase) {
+            List<Ingrediente> ingredientes, int cantidadPersonas, 
+            double precioBase, PlantillaProceso plantilla) {
         
         this.id = "ITEM-" + UUID.randomUUID().toString().substring(0, 8); // Ej: "PROD-A3B5F2C"
         
@@ -85,6 +94,7 @@ public class Producto {
         this.ingredientes = ingredientes;
         this.cantidadPersonas = cantidadPersonas;
         this.precioBase = precioBase;
+        this.plantilla = plantilla;
     }
     
     //toString

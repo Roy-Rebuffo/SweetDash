@@ -5,6 +5,7 @@ import java.util.UUID;
 public class Cliente {
     private String id;          
     private String nombre;
+    private String apellido;
     private String telefono;
     private String email;
     private String direccion;   // Opcional (para entregas)
@@ -24,6 +25,14 @@ public class Cliente {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
     }
 
     public String getTelefono() {
@@ -54,12 +63,13 @@ public class Cliente {
     public Cliente() {
     }
 
-    public Cliente(String nombre, String telefono, String email, 
+    public Cliente(String nombre, String apellido, String telefono, String email, 
             String direccion) {
         
         this.id = "CLI-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         
         this.nombre = nombre;
+        this.apellido = apellido;
         this.telefono = telefono;
         this.email = email;
         this.direccion = direccion;
@@ -70,6 +80,7 @@ public class Cliente {
         return "-Cliente-" + "\n" +
                 "id: " + id + "\n" +
                 "nombre: " + nombre + "\n" +
+                "apellido: " + apellido + "\n" +
                 "telefono: " + telefono + "\n" +
                 "email: " + email + "\n" +
                 "direccion: " + direccion + "\n";
