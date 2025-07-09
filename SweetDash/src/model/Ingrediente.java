@@ -1,10 +1,13 @@
 package model;
 
+import java.time.LocalDate;
+
 public class Ingrediente {
+
     private String nombre;
     private double cantidad;
-    private boolean caducidad;
-    
+    private LocalDate fechaCaducidad;  // Cambiamos boolean por LocalDate
+
     //Getter and Setter
     public String getNombre() {
         return nombre;
@@ -22,29 +25,37 @@ public class Ingrediente {
         this.cantidad = cantidad;
     }
 
-    public boolean isCaducidad() {
-        return caducidad;
+    public LocalDate getFechaCaducidad() {
+        return fechaCaducidad;
     }
 
-    public void setCaducidad(boolean caducidad) {
-        this.caducidad = caducidad;
+    public void setFechaCaducidad(LocalDate fechaCaducidad) {
+        this.fechaCaducidad = fechaCaducidad;
     }
-    
+
     //Constructor
     public Ingrediente() {
     }
-    
-    public Ingrediente(String nombre, double cantidad, boolean caducidad) {
+
+    public Ingrediente(String nombre, double cantidad, LocalDate fechaCaducidad) {
         this.nombre = nombre;
         this.cantidad = cantidad;
-        this.caducidad = caducidad;
+        this.fechaCaducidad = fechaCaducidad;
     }
-    
+
     //ToString
-    @Override
+     @Override
     public String toString() {
-        return nombre + 
-                "cantidad: (" + cantidad + ") "
-                + (caducidad ? "Caduca" : "No caduca");
+        return "-Ingrediente-" + "\n" +
+               "nombre: " + nombre + "\n" +
+               "cantidad: " + cantidad + "\n" +
+               "caducidad: " + (fechaCaducidad != null ? fechaCaducidad : "No caduca") + "\n" +
+               "estado: " + (estaCaducado() ? "¡CADUCADO!" : "Válido") + "\n";
+    }
+
+    //Metodos
+    //verificar si el ingrediente está caducado
+    public boolean estaCaducado() {
+        return fechaCaducidad != null && LocalDate.now().isAfter(fechaCaducidad);
     }
 }

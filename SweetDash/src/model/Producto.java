@@ -10,6 +10,7 @@ public class Producto {
     private String tipo;
     private List <Ingrediente> ingredientes;
     private int cantidadPersonas;
+    private double precioBase; // Nuevo campo
     
     //Getter and Setter
     public String getId() {
@@ -59,19 +60,44 @@ public class Producto {
     public void setCantidadPersonas(int cantidadPersonas) {
         this.cantidadPersonas = cantidadPersonas;
     }
+
+    public double getPrecioBase() {
+        return precioBase;
+    }
+
+    public void setPrecioBase(double precioBase) {
+        this.precioBase = precioBase;
+    }
+    
     
     //Constructor
     public Producto() {
     }
 
-    public Producto(String id, String nombre, String descripcion, String tipo, List<Ingrediente> ingredientes, int cantidadPersonas) {
-        this.id = "PROD-" + UUID.randomUUID().toString().substring(0, 8);  // Ej: "PROD-A3B5F2C
+    public Producto(String nombre, String descripcion, String tipo, 
+            List<Ingrediente> ingredientes, int cantidadPersonas, double precioBase) {
+        
+        this.id = "ITEM-" + UUID.randomUUID().toString().substring(0, 8); // Ej: "PROD-A3B5F2C"
+        
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tipo = tipo;
         this.ingredientes = ingredientes;
         this.cantidadPersonas = cantidadPersonas;
+        this.precioBase = precioBase;
     }
     
+    //toString
+    @Override
+    public String toString() {
+        return "-Producto-" + "\n" +
+                "id: " + id + "\n" +
+                "nombre: " + nombre + "\n" +
+                "descripcion: " + descripcion + "\n" +
+                "tipo: " + tipo + "\n" +
+                "ingredientes: " + ingredientes + "\n" +
+                "cantidad personas: " + cantidadPersonas + "\n" +
+                "precio base: " + precioBase + "\n";
+    }
     
 }
