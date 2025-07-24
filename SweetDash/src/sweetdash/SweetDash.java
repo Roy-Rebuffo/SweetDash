@@ -1,8 +1,18 @@
 package sweetdash;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import model.Cliente;
+import utils.ClienteUtils;
 
 public class SweetDash {
+
+    //Importacion de Scanner
+    public static Scanner dato = new Scanner(System.in);
+    
+    //Importamos a los clientes
+    private static final List<Cliente> clientes = new ArrayList<>();
 
     public static void main(String[] args) {
         mainMenu();
@@ -13,13 +23,21 @@ public class SweetDash {
         int opcion = -1;
         imprimirEncabezado();
         while (opcion != 0) {
-            System.out.println("Crear nuevo pedido");
-            System.out.println("Ver pedidos existentes");
-            System.out.println("Ver calendario");
-            System.out.println("Gestionar Clientes");
-            System.out.println("Gestionar productos");
-            System.out.println("Gestionar stock");
-            System.out.println("Salir");
+            System.out.println("--------------------------");
+            System.out.println("1-> Crear nuevo pedido");
+            System.out.println("--------------------------");
+            System.out.println("2-> Ver pedidos existentes");
+            System.out.println("--------------------------");
+            System.out.println("3-> Ver calendario");
+            System.out.println("--------------------------");
+            System.out.println("4-> Gestionar Clientes");
+            System.out.println("--------------------------");
+            System.out.println("5-> Gestionar productos");
+            System.out.println("--------------------------");
+            System.out.println("6-> Gestionar stock");
+            System.out.println("--------------------------");
+            System.out.println("0-> Salir");
+            System.out.println("--------------------------");
 
             System.out.print("\nSeleccione la opcion elegida: ");
             opcion = dato.nextInt();
@@ -35,7 +53,7 @@ public class SweetDash {
                     //verCalendario();
                     break;
                 case 4:
-                    //gestionarClientes();
+                    gestionarClientes();
                     break;
                 case 5:
                     //gestionarProductos();
@@ -95,7 +113,30 @@ public class SweetDash {
     }
 
     private static void gestionarClientes() {
-        System.out.println("🚧 Función 'gestionarClientes' aún no implementada.");
+        System.out.println("--------------------------");
+        System.out.println("\nGestion de Clientes");
+        System.out.println("--------------------------");
+        System.out.println("1. Anadir nuevo cliente");
+        System.out.println("--------------------------");
+        System.out.println("2. Ver todos los clientes");
+        System.out.println("--------------------------");
+        System.out.println("0. Volver al menú");
+        System.out.println("--------------------------");
+        System.out.print("Selecciona una opcion: ");
+        int opcion = Integer.parseInt(dato.nextLine());
+        
+        switch (opcion) {
+            case 1 -> {
+                Cliente nuevo = ClienteUtils.crearCliente();
+                clientes.add(nuevo);
+            }
+            case 2 ->
+                ClienteUtils.mostrarClientes(clientes);
+            case 0 ->
+                System.out.println("↩️ Volviendo al menu principal...");
+            default ->
+                System.out.println("❌ Opcion no valida.");
+        }
     }
 
     private static void gestionarProductos() {

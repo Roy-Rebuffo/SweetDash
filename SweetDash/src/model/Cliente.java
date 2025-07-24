@@ -1,14 +1,19 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Cliente {
-    private String id;          
+
+    private String id;
     private String nombre;
     private String apellido;
     private String telefono;
     private String email;
     private String direccion;   // Opcional (para entregas)
+    //lista de clientes
+    public static List<Cliente> listaClientes = new ArrayList<>();
 
     //Getter and Setter
     public String getId() {
@@ -63,11 +68,11 @@ public class Cliente {
     public Cliente() {
     }
 
-    public Cliente(String nombre, String apellido, String telefono, String email, 
+    public Cliente(String nombre, String apellido, String telefono, String email,
             String direccion) {
-        
+
         this.id = "CLI-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        
+
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
@@ -77,15 +82,12 @@ public class Cliente {
 
     @Override
     public String toString() {
-        return "-Cliente-" + "\n" +
-                "id: " + id + "\n" +
-                "nombre: " + nombre + "\n" +
-                "apellido: " + apellido + "\n" +
-                "telefono: " + telefono + "\n" +
-                "email: " + email + "\n" +
-                "direccion: " + direccion + "\n";
-    }
-    
-    
-    
+        return "-Cliente-" + "\n"
+                + "Id: " + id + "\n"
+                + "Nombre: " + nombre + "\n"
+                + "Apellido: " + apellido + "\n"
+                + "Telefono: " + telefono + "\n"
+                + "Email: " + email + "\n"
+                + "Direccion: " + direccion + "\n";
+    } 
 }
