@@ -23,18 +23,18 @@ public class ClienteUtils {
         System.out.print("Email (Opcional): ");
         String email = dato.nextLine();
 
-        System.out.print("Dirección (Opcional): ");
+        System.out.print("Direccion (Opcional): ");
         String direccion = dato.nextLine();
 
         Cliente nuevo = new Cliente(nombre, apellido, telefono, email, direccion);
-        System.out.println("✅ Cliente creado con éxito:\n" + nuevo);
+        System.out.println("✅ Cliente creado con exito:\n" + nuevo);
 
         return nuevo;
     }
 
      public static void mostrarClientes(List<Cliente> listaClientes) {
         if (listaClientes.isEmpty()) {
-            System.out.println("📭 La lista de clientes está vacía.");
+            System.out.println("La lista de clientes está vacía.");
         } else {
             System.out.println("📋 Lista de clientes:");
             for (Cliente c : listaClientes) {

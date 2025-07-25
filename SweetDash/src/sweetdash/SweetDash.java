@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import model.Cliente;
+import model.Ingrediente;
 import utils.ClienteUtils;
+import utils.IngredienteUtils;
 
 public class SweetDash {
 
     //Importacion de Scanner
     public static Scanner dato = new Scanner(System.in);
-    
+
     //Importamos a los clientes
     private static final List<Cliente> clientes = new ArrayList<>();
+
+    private static final List<Ingrediente> ingredientes = new ArrayList<>();
 
     public static void main(String[] args) {
         mainMenu();
@@ -35,6 +39,8 @@ public class SweetDash {
             System.out.println("5-> Gestionar productos");
             System.out.println("--------------------------");
             System.out.println("6-> Gestionar stock");
+            System.out.println("--------------------------");
+            System.out.println("7-> Gestionar ingredientes");
             System.out.println("--------------------------");
             System.out.println("0-> Salir");
             System.out.println("--------------------------");
@@ -61,7 +67,9 @@ public class SweetDash {
                 case 6:
                     //gestionarStock();
                     break;
-
+                case 7:
+                    gestionarIngredientes();
+                    break;
                 case 0:
                     System.out.println("\n👋 ¡Gracias por usar SweetDash!");
                     break;
@@ -122,9 +130,10 @@ public class SweetDash {
         System.out.println("--------------------------");
         System.out.println("0. Volver al menú");
         System.out.println("--------------------------");
+
         System.out.print("Selecciona una opcion: ");
         int opcion = Integer.parseInt(dato.nextLine());
-        
+
         switch (opcion) {
             case 1 -> {
                 Cliente nuevo = ClienteUtils.crearCliente();
@@ -145,5 +154,42 @@ public class SweetDash {
 
     private static void gestionarStock() {
         System.out.println("🚧 Función 'gestionarStock' aún no implementada.");
+    }
+
+    private static void gestionarIngredientes() {
+        System.out.println("-----------------------------------------");
+        System.out.println("\nGestion de Ingredientes");
+        System.out.println("-----------------------------------------");
+        System.out.println("1. Anadir nuevo Ingrediente");
+        System.out.println("-----------------------------------------");
+        System.out.println("2. Ver todos los ingredientes dispoibles");
+        System.out.println("-----------------------------------------");
+        System.out.println("0. Volver al menú");
+        System.out.println("-----------------------------------------");
+
+        System.out.print("Selecciona una opcion: ");
+        int opcion = Integer.parseInt(dato.nextLine());
+
+        switch (opcion) {
+            case 1 -> {
+                Ingrediente ing = IngredienteUtils.crearIngrediente();
+                ingredientes.add(ing);
+            }
+            case 2 -> {
+                if (ingredientes.isEmpty()) {
+                    System.out.println("No hay ingredientes registrados.");
+                } else {
+                    System.out.println("\n📋 Lista de ingredientes:");
+                    for (Ingrediente i : ingredientes) {
+                        System.out.println(i);
+                    }
+                }
+            }
+            case 0 ->
+                System.out.println("↩️ Volviendo al menu principal...");
+            default ->
+                System.out.println("❌ Opcion no valida.");
+        }
+
     }
 }
