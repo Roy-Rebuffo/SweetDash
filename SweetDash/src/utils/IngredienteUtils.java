@@ -20,8 +20,7 @@ public class IngredienteUtils {
         System.out.print("Nombre: ");
         String nombre = dato.nextLine();
 
-        System.out.print("Cantidad (gr, ml, unidades,... ): ");
-        //Pongo double y lo parseo por el atributo en la clase Ingrediente
+        System.out.print("Cantidad (mero): ");
         double cantidad = 0;
         boolean cantidadValida = false;
 
@@ -34,7 +33,10 @@ public class IngredienteUtils {
             }
         }
 
-        System.out.print("Tiene fecha de caducidad? (s/n): ");
+        System.out.print("Unidad de medida (gr, ml, unidades, etc): ");
+        String unidad = dato.nextLine();
+
+        System.out.print("¿Tiene fecha de caducidad? (s/n): ");
         String respuesta = dato.nextLine().trim().toLowerCase();
 
         LocalDate caducidad = null;
@@ -47,14 +49,15 @@ public class IngredienteUtils {
                     caducidad = LocalDate.parse(entrada, FORMATO_FECHA);
                     fechaValida = true;
                 } catch (DateTimeParseException e) {
-                    System.out.println("❌ Fecha inválida. Intenta con el formato dd/mm/aaaa");
+                    System.out.println("❌ Fecha invalida. Intenta con el formato dd/mm/aaaa");
                 }
             }
         }
 
-        Ingrediente nuevo = new Ingrediente(nombre, cantidad, caducidad);
-        System.out.println("\nIngrediente creado: ");
+        Ingrediente nuevo = new Ingrediente(nombre, cantidad, caducidad, unidad);
+        System.out.println("\n✅ Ingrediente creado:");
         System.out.println(nuevo);
         return nuevo;
     }
+
 }

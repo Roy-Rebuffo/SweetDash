@@ -8,9 +8,9 @@ public class Producto {
     private String nombre;
     private String descripcion;
     private String tipo;
-    private List <Ingrediente> ingredientes;
+    private List<IngredienteProducto> ingredientes;
     private int cantidadPersonas;
-    private double precioBase; // Nuevo campo
+    private double precioBase;
     private PlantillaProceso plantilla;
     
     //Getter and Setter
@@ -46,11 +46,11 @@ public class Producto {
         this.tipo = tipo;
     }
 
-    public List<Ingrediente> getIngredientes() {
+    public List<IngredienteProducto> getIngredientes() {
         return ingredientes;
     }
 
-    public void setIngredientes(List<Ingrediente> ingredientes) {
+    public void setIngredientes(List<IngredienteProducto> ingredientes) {
         this.ingredientes = ingredientes;
     }
 
@@ -83,7 +83,7 @@ public class Producto {
     }
 
     public Producto(String nombre, String descripcion, String tipo, 
-            List<Ingrediente> ingredientes, int cantidadPersonas, 
+            List<IngredienteProducto> ingredientes, int cantidadPersonas, 
             double precioBase, PlantillaProceso plantilla) {
         
         this.id = "ITEM-" + UUID.randomUUID().toString().substring(0, 8); // Ej: "PROD-A3B5F2C"

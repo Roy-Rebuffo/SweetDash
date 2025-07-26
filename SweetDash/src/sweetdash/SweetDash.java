@@ -101,7 +101,7 @@ public class SweetDash {
         System.out.println("      '---------------'");
         System.out.println();
         System.out.println("     🎂  SweetDash System 🎂");
-        System.out.println("  Gestioon de pedidos reposteros");
+        System.out.println("  Gestion de pedidos reposteros");
         System.out.println("==================================");
         System.out.println();
         System.out.println();
@@ -164,7 +164,7 @@ public class SweetDash {
         System.out.println("-----------------------------------------");
         System.out.println("2. Ver todos los ingredientes dispoibles");
         System.out.println("-----------------------------------------");
-        System.out.println("0. Volver al menú");
+        System.out.println("0. Volver al menu");
         System.out.println("-----------------------------------------");
 
         System.out.print("Selecciona una opcion: ");

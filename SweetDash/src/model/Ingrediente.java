@@ -6,7 +6,8 @@ public class Ingrediente {
 
     private String nombre;
     private double cantidad;
-    private LocalDate fechaCaducidad;  // Cambiamos boolean por LocalDate
+    private LocalDate fechaCaducidad;
+    private String unidadMedida;
 
     //Getter and Setter
     public String getNombre() {
@@ -33,14 +34,24 @@ public class Ingrediente {
         this.fechaCaducidad = fechaCaducidad;
     }
 
+    public String getUnidadMedida() {
+        return unidadMedida;
+    }
+
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = unidadMedida;
+    }
+
     //Constructor
     public Ingrediente() {
     }
 
-    public Ingrediente(String nombre, double cantidad, LocalDate fechaCaducidad) {
+    public Ingrediente(String nombre, double cantidad, LocalDate fechaCaducidad,
+     String unidadMedida) {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.fechaCaducidad = fechaCaducidad;
+        this.unidadMedida = unidadMedida;
     }
 
     //ToString
@@ -48,9 +59,9 @@ public class Ingrediente {
     public String toString() {
         return "-Ingrediente-" + "\n" +
                "nombre: " + nombre + "\n" +
-               "cantidad: " + cantidad + "\n" +
+               "cantidad: " + cantidad + " " + unidadMedida + "\n" +
                "caducidad: " + (fechaCaducidad != null ? fechaCaducidad : "No caduca") + "\n" +
-               "estado: " + (estaCaducado() ? "¡CADUCADO!" : "Válido") + "\n";
+               "estado: " + (estaCaducado() ? "¡CADUCADO!" : "Valido") + "\n";
     }
 
     //Metodos
