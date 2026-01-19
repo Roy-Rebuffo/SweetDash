@@ -1,0 +1,101 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: #fef3f2;
+}
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: #ffffff;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+}
+
+.logo {
+    margin-bottom: 30px;
+    color: #ec4899;
+}
+
+.sidebar button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.sidebar button:hover {
+    background: #fce7f3;
+}
+
+/* MAIN */
+main {
+    flex: 1;
+    padding: 40px;
+}
+
+/* DASHBOARD BURBUJAS */
+.dashboard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.bubble-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+}
+
+.bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: #fbcfe8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.bubble:hover {
+    transform: scale(1.05);
+}
+
+.bubble.big {
+    width: 160px;
+    height: 160px;
+    top: 120px;
+    left: 120px;
+    background: #ec4899;
+    color: white;
+    font-weight: bold;
+}
+
+.bubble.small {
+    width: 90px;
+    height: 90px;
+}
+
+.top { top: 0; left: 155px; }
+.bottom { bottom: 0; left: 155px; }
+.left { left: 0; top: 155px; }
+.right { right: 0; top: 155px; }

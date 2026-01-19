@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SweetDash</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h2 class="logo">🍰 SweetDash</h2>
+        <nav>
+            <button onclick="loadModule('home')">🏠 Dashboard</button>
+            <button onclick="loadModule('clientes')">👥 Clientes</button>
+            <button onclick="loadModule('pedidos')">🎂 Pedidos</button>
+            <button onclick="loadModule('productos')">🥚 Productos</button>
+            <button onclick="loadModule('recetas')">📖 Recetas</button>
+            <button onclick="loadModule('calendario')">📅 Calendario</button>
+            <button onclick="loadModule('admin')">⚙️ Admin</button>
+            <button onclick="loadModule('stats')">📊 Estadísticas</button>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="content">
+        <!-- Aquí se carga el contenido -->
+    </main>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

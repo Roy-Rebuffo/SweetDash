@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Producto {
+
     private String id;
     private String nombre;
     private String descripcion;
@@ -12,7 +13,7 @@ public class Producto {
     private int cantidadPersonas;
     private double precioBase;
     private PlantillaProceso plantilla;
-    
+
     //Getter and Setter
     public String getId() {
         return id;
@@ -77,17 +78,17 @@ public class Producto {
     public void setPlantilla(PlantillaProceso plantilla) {
         this.plantilla = plantilla;
     }
-    
+
     //Constructor
     public Producto() {
     }
 
-    public Producto(String nombre, String descripcion, String tipo, 
-            List<IngredienteProducto> ingredientes, int cantidadPersonas, 
+    public Producto(String nombre, String descripcion, String tipo,
+            List<IngredienteProducto> ingredientes, int cantidadPersonas,
             double precioBase, PlantillaProceso plantilla) {
-        
+
         this.id = "ITEM-" + UUID.randomUUID().toString().substring(0, 8); // Ej: "PROD-A3B5F2C"
-        
+
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tipo = tipo;
@@ -96,18 +97,18 @@ public class Producto {
         this.precioBase = precioBase;
         this.plantilla = plantilla;
     }
-    
+
     //toString
     @Override
     public String toString() {
-        return "-Producto-" + "\n" +
-                "id: " + id + "\n" +
-                "nombre: " + nombre + "\n" +
-                "descripcion: " + descripcion + "\n" +
-                "tipo: " + tipo + "\n" +
-                "ingredientes: " + ingredientes + "\n" +
-                "cantidad personas: " + cantidadPersonas + "\n" +
-                "precio base: " + precioBase + "\n";
+        return "-Producto-" + "\n"
+                + "id: " + id + "\n"
+                + "nombre: " + nombre + "\n"
+                + "descripcion: " + descripcion + "\n"
+                + "tipo: " + tipo + "\n"
+                + "ingredientes: " + ingredientes + "\n"
+                + "cantidad personas: " + cantidadPersonas + "\n"
+                + "precio base: " + precioBase + "\n";
     }
-    
+
 }

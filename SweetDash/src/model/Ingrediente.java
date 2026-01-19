@@ -47,7 +47,7 @@ public class Ingrediente {
     }
 
     public Ingrediente(String nombre, double cantidad, LocalDate fechaCaducidad,
-     String unidadMedida) {
+            String unidadMedida) {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.fechaCaducidad = fechaCaducidad;
@@ -55,13 +55,13 @@ public class Ingrediente {
     }
 
     //ToString
-     @Override
+    @Override
     public String toString() {
-        return "-Ingrediente-" + "\n" +
-               "nombre: " + nombre + "\n" +
-               "cantidad: " + cantidad + " " + unidadMedida + "\n" +
-               "caducidad: " + (fechaCaducidad != null ? fechaCaducidad : "No caduca") + "\n" +
-               "estado: " + (estaCaducado() ? "¡CADUCADO!" : "Valido") + "\n";
+        return "-Ingrediente-" + "\n"
+                + "nombre: " + nombre + "\n"
+                + "cantidad: " + cantidad + " " + unidadMedida + "\n"
+                + "caducidad: " + (fechaCaducidad != null ? fechaCaducidad : "No caduca") + "\n"
+                + "estado: " + (estaCaducado() ? "¡CADUCADO!" : "Valido") + "\n";
     }
 
     //Metodos
