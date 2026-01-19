@@ -1,1 +1,46 @@
-/SweetDash/build/
+# --- Eclipse (Archivos específicos de tu ordenador) ---
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*.local
+.settings/
+.loadpath
+.recommenders
+
+# Nota: Si tu proyecto es Maven/Gradle, estos dos también se ignoran
+# porque cualquiera puede generarlos importando el proyecto.
+.project
+.classpath
+.factorypath
+
+# --- Java & Maven (Archivos generados al compilar) ---
+target/
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# --- Spring Boot & Logs ---
+logs/
+log/
+*.log
+HELP.md
+
+# --- Sistema Operativo (Basura de Windows/Mac) ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDEs alternativos (Por si tu tribunal usa IntelliJ o VSCode) ---
+.idea/
+*.iml
+.vscode/
+
+# --- Seguridad (OPCIONAL PERO PROFESIONAL) ---
+# Si tienes contraseñas reales en tu application.properties,
+# descomenta la siguiente línea y sube un application.properties.example
+# src/main/resources/application.properties
