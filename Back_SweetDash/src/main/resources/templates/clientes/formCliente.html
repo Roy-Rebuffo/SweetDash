@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>SweetDash | Formulario de Cliente</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+</head>
+<body>
+    <header th:insert="~{fragments/menu :: menu-principal}"></header>
+
+    <main role="main" class="container" style="margin-top: 80px;">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <h4 class="card-header text-white bg-dark">
+                    <i class="fas fa-user-edit"></i> 
+                    <strong th:text="${cliente.idCliente > 0 ? 'Editar Cliente' : 'Nuevo Cliente'}"></strong>
+                </h4>
+                <div class="card-body">
+                    <form th:action="@{/clientes/save}" th:object="${cliente}" method="post">
+                        
+                        <input type="hidden" th:field="*{idCliente}">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="nombre">Nombre</label>
+                                    <input type="text" class="form-control" th:field="*{nombre}" id="nombre" placeholder="Nombre del cliente" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="apellidos">Apellidos</label>
+                                    <input type="text" class="form-control" th:field="*{apellidos}" id="apellidos" placeholder="Apellidos completos" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="telefono">Teléfono</label>
+                                    <input type="tel" class="form-control" th:field="*{telefono}" id="telefono" placeholder="Ej: 600111222">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" th:field="*{email}" id="email" placeholder="correo@ejemplo.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="direccion">Dirección</label>
+                            <input type="text" class="form-control" th:field="*{direccion}" id="direccion" placeholder="Calle, número, piso...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notas">Notas / Observaciones</label>
+                            <textarea class="form-control" th:field="*{notas}" id="notas" rows="3" placeholder="Alergias, preferencias de entrega..."></textarea>
+                        </div>
+
+                        <hr>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar Cliente
+                            </button>
+                            <a th:href="@{/clientes/index}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:insert="~{fragments/footer :: pie-pagina}"></footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

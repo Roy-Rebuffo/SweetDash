@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="menu-principal">
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" th:href="@{/}">SpringScott</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" th:href="@{/}">Inicio <span class="sr-only">(current)</span></a>
+        </li>
+		<li class="nav-item">
+			<a class="nav-link" th:href="@{/empleados/index}">Gestión de Empleados</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" th:href="@{/departamentos/index}">Departamentos</a>
+		</li>
+        </ul>
+      
+      <ul class="navbar-nav ml-auto">
+        
+        <li class="nav-item" sec:authorize="!isAuthenticated()">
+            <a class="btn btn-outline-light mr-2" th:href="@{/signup}">Registrarse</a>
+        </li>
+        <li class="nav-item" sec:authorize="!isAuthenticated()">
+            <a class="btn btn-primary" th:href="@{/login}">Ingresar</a>
+        </li>
+
+        <li class="nav-item" sec:authorize="isAuthenticated()">
+            <span class="navbar-text text-white mr-3">
+                Hola, <span sec:authentication="name">Usuario</span>
+            </span>
+        </li>
+        <li class="nav-item" sec:authorize="isAuthenticated()">
+            <a class="btn btn-danger" th:href="@{/logout}">Salir</a>
+        </li>
+      </ul>
+      
+    </div>
+  </nav>
+</div>
+
+</body>
+</html>
