@@ -1,36 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>SweetDash</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
-<div class="app">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <h2 class="logo">🍰 SweetDash</h2>
-        <nav>
-            <button onclick="loadModule('home')">🏠 Dashboard</button>
-            <button onclick="loadModule('clientes')">👥 Clientes</button>
-            <button onclick="loadModule('pedidos')">🎂 Pedidos</button>
-            <button onclick="loadModule('productos')">🥚 Productos</button>
-            <button onclick="loadModule('recetas')">📖 Recetas</button>
-            <button onclick="loadModule('calendario')">📅 Calendario</button>
-            <button onclick="loadModule('admin')">⚙️ Admin</button>
-            <button onclick="loadModule('stats')">📊 Estadísticas</button>
-        </nav>
-    </aside>
-
-    <!-- MAIN -->
-    <main id="content">
-        <!-- Aquí se carga el contenido -->
-    </main>
-
-</div>
-
-<script src="app.js"></script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>front-sweetdash</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
