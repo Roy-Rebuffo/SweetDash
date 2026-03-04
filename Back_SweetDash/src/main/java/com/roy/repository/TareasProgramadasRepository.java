@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.roy.model.TareaProgramada;
 
-public interface TareasProgramadas extends JpaRepository<TareaProgramada, Integer> {
+public interface TareasProgramadasRepository extends JpaRepository<TareaProgramada, Integer> {
 
 }
