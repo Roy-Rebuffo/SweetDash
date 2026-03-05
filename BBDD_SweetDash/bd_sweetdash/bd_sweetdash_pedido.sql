@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `pedido`;
 CREATE TABLE `pedido` (
   `id_pedido` int NOT NULL AUTO_INCREMENT,
   `fecha_entrega` date NOT NULL,
-  `estado` varchar(20) NOT NULL DEFAULT 'Pendiente',
+  `estado` enum('Pendiente','En proceso','Listo','Entregado') NOT NULL DEFAULT 'Pendiente',
   `id_cliente` int NOT NULL,
   PRIMARY KEY (`id_pedido`),
   KEY `fk_pedido_cliente_idx` (`id_cliente`),
@@ -39,7 +39,7 @@ CREATE TABLE `pedido` (
 
 LOCK TABLES `pedido` WRITE;
 /*!40000 ALTER TABLE `pedido` DISABLE KEYS */;
-INSERT INTO `pedido` VALUES (1,'2026-03-20','Pendiente',1),(2,'2026-03-25','En Proceso',2);
+INSERT INTO `pedido` VALUES (1,'2026-03-20','Pendiente',1),(2,'2026-03-25','En proceso',2);
 /*!40000 ALTER TABLE `pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -52,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-16  0:11:37
+-- Dump completed on 2026-03-05 22:26:41
