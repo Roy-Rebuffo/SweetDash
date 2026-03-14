@@ -40,7 +40,8 @@ desktop.ini
 *.iml
 .vscode/
 
-# --- Seguridad (OPCIONAL PERO PROFESIONAL) ---
+# --- Seguridad (Credenciales) ---
+src/main/resources/application.properties
 # Si tienes contraseñas reales en tu application.properties,
 # descomenta la siguiente línea y sube un application.properties.example
 # src/main/resources/application.properties
