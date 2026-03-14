@@ -31,6 +31,9 @@ public class MateriaPrima implements Serializable {
 	private String nombre;
 
 	private String unidad;
+	
+	@Column(name="stock_maximo")
+	private int stockMaximo;
 
 	//bi-directional many-to-one association to Receta
 	@OneToMany(mappedBy="materiaPrima")
@@ -77,6 +80,14 @@ public class MateriaPrima implements Serializable {
 
 	public void setUnidad(String unidad) {
 		this.unidad = unidad;
+	}
+	
+	public int getStockMaximo() {
+	    return this.stockMaximo;
+	}
+	
+	public void setStockMaximo(int stockMaximo) {
+	    this.stockMaximo = stockMaximo;
 	}
 
 	public List<Receta> getRecetas() {

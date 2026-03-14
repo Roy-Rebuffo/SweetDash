@@ -4,13 +4,15 @@ public class StockMaterialDTO {
     private int idStock;
     private String nombre;
     private int cantidadStock;
+    private int stockMaximo;
 
     public StockMaterialDTO() {}
 
-    public StockMaterialDTO(int id, String nombre, int stock) {
+    public StockMaterialDTO(int id, String nombre, int stock, int stockMaximo) {
         this.idStock = id;
         this.nombre = nombre;
         this.cantidadStock = stock;
+        this.stockMaximo = stockMaximo;
     }
 
 	public int getIdStock() {
@@ -35,6 +37,13 @@ public class StockMaterialDTO {
 
 	public void setCantidadStock(int cantidadStock) {
 		this.cantidadStock = cantidadStock;
+	}
+	public int getStockMaximo() {
+	    return stockMaximo;
+	}
+	
+	public void setStockMaximo(int stockMaximo) {
+	    this.stockMaximo = stockMaximo;
 	}
     
 }

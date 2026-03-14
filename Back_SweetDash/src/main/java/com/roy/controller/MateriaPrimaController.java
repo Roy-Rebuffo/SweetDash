@@ -32,7 +32,8 @@ public class MateriaPrimaController {
                 m.getNombre(),
                 m.getCantidadStock(),
                 m.getUnidad(),
-                m.getFechaCaducidad()
+                m.getFechaCaducidad(),
+                m.getStockMaximo()
             ));
         }
         return listaDTO;

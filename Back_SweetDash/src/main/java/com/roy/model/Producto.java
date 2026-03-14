@@ -28,6 +28,9 @@ public class Producto implements Serializable {
 	private String cantidadPersonas;
 	@Column(name="precio_base")
 	private BigDecimal precioBase;
+	
+	@Column(name="imagen_url")
+	private String imagenUrl;
 
 	//bi-directional many-to-one association to PlantillaProceso
 	@ManyToOne
@@ -82,6 +85,14 @@ public class Producto implements Serializable {
 
 	public void setPrecioBase(BigDecimal precioBase) {
 		this.precioBase = precioBase;
+	}
+	
+	public String getImagenUrl() {
+	    return this.imagenUrl;
+	}
+	
+	public void setImagenUrl(String imagenUrl) {
+	    this.imagenUrl = imagenUrl;
 	}
 
 	public String getTipo() {

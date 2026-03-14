@@ -30,7 +30,8 @@ public class StockMaterialController {
             listaDTO.add(new StockMaterialDTO(
                 s.getIdStock(),
                 s.getNombre(),
-                s.getCantidadStock()
+                s.getCantidadStock(),
+                s.getStockMaximo()
             ));
         }
         return listaDTO;

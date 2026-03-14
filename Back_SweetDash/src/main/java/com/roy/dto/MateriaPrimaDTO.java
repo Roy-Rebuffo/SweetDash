@@ -7,15 +7,18 @@ public class MateriaPrimaDTO {
     private double cantidadStock;
     private String unidad;
     private Date fechaCaducidad;
+    private int stockMaximo;
 
     public MateriaPrimaDTO() {}
 
-    public MateriaPrimaDTO(int id, String nombre, double stock, String unidad, Date caducidad) {
+    public MateriaPrimaDTO(int id, String nombre, double stock, String unidad, Date caducidad, int stockMaximo) {
         this.idMateriaPrima = id;
         this.nombre = nombre;
         this.cantidadStock = stock;
         this.unidad = unidad;
         this.fechaCaducidad = caducidad;
+        this.stockMaximo = stockMaximo;
+        
     }
 
 	public int getIdMateriaPrima() {
@@ -56,6 +59,14 @@ public class MateriaPrimaDTO {
 
 	public void setFechaCaducidad(Date fechaCaducidad) {
 		this.fechaCaducidad = fechaCaducidad;
+	}
+	
+	public int getStockMaximo() {
+	    return stockMaximo;
+	}
+	
+	public void setStockMaximo(int stockMaximo) {
+	    this.stockMaximo = stockMaximo;
 	}
     
 }

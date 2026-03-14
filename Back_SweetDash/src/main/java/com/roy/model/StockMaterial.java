@@ -26,6 +26,9 @@ public class StockMaterial implements Serializable {
 
 	private String nombre;
 	
+	@Column(name="stock_maximo")
+	private int stockMaximo;
+	
 	@OneToMany(mappedBy="stockMaterial")
 	private List<MaterialPedido> usosEnPedidos;
 
@@ -54,6 +57,14 @@ public class StockMaterial implements Serializable {
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+	
+	public int getStockMaximo() {
+	    return this.stockMaximo;
+	}
+	
+	public void setStockMaximo(int stockMaximo) {
+	    this.stockMaximo = stockMaximo;
 	}
 	
 	public List<MaterialPedido> getUsosEnPedidos() {

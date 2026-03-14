@@ -8,16 +8,18 @@ public class ProductoDTO {
     private String tipo;
     private String cantidadPersonas;
     private BigDecimal precioBase;
+    private String imagenUrl;
 
     public ProductoDTO() {}
 
-    public ProductoDTO(int idProducto, String nombre, String descripcion, String tipo, String cantidadPersonas, BigDecimal precioBase) {
+    public ProductoDTO(int idProducto, String nombre, String descripcion, String tipo, String cantidadPersonas, BigDecimal precioBase, String imagenUrl) {
         this.idProducto = idProducto;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tipo = tipo;
         this.cantidadPersonas = cantidadPersonas;
         this.precioBase = precioBase;
+        this.imagenUrl = imagenUrl;
     }
 
 	public int getIdProducto() {
@@ -66,6 +68,14 @@ public class ProductoDTO {
 
 	public void setPrecioBase(BigDecimal precioBase) {
 		this.precioBase = precioBase;
+	}
+	
+	public String getImagenUrl() {
+	    return imagenUrl;
+	}
+	
+	public void setImagenUrl(String imagenUrl) {
+	    this.imagenUrl = imagenUrl;
 	}
     
 }
