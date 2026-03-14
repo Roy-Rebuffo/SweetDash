@@ -32,7 +32,7 @@ CREATE TABLE `receta` (
   KEY `fk_receta_mp_idx` (`id_materia_prima`),
   CONSTRAINT `fk_receta_mp` FOREIGN KEY (`id_materia_prima`) REFERENCES `materia_prima` (`id_materia_prima`),
   CONSTRAINT `fk_receta_producto` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,7 @@ CREATE TABLE `receta` (
 
 LOCK TABLES `receta` WRITE;
 /*!40000 ALTER TABLE `receta` DISABLE KEYS */;
-INSERT INTO `receta` VALUES (1,0.5,1,1),(2,0.4,1,2),(3,6,1,3),(4,0.3,1,4),(5,0.2,1,5),(6,0.1,2,1),(7,0.1,2,2),(8,1,2,3);
+INSERT INTO `receta` VALUES (1,0.5,1,1),(2,0.4,1,2),(3,6,1,3),(4,0.3,1,4),(5,0.2,1,5),(6,0.1,3,1),(7,0.1,3,2),(8,1,3,3),(9,0.4,7,1),(10,0.3,7,2),(11,4,7,3),(12,0.3,7,10),(13,0.2,7,13),(14,0.25,9,7),(15,0.3,9,8);
 /*!40000 ALTER TABLE `receta` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-05 22:26:42
+-- Dump completed on 2026-03-14 16:21:44

@@ -25,12 +25,12 @@ DROP TABLE IF EXISTS `pedido`;
 CREATE TABLE `pedido` (
   `id_pedido` int NOT NULL AUTO_INCREMENT,
   `fecha_entrega` date NOT NULL,
-  `estado` enum('Pendiente','En proceso','Listo','Entregado') NOT NULL DEFAULT 'Pendiente',
+  `estado` enum('Pendiente','En proceso','Preparado','Entregado') NOT NULL DEFAULT 'Pendiente',
   `id_cliente` int NOT NULL,
   PRIMARY KEY (`id_pedido`),
   KEY `fk_pedido_cliente_idx` (`id_cliente`),
   CONSTRAINT `fk_pedido_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `cliente` (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +39,7 @@ CREATE TABLE `pedido` (
 
 LOCK TABLES `pedido` WRITE;
 /*!40000 ALTER TABLE `pedido` DISABLE KEYS */;
-INSERT INTO `pedido` VALUES (1,'2026-03-20','Pendiente',1),(2,'2026-03-25','En proceso',2);
+INSERT INTO `pedido` VALUES (1,'2026-02-14','Entregado',1),(2,'2026-02-28','Entregado',2),(3,'2026-03-05','Entregado',3),(4,'2026-03-08','Entregado',4),(5,'2026-03-10','Entregado',5),(6,'2026-03-12','Preparado',6),(7,'2026-03-13','Preparado',7),(8,'2026-03-14','Preparado',8),(9,'2026-03-15','En proceso',9),(10,'2026-03-16','En proceso',10),(11,'2026-03-17','En proceso',11),(12,'2026-03-20','Pendiente',12),(13,'2026-03-25','Pendiente',13),(14,'2026-04-01','Pendiente',14),(15,'2026-04-19','Pendiente',15);
 /*!40000 ALTER TABLE `pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -52,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-05 22:26:41
+-- Dump completed on 2026-03-14 16:21:42

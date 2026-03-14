@@ -26,8 +26,9 @@ CREATE TABLE `stock_material` (
   `id_stock` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(80) NOT NULL,
   `cantidad_stock` int NOT NULL DEFAULT '0',
+  `stock_maximo` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_stock`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,7 +37,7 @@ CREATE TABLE `stock_material` (
 
 LOCK TABLES `stock_material` WRITE;
 /*!40000 ALTER TABLE `stock_material` DISABLE KEYS */;
-INSERT INTO `stock_material` VALUES (1,'Caja Tarta Grande (30cm)',50),(2,'Caja Cupcakes (pack 6)',100),(3,'Base Cartón Dorada',200),(4,'Lazo Rojo Satén',500);
+INSERT INTO `stock_material` VALUES (1,'Caja Tarta Grande (30cm)',50,100),(2,'Caja Tarta Mediana (24cm)',60,100),(3,'Caja Tarta Pequeña (18cm)',80,150),(4,'Caja Cupcakes (pack 6)',100,200),(5,'Caja Cupcakes (pack 12)',75,150),(6,'Base Cartón Dorada',200,300),(7,'Base Cartón Plateada',150,300),(8,'Lazo Rojo Satén',500,1000),(9,'Lazo Dorado Satén',400,1000),(10,'Cinta Decorativa Rosa',350,500),(11,'Bolsa Kraft con Ventana',300,500),(12,'Cápsula Cupcake Dorada',800,1500),(13,'Manga Pastelera Desechable',500,1000),(14,'Papel Vegetal Horno (rollo)',20,50),(15,'Etiqueta Kraft \"Hecho con amor\"',1000,2000);
 /*!40000 ALTER TABLE `stock_material` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -49,4 +50,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-05 22:26:42
+-- Dump completed on 2026-03-14 16:21:43

@@ -26,10 +26,11 @@ CREATE TABLE `materia_prima` (
   `id_materia_prima` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(80) NOT NULL,
   `cantidad_stock` double NOT NULL DEFAULT '0',
+  `stock_maximo` double NOT NULL DEFAULT '0',
   `unidad` varchar(20) NOT NULL,
   `fecha_caducidad` date DEFAULT NULL,
   PRIMARY KEY (`id_materia_prima`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,7 +39,7 @@ CREATE TABLE `materia_prima` (
 
 LOCK TABLES `materia_prima` WRITE;
 /*!40000 ALTER TABLE `materia_prima` DISABLE KEYS */;
-INSERT INTO `materia_prima` VALUES (1,'Harina de Trigo Repostería',50,'kg','2026-12-31'),(2,'Azúcar Blanco',30,'kg','2027-01-01'),(3,'Huevos L',120,'unidades','2026-03-15'),(4,'Chocolate Negro 70%',15.5,'kg','2026-06-30'),(5,'Mantequilla Sin Sal',10,'kg','2026-04-20'),(6,'Esencia de Vainilla',2,'litros','2028-01-01');
+INSERT INTO `materia_prima` VALUES (1,'Harina de Trigo Repostería',50,100,'kg','2026-12-31'),(2,'Azúcar Blanco',30,50,'kg','2027-01-01'),(3,'Huevos L',120,200,'unidades','2026-03-28'),(4,'Chocolate Negro 70%',15.5,25,'kg','2026-06-30'),(5,'Mantequilla Sin Sal',10,20,'kg','2026-04-20'),(6,'Esencia de Vainilla',2,5,'litros','2028-01-01'),(7,'Harina de Almendra',8,15,'kg','2027-03-01'),(8,'Azúcar Glass',12,20,'kg','2027-06-01'),(9,'Cacao en Polvo Puro',6.5,15,'kg','2027-01-15'),(10,'Nata para Montar 35%',20,30,'litros','2026-04-05'),(11,'Queso Crema Philadelphia',15,20,'kg','2026-04-10'),(12,'Fondant Blanco',25,40,'kg','2027-09-01'),(13,'Frambuesas Congeladas',4,10,'kg','2027-01-01'),(14,'Limón (zumo y ralladura)',3,8,'kg','2026-04-15'),(15,'Pasta de Pistacho',2,5,'kg','2026-11-01');
 /*!40000 ALTER TABLE `materia_prima` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -51,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-05 22:26:41
+-- Dump completed on 2026-03-14 16:21:43

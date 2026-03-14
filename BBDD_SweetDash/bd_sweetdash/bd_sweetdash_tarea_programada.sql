@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `tarea_programada`;
 CREATE TABLE `tarea_programada` (
   `id_tarea` int NOT NULL AUTO_INCREMENT,
   `fecha_ejecucion` date NOT NULL,
-  `estado` varchar(20) DEFAULT 'Pendiente',
+  `estado` enum('Pendiente','En proceso','Completada') NOT NULL DEFAULT 'Pendiente',
   `id_pedido` int NOT NULL,
   `id_proceso` int NOT NULL,
   PRIMARY KEY (`id_tarea`),
@@ -33,7 +33,7 @@ CREATE TABLE `tarea_programada` (
   KEY `fk_tarea_proceso_idx` (`id_proceso`),
   CONSTRAINT `fk_tarea_pedido` FOREIGN KEY (`id_pedido`) REFERENCES `pedido` (`id_pedido`) ON DELETE CASCADE,
   CONSTRAINT `fk_tarea_proceso` FOREIGN KEY (`id_proceso`) REFERENCES `proceso_produccion` (`id_proceso`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `tarea_programada` (
 
 LOCK TABLES `tarea_programada` WRITE;
 /*!40000 ALTER TABLE `tarea_programada` DISABLE KEYS */;
-INSERT INTO `tarea_programada` VALUES (1,'2026-03-18','Pendiente',1,1),(2,'2026-03-19','Pendiente',1,2),(3,'2026-03-20','Pendiente',1,3);
+INSERT INTO `tarea_programada` VALUES (1,'2026-02-12','Completada',1,1),(2,'2026-02-13','Completada',1,2),(3,'2026-02-14','Completada',1,3),(4,'2026-03-10','Completada',6,8),(5,'2026-03-11','Completada',6,9),(6,'2026-03-13','Completada',9,5),(7,'2026-03-14','En proceso',9,6),(8,'2026-03-15','Pendiente',9,7),(9,'2026-03-12','Completada',11,14),(10,'2026-03-13','Completada',11,15),(11,'2026-03-14','En proceso',11,3),(12,'2026-03-18','Pendiente',12,1),(13,'2026-03-19','Pendiente',12,2),(14,'2026-03-20','Pendiente',12,3),(15,'2026-04-17','Pendiente',15,10);
 /*!40000 ALTER TABLE `tarea_programada` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -55,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-05 22:26:40
+-- Dump completed on 2026-03-14 16:21:43
