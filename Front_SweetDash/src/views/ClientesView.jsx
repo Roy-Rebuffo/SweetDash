@@ -2,42 +2,72 @@ import { useState, useEffect } from "react";
 import palette from "../theme/palette";
 import { clientesApi } from "../services/api";
 
-// Mapea los campos del backend → campos que usa el componente
-function mapCliente(c, idx) {
+// Mapea los campos del backend — nombre y apellidos siempre juntos
+function mapCliente(c) {
+  const nombre   = (c.nombre    || "").trim();
+  const apellidos = (c.apellidos || "").trim();
   return {
-    id:          c.idCliente,
-    nombre:      `${c.nombre} ${c.apellidos}`,
-    email:       c.email,
-    telefono:    c.telefono,
-    direccion:   c.direccion,
-    notas:       c.notas,
-    tipo:        "Cliente",
-    ultimoPedido:"—",
-    totalGasto:  "—",
+    id:        c.idCliente,
+    nombre:    apellidos ? `${nombre} ${apellidos}` : nombre,
+    email:     c.email     || "—",
+    telefono:  c.telefono  || "—",
+    direccion: c.direccion || "—",
+    notas:     c.notas     || "",
+    tipo:      "Cliente",
   };
 }
 
-const tipoColor = {
-  "Premium Member": { color: palette.primary },
-  "Regular":        { color: "#6B7280" },
-  "Nuevo cliente":  { color: "#10B981" },
-  "Corporativo":    { color: "#3B82F6" },
-  "Cliente":        { color: palette.accent },
-};
+const AVATAR_COLORS = [palette.primary, palette.accent1, palette.accent2, palette.accent3, palette.primaryMid];
 
-const avatarBgs = ["#7A3A8E", "#AD74C3", "#522566", "#3B82F6", "#10B981"];
-
-function Avatar({ nombre, id }) {
-  const initials = nombre.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-  const bg = avatarBgs[(id - 1) % avatarBgs.length];
+function Avatar({ nombre, idx }) {
+  const words    = nombre.trim().split(/\s+/);
+  const initials = words.length >= 2
+    ? (words[0][0] + words[1][0]).toUpperCase()
+    : (words[0][0] || "?").toUpperCase();
+  const color = AVATAR_COLORS[idx % AVATAR_COLORS.length];
   return (
-    <div style={{ width: 40, height: 40, borderRadius: "50%", background: bg, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 14, flexShrink: 0 }}>
+    <div
+      style={{
+        width: 32, height: 32, borderRadius: "50%",
+        background: `${color}1A`, border: `1.5px solid ${color}44`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        color, fontWeight: 700, fontSize: 11, flexShrink: 0,
+      }}
+    >
       {initials}
     </div>
   );
 }
 
-const ITEMS_PER_PAGE = 5;
+function StatCard({ label, value, trend, trendColor }) {
+  return (
+    <div
+      style={{
+        background: palette.bgCard, borderRadius: 14,
+        border: `1px solid ${palette.border}`,
+        boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
+        padding: "20px 22px",
+      }}
+    >
+      <div style={{ fontSize: 10.5, fontWeight: 600, color: palette.textLight, letterSpacing: "0.7px", textTransform: "uppercase", marginBottom: 10 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: palette.textDark, letterSpacing: "-0.5px", lineHeight: 1, marginBottom: 8 }}>
+        {value}
+      </div>
+      {trend && (
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: trendColor || palette.accent3, fontWeight: 500 }}>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={trendColor || palette.accent3} strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+          {trend}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const ITEMS_PER_PAGE = 8;
 
 export default function ClientesView() {
   const [clientes,   setClientes]   = useState([]);
@@ -49,12 +79,12 @@ export default function ClientesView() {
   useEffect(() => {
     setLoading(true);
     clientesApi.getAll()
-      .then(data => { setClientes(data.map(mapCliente)); setError(null); })
-      .catch(err  => setError(err.message))
+      .then((data) => { setClientes(data.map(mapCliente)); setError(null); })
+      .catch((err)  => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  const filtrados  = clientes.filter(c =>
+  const filtrados  = clientes.filter((c) =>
     c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -62,32 +92,24 @@ export default function ClientesView() {
   const paginados  = filtrados.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   const handleSearch = (v) => { setSearchTerm(v); setPage(1); };
 
-  const kpis = [
-    { label: "Total Clientes",   value: clientes.length, valueColor: palette.textPrimary },
-    { label: "Nuevos este mes",  value: "—",             valueColor: "#10B981"           },
-    { label: "Clientes activos", value: "—",             valueColor: "#3B82F6"           },
-    { label: "Valor promedio",   value: "—",             valueColor: "#A855F7"           },
-  ];
-
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div style={{ maxWidth: 1080, margin: "0 auto", position: "relative" }}>
 
       {/* Loading */}
       {loading && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, gap: 12, color: palette.textMuted, fontSize: 15 }}>
-          <div style={{ width: 20, height: 20, borderRadius: "50%", border: `3px solid ${palette.cardBorder}`, borderTop: `3px solid ${palette.primary}`, animation: "spin 0.8s linear infinite" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, gap: 12, color: palette.textLight, fontSize: 14 }}>
+          <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${palette.border}`, borderTop: `2px solid ${palette.primary}`, animation: "spin 0.8s linear infinite" }} />
           Cargando clientes...
         </div>
       )}
 
       {/* Error */}
       {!loading && error && (
-        <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 16, padding: "20px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 20 }}>⚠️</span>
+        <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 14, padding: "18px 22px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 18 }}>⚠️</span>
           <div>
-            <div style={{ fontWeight: 800, color: "#991B1B", fontSize: 14 }}>No se pudo conectar con el servidor</div>
-            <div style={{ color: "#B91C1C", fontSize: 13, marginTop: 2 }}>{error} — Asegúrate de que Spring Boot está corriendo en <b>localhost:8080</b> y CORS está configurado.</div>
+            <div style={{ fontWeight: 700, color: "#991B1B", fontSize: 13 }}>No se pudo conectar con el servidor</div>
+            <div style={{ color: "#B91C1C", fontSize: 12, marginTop: 2 }}>{error} — Asegúrate de que Spring Boot está corriendo en <b>localhost:8080</b> y CORS está configurado.</div>
           </div>
         </div>
       )}
@@ -95,118 +117,228 @@ export default function ClientesView() {
       {/* Contenido principal */}
       {!loading && !error && (
         <>
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28, gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div>
-                <h1 style={{ fontSize: 26, fontWeight: 900, color: palette.textPrimary, margin: 0, letterSpacing: "-0.5px" }}>
-                  Directorio de Clientes
-                </h1>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, background: palette.soft, border: `1px solid ${palette.cardBorder}`, borderRadius: 20, padding: "6px 14px" }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: palette.accent }} />
-                <span style={{ fontSize: 12, fontWeight: 800, color: palette.primary, letterSpacing: "0.4px" }}>
-                  {clientes.length} TOTAL
+          {/* KPI cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+            <StatCard label="Total clientes"   value={String(clientes.length)} />
+            <StatCard label="Activos este mes"  value="—" trend="+8 nuevos"     trendColor={palette.accent3} />
+            <StatCard label="Ticket promedio"   value="—" />
+            <StatCard label="Clientes VIP"      value="—" trend="≥10 pedidos"   trendColor={palette.accent2} />
+          </div>
+
+          {/* Search + new button */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 16 }}>
+            <div style={{ position: "relative" }}>
+              <svg
+                width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
+                style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+              >
+                <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar cliente..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                style={{
+                  paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
+                  border: `1px solid ${palette.border}`, background: palette.bgCard,
+                  fontSize: 12.5, color: palette.textDark, width: 196,
+                }}
+                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                onBlur={(e)  => (e.target.style.borderColor = palette.border)}
+              />
+            </div>
+            <button
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "7px 16px", borderRadius: 20, fontSize: 12.5, fontWeight: 600,
+                border: "none", background: palette.primary, color: "#fff", cursor: "pointer",
+                fontFamily: "'DM Sans', sans-serif",
+                boxShadow: `0 2px 10px ${palette.primary}33`,
+              }}
+            >
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Nuevo cliente
+            </button>
+          </div>
+
+          {/* Table */}
+          <div
+            style={{
+              background: palette.bgCard, borderRadius: 14,
+              border: `1px solid ${palette.border}`,
+              boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
+              overflow: "hidden",
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "2.2fr 2fr 1.4fr 1.6fr 0.7fr",
+                padding: "11px 22px",
+                background: palette.bg,
+                borderBottom: `1px solid ${palette.border}`,
+              }}
+            >
+              {["Cliente", "Correo electrónico", "Teléfono", "Dirección", ""].map((h) => (
+                <span
+                  key={h}
+                  style={{ fontSize: 10, fontWeight: 700, color: palette.textLight, letterSpacing: "0.8px", textTransform: "uppercase" }}
+                >
+                  {h}
                 </span>
-              </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ position: "relative" }}>
-                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2}
-                  style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                  <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35" />
-                </svg>
-                <input
-                  type="text" placeholder="Buscar cliente..." value={searchTerm}
-                  onChange={e => handleSearch(e.target.value)}
-                  style={{ paddingLeft: 36, paddingRight: 16, height: 38, borderRadius: 20, border: `1px solid ${palette.cardBorder}`, background: "#fff", fontSize: 13, color: palette.textPrimary, outline: "none", width: 210, fontFamily: "inherit" }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* KPI Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
-            {kpis.map(k => (
-              <div key={k.label} style={{ background: "#fff", borderRadius: 16, padding: "18px 20px", boxShadow: palette.cardShadow, border: `1px solid ${palette.cardBorder}` }}>
-                <div style={{ fontSize: 12, color: palette.textMuted, fontWeight: 600, marginBottom: 8 }}>{k.label}</div>
-                <div style={{ fontSize: 26, fontWeight: 900, color: k.valueColor, lineHeight: 1.1 }}>{k.value}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Tabla */}
-          <div style={{ background: "#fff", borderRadius: 20, boxShadow: palette.cardShadow, border: `1px solid ${palette.cardBorder}`, overflow: "hidden" }}>
-            {/* Cabecera */}
-            <div style={{ display: "grid", gridTemplateColumns: "2.5fr 2fr 1.4fr 1.4fr 1fr", padding: "14px 24px", borderBottom: `1px solid ${palette.cardBorder}` }}>
-              {["NOMBRE DEL CLIENTE", "CORREO ELECTRÓNICO", "TELÉFONO", "DIRECCIÓN", "ACCIONES"].map(h => (
-                <span key={h} style={{ fontSize: 11, fontWeight: 800, color: palette.textMuted, letterSpacing: "0.6px" }}>{h}</span>
               ))}
             </div>
 
-            {/* Filas */}
+            {/* Rows */}
             {paginados.length === 0 ? (
-              <div style={{ padding: "40px 24px", textAlign: "center", color: palette.textMuted, fontSize: 14 }}>
+              <div style={{ padding: "48px 24px", textAlign: "center", color: palette.textLight, fontSize: 13 }}>
                 No se encontraron clientes
               </div>
             ) : (
               paginados.map((c, i) => (
-                <div key={c.id}
-                  style={{ display: "grid", gridTemplateColumns: "2.5fr 2fr 1.4fr 1.4fr 1fr", padding: "16px 24px", alignItems: "center", borderTop: i > 0 ? `1px solid ${palette.cardBorder}` : "none", transition: "background 0.12s" }}
-                  onMouseEnter={e => e.currentTarget.style.background = palette.background}
-                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                <div
+                  key={c.id}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "2.2fr 2fr 1.4fr 1.6fr 0.7fr",
+                    padding: "13px 22px", alignItems: "center",
+                    borderTop: i > 0 ? `1px solid ${palette.border}` : "none",
+                    transition: "background 0.12s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = palette.bg)}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <Avatar nombre={c.nombre} id={c.id} />
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#1A0D2E" }}>{c.nombre}</div>
-                      <div style={{ fontSize: 12, color: tipoColor[c.tipo]?.color ?? palette.textMuted, fontWeight: 600, marginTop: 1 }}>{c.tipo}</div>
-                    </div>
+                  {/* Nombre completo */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Avatar nombre={c.nombre} idx={i} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>
+                      {c.nombre}
+                    </span>
                   </div>
-                  <div style={{ fontSize: 13, color: "#6B7280" }}>{c.email}</div>
-                  <div style={{ fontSize: 13, color: "#6B7280" }}>{c.telefono}</div>
-                  <div style={{ fontSize: 13, color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 8 }}>{c.direccion}</div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button title="Editar" style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.cardBorder}`, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.accent, transition: "all 0.15s" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = palette.soft; e.currentTarget.style.borderColor = palette.accent; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = palette.cardBorder; }}
+
+                  {/* Email */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: palette.textMid }}>
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.7}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    {c.email}
+                  </div>
+
+                  {/* Teléfono */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: palette.textMid }}>
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.7}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    {c.telefono}
+                  </div>
+
+                  {/* Dirección */}
+                  <span
+                    style={{
+                      fontSize: 12, color: palette.textMid,
+                      overflow: "hidden", textOverflow: "ellipsis",
+                      whiteSpace: "nowrap", paddingRight: 8,
+                    }}
+                  >
+                    {c.direccion}
+                  </span>
+
+                  {/* Actions */}
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      title="Editar"
+                      style={{
+                        width: 28, height: 28, borderRadius: 7,
+                        border: `1px solid ${palette.border}`, background: palette.bgCard,
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                        color: palette.primary, transition: "all 0.15s",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = palette.primaryLt; e.currentTarget.style.borderColor = palette.primary; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = palette.bgCard;    e.currentTarget.style.borderColor = palette.border;  }}
                     >
-                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
                     </button>
-                    <button title="Eliminar" style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.cardBorder}`, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", transition: "all 0.15s" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = "#FEF2F2"; e.currentTarget.style.borderColor = "#EF4444"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = palette.cardBorder; }}
+                    <button
+                      title="Eliminar"
+                      style={{
+                        width: 28, height: 28, borderRadius: 7,
+                        border: `1px solid ${palette.border}`, background: palette.bgCard,
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "#EF4444", transition: "all 0.15s",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#FEF2F2"; e.currentTarget.style.borderColor = "#EF4444"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = palette.bgCard; e.currentTarget.style.borderColor = palette.border; }}
                     >
-                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
                     </button>
                   </div>
                 </div>
               ))
             )}
 
-            {/* Paginación */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 24px", borderTop: `1px solid ${palette.cardBorder}` }}>
-              <span style={{ fontSize: 13, color: palette.textMuted }}>
-                Mostrando {paginados.length} de {filtrados.length} clientes
+            {/* Pagination */}
+            <div
+              style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "12px 22px", borderTop: `1px solid ${palette.border}`,
+                background: palette.bg,
+              }}
+            >
+              <span style={{ fontSize: 12, color: palette.textLight }}>
+                {paginados.length} de {filtrados.length} clientes
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${palette.cardBorder}`, background: page === 1 ? palette.background : "#fff", color: page === 1 ? palette.textMuted : palette.textPrimary, cursor: page === 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  style={{
+                    width: 28, height: 28, borderRadius: 7,
+                    border: `1px solid ${palette.border}`, background: palette.bgCard,
+                    cursor: page === 1 ? "default" : "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: palette.textMid, opacity: page === 1 ? 0.35 : 1,
+                  }}
+                >
+                  <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: palette.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>{page}</div>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                  style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${palette.cardBorder}`, background: page === totalPages ? palette.background : "#fff", color: page === totalPages ? palette.textMuted : palette.textPrimary, cursor: page === totalPages ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n)}
+                    style={{
+                      width: 28, height: 28, borderRadius: 7, fontSize: 12, fontWeight: 600,
+                      border: `1px solid ${n === page ? palette.primary : palette.border}`,
+                      background: n === page ? palette.primary : palette.bgCard,
+                      color: n === page ? "#fff" : palette.textMid, cursor: "pointer",
+                    }}
+                  >
+                    {n}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  style={{
+                    width: 28, height: 28, borderRadius: 7,
+                    border: `1px solid ${palette.border}`, background: palette.bgCard,
+                    cursor: page === totalPages ? "default" : "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: palette.textMid, opacity: page === totalPages ? 0.35 : 1,
+                  }}
+                >
+                  <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </button>
               </div>
             </div>
           </div>
-
-          {/* FAB */}
-          <button style={{ position: "fixed", bottom: 36, right: 36, width: 52, height: 52, borderRadius: "50%", background: `linear-gradient(135deg, ${palette.primary}, ${palette.secondary})`, color: "#fff", border: "none", fontSize: 26, cursor: "pointer", boxShadow: "0 6px 20px rgba(82,37,102,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit", zIndex: 100 }} title="Nuevo cliente">
-            +
-          </button>
         </>
       )}
     </div>

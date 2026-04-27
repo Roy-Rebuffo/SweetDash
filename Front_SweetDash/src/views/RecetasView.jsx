@@ -1,110 +1,193 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
-import { productosApi, procesosApi, materiasPrimasApi, pedidosApi } from "../services/api";
+import { productosApi, procesosApi, pedidosApi } from "../services/api";
 
-// ── Emoji por tipo de producto ─────────────────────────────────────────────
-function emojiPorTipo(tipo) {
-  const t = (tipo || "").toLowerCase();
-  if (t.includes("tarta"))   return "🎂";
-  if (t.includes("cupcake")) return "🧁";
-  if (t.includes("galleta")) return "🍪";
-  if (t.includes("macaron")) return "🍬";
-  if (t.includes("brownie")) return "🍫";
-  if (t.includes("éclair") || t.includes("eclair")) return "🥐";
-  if (t.includes("cakepop")) return "🍡";
-  return "🍰";
+// ── Colores por índice para el placeholder de foto ────────────────────────────
+const STRIPE_COLORS = [
+  [palette.primaryLt,  palette.primary  + "22"],
+  [palette.accent1Lt,  palette.accent1  + "22"],
+  [palette.accent2Lt,  palette.accent2  + "22"],
+  [palette.accent3Lt,  palette.accent3  + "22"],
+];
+
+// ── Dificultad por pasos ──────────────────────────────────────────────────────
+function getDificultad(pasos) {
+  if (pasos === 0) return { label: "—",    bg: palette.border,    color: palette.textLight };
+  if (pasos <= 2)  return { label: "Baja", bg: palette.accent3Lt, color: palette.accent3   };
+  if (pasos <= 4)  return { label: "Media",bg: palette.accent2Lt, color: palette.accent2   };
+  return               { label: "Alta", bg: palette.primaryLt,  color: palette.primary   };
 }
 
-// ── Placeholder SVG (lamparita) ───────────────────────────────────────────
-function PlaceholderImg() {
+// ── Foto placeholder con patrón de rayas ─────────────────────────────────────
+function PhotoPlaceholder({ idx, imagenUrl, tipo }) {
+  const [sc1, sc2] = STRIPE_COLORS[idx % STRIPE_COLORS.length];
+  const accentColors = [palette.primary, palette.accent1, palette.accent2, palette.accent3];
+  const accentColor  = accentColors[idx % accentColors.length];
+
+  if (imagenUrl) {
+    return (
+      <div
+        style={{
+          height: 130,
+          background: `url(${imagenUrl}) center/cover no-repeat`,
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute", top: 10, right: 10,
+            background: "rgba(255,255,255,0.9)", borderRadius: 20,
+            padding: "3px 10px", fontSize: 11, fontWeight: 700, color: palette.textMid,
+          }}
+        >
+          {tipo}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#F97316" strokeWidth={1.2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-    </svg>
+    <div style={{ position: "relative", height: 130, background: sc1, overflow: "hidden" }}>
+      {/* Stripe pattern */}
+      <svg width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
+        <defs>
+          <pattern id={`stripe-${idx}`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
+            <rect width="16" height="16" fill={sc1} />
+            <rect width="8" height="16" fill={sc2} />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#stripe-${idx})`} />
+      </svg>
+      {/* Center icon */}
+      <div
+        style={{
+          position: "absolute", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", gap: 6,
+        }}
+      >
+        <div
+          style={{
+            width: 40, height: 40, borderRadius: 12,
+            background: "rgba(255,255,255,0.7)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={accentColor} strokeWidth={1.6}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <span
+          style={{
+            fontSize: 9.5, color: palette.textMid,
+            background: "rgba(255,255,255,0.6)",
+            padding: "2px 7px", borderRadius: 4,
+          }}
+        >
+          foto de receta
+        </span>
+      </div>
+      {/* Tipo badge */}
+      <div
+        style={{
+          position: "absolute", top: 10, right: 10,
+          background: "rgba(255,255,255,0.85)", borderRadius: 20,
+          padding: "3px 10px", fontSize: 11, fontWeight: 700, color: palette.textMid,
+        }}
+      >
+        {tipo}
+      </div>
+    </div>
   );
 }
 
-// ── Card ──────────────────────────────────────────────────────────────────
-function RecetaCard({ producto, pasos, usada }) {
+// ── Recipe card ───────────────────────────────────────────────────────────────
+function RecetaCard({ producto, pasos, usada, idx }) {
   const [hovered, setHovered] = useState(false);
+  const dif = getDificultad(pasos);
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: "#fff", borderRadius: 18, overflow: "hidden",
-        boxShadow: hovered ? "0 10px 32px rgba(82,37,102,0.14)" : "0 2px 12px rgba(82,37,102,0.07)",
-        border: `1px solid ${hovered ? palette.accent : "#F0EBF4"}`,
-        transition: "all 0.18s ease", cursor: "pointer",
-        display: "flex", flexDirection: "column",
+        background: palette.bgCard,
+        borderRadius: 14,
+        border: `1px solid ${hovered ? palette.primaryMid + "55" : palette.border}`,
+        boxShadow: hovered ? `0 4px 20px ${palette.primary}0F` : "0 1px 4px oklch(0% 0 0 / 0.04)",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 0.18s ease",
+        cursor: "pointer",
       }}
     >
-      {/* Imagen / placeholder */}
-      <div style={{
-        height: 140,
-        background: producto.imagenUrl
-          ? `url(${producto.imagenUrl}) center/cover no-repeat`
-          : "linear-gradient(135deg, #FFE0B2 0%, #FFCCBC 100%)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        position: "relative",
-      }}>
-        {!producto.imagenUrl && <PlaceholderImg />}
-        {/* Badge tipo */}
-        <div style={{
-          position: "absolute", top: 10, right: 10,
-          background: "rgba(255,255,255,0.9)", borderRadius: 20,
-          padding: "3px 10px", fontSize: 11, fontWeight: 700, color: "#F97316",
-        }}>
-          {producto.tipo}
-        </div>
-      </div>
+      <PhotoPlaceholder idx={idx} imagenUrl={producto.imagenUrl} tipo={producto.tipo} />
 
-      {/* Info */}
-      <div style={{ padding: "16px 18px 18px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: "#1A0D2E", marginBottom: 4, lineHeight: 1.25 }}>
+      <div style={{ padding: "16px 18px", flex: 1, display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 600, fontSize: 14.5,
+            color: palette.textDark, marginBottom: 3, lineHeight: 1.3,
+          }}
+        >
           {producto.nombre}
         </div>
-        <div style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 12, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 11.5, color: palette.textLight, marginBottom: 12 }}>
           {producto.descripcion}
         </div>
 
-        {/* Datos */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-          {/* Tiempo: días de proceso */}
-          <DataRow
-            icon={<ClockIcon />}
-            label="Tiempo elaboración:"
-            value={pasos > 0 ? `${pasos} paso${pasos !== 1 ? "s" : ""}` : "—"}
-          />
-          {/* Raciones */}
-          <DataRow
-            icon={<PersonIcon />}
-            label="Cantidad:"
-            value={producto.cantidadPersonas || "—"}
-          />
-          {/* Precio base */}
-          <DataRow
-            icon={<EuroIcon />}
-            label="Precio base:"
-            value={`€ ${producto.precioBase}`}
-          />
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 14 }}>
+          {/* Pasos */}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: palette.textMid }}>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}>
+              <circle cx="12" cy="12" r="10"/><path strokeLinecap="round" d="M12 6v6l4 2"/>
+            </svg>
+            {pasos > 0 ? `${pasos} paso${pasos !== 1 ? "s" : ""}` : "—"}
+          </span>
+          {/* Porciones */}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: palette.textMid }}>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            {producto.cantidadPersonas || "—"}
+          </span>
+          {/* Precio */}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: palette.textMid }}>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4"/>
+            </svg>
+            € {producto.precioBase}
+          </span>
+          {/* Dificultad */}
+          <span
+            style={{
+              marginLeft: "auto",
+              display: "inline-flex", padding: "2.5px 9px", borderRadius: 20,
+              background: dif.bg, color: dif.color,
+              fontSize: 10.5, fontWeight: 600,
+            }}
+          >
+            {dif.label}
+          </span>
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
-          <span style={{ fontSize: 12, color: "#9CA3AF" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+          <span style={{ fontSize: 11, color: palette.textLight }}>
             {usada > 0 ? `Pedida ${usada} vez${usada !== 1 ? "es" : ""}` : "Sin pedidos aún"}
           </span>
-          <button style={{
-            background: "linear-gradient(135deg, #FF6B9D, #FF3366)",
-            color: "#fff", border: "none", borderRadius: 20,
-            padding: "7px 18px", fontSize: 13, fontWeight: 700,
-            cursor: "pointer", fontFamily: "inherit",
-            boxShadow: "0 3px 10px rgba(255,51,102,0.3)", transition: "opacity 0.15s",
-          }}
-            onMouseEnter={e => e.currentTarget.style.opacity = "0.88"}
-            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+          <button
+            style={{
+              background: "none", border: `1px solid ${palette.primary}`,
+              borderRadius: 20, padding: "5px 14px",
+              fontSize: 11.5, fontWeight: 600, color: palette.primary,
+              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = palette.primaryLt; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
           >
             Ver receta
           </button>
@@ -114,29 +197,45 @@ function RecetaCard({ producto, pasos, usada }) {
   );
 }
 
-function DataRow({ icon, label, value }) {
+function StatCard({ label, value, valueColor }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ color: "#9CA3AF" }}>{icon}</span>
-        <span style={{ fontSize: 13, color: "#6B7280" }}>{label}</span>
+    <div
+      style={{
+        background: palette.bgCard, borderRadius: 14,
+        border: `1px solid ${palette.border}`,
+        boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
+        padding: "20px 22px",
+      }}
+    >
+      <div style={{ fontSize: 10.5, fontWeight: 600, color: palette.textLight, letterSpacing: "0.7px", textTransform: "uppercase", marginBottom: 10 }}>
+        {label}
       </div>
-      <span style={{ fontSize: 13, fontWeight: 700, color: "#1A0D2E" }}>{value}</span>
+      <div style={{ fontSize: 26, fontWeight: 700, color: valueColor || palette.textDark, letterSpacing: "-0.5px", lineHeight: 1 }}>
+        {value}
+      </div>
     </div>
   );
 }
 
-function ClockIcon() {
-  return <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" d="M12 6v6l4 2"/></svg>;
-}
-function PersonIcon() {
-  return <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-5.356-3.356M9 20H4v-2a4 4 0 015.356-3.356M15 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>;
-}
-function EuroIcon() {
-  return <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4"/></svg>;
+function PillBtn({ label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: "6px 15px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+        border: `1px solid ${active ? palette.primary : palette.border}`,
+        background: active ? palette.primary : palette.bgCard,
+        color: active ? "#fff" : palette.textMid,
+        cursor: "pointer", transition: "all 0.15s",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      {label}
+    </button>
+  );
 }
 
-// ── Componente principal ──────────────────────────────────────────────────
+// ── Main component ────────────────────────────────────────────────────────────
 export default function RecetasView() {
   const [productos,  setProductos]  = useState([]);
   const [procesos,   setProcesos]   = useState([]);
@@ -155,34 +254,21 @@ export default function RecetasView() {
         setPedidos(peds);
         setError(null);
       })
-      .catch(err => setError(err.message))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  // Número de pasos por plantilla (idPlantilla = idProducto en tu modelo)
   function getPasos(idProducto) {
-    return procesos.filter(p => p.idPlantilla === idProducto).length;
+    return procesos.filter((p) => p.idPlantilla === idProducto).length;
   }
 
-  // Veces que un producto ha sido pedido con estado "Entregado"
-  // Los detalles-pedidos relacionan idPedido ↔ nombreProducto
-  // Usamos pedidos entregados — como no tenemos detalles aquí, contamos
-  // pedidos entregados totales divididos por productos como estimación,
-  // pero lo correcto será cruzar con detalles. Por ahora marcamos los
-  // pedidos entregados cuyo nombreProducto incluya el nombre (si viene del detalle).
-  // → Para precisión real añade detallesApi aquí (ver comentario abajo)
-  const pedidosEntregados = pedidos.filter(p => p.estado === "Entregado").length;
-
-  // Categorías dinámicas desde el campo "tipo"
-  const categorias = ["Todas", ...Array.from(new Set(productos.map(p => p.tipo)))];
-
-  // KPIs
-  const masUsada = productos.length > 0 ? productos[0] : null; // sin datos de uso real aún
+  const pedidosEntregados = pedidos.filter((p) => p.estado === "Entregado").length;
+  const categorias = ["Todas", ...Array.from(new Set(productos.map((p) => p.tipo)))];
   const tiempoPromedio = productos.length > 0
     ? Math.round(productos.reduce((acc, p) => acc + getPasos(p.idProducto), 0) / productos.length)
     : 0;
 
-  const filtrados = productos.filter(p => {
+  const filtrados = productos.filter((p) => {
     const matchSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         (p.tipo || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchCat    = catActiva === "Todas" || p.tipo === catActiva;
@@ -191,98 +277,97 @@ export default function RecetasView() {
 
   return (
     <div style={{ maxWidth: 1150, margin: "0 auto", position: "relative" }}>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       {/* Loading */}
       {loading && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, gap: 12, color: palette.textMuted, fontSize: 15 }}>
-          <div style={{ width: 20, height: 20, borderRadius: "50%", border: `3px solid ${palette.cardBorder}`, borderTop: `3px solid #FF3366`, animation: "spin 0.8s linear infinite" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, gap: 12, color: palette.textLight, fontSize: 14 }}>
+          <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${palette.border}`, borderTop: `2px solid ${palette.primary}`, animation: "spin 0.8s linear infinite" }} />
           Cargando recetas...
         </div>
       )}
 
       {/* Error */}
       {!loading && error && (
-        <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 16, padding: "20px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 20 }}>⚠️</span>
+        <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 14, padding: "18px 22px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 18 }}>⚠️</span>
           <div>
-            <div style={{ fontWeight: 800, color: "#991B1B", fontSize: 14 }}>No se pudo conectar con el servidor</div>
-            <div style={{ color: "#B91C1C", fontSize: 13, marginTop: 2 }}>{error}</div>
+            <div style={{ fontWeight: 700, color: "#991B1B", fontSize: 13 }}>No se pudo conectar con el servidor</div>
+            <div style={{ color: "#B91C1C", fontSize: 12, marginTop: 2 }}>{error}</div>
           </div>
         </div>
       )}
 
       {!loading && !error && (
         <>
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, #FF6B9D, #FF3366)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>📖</div>
-              <div>
-                <h1 style={{ fontSize: 26, fontWeight: 900, color: palette.textPrimary, margin: 0, letterSpacing: "-0.5px" }}>Recetas</h1>
-                <p style={{ color: palette.textMuted, margin: "2px 0 0", fontSize: 13 }}>Biblioteca de recetas profesionales</p>
-              </div>
-            </div>
-            <button style={{ background: "linear-gradient(135deg, #FF6B9D, #FF3366)", color: "#fff", border: "none", borderRadius: 20, padding: "10px 22px", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 4px 14px rgba(255,51,102,0.35)", fontFamily: "inherit" }}>
-              + Nueva Receta
-            </button>
-          </div>
-
           {/* KPI cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
-            {[
-              { label: "Total Productos",     value: productos.length,          valueColor: palette.textPrimary },
-              { label: "Tipos distintos",     value: categorias.length - 1,     valueColor: "#FF3366"           },
-              { label: "Pedidos entregados",  value: pedidosEntregados,         valueColor: "#10B981"           },
-              { label: "Pasos promedio",      value: `${tiempoPromedio} pasos`, valueColor: "#F97316"           },
-            ].map(k => (
-              <div key={k.label} style={{ background: "#fff", borderRadius: 16, padding: "18px 20px", boxShadow: palette.cardShadow, border: `1px solid ${palette.cardBorder}` }}>
-                <div style={{ fontSize: 12, color: palette.textMuted, fontWeight: 600, marginBottom: 8 }}>{k.label}</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: k.valueColor, lineHeight: 1.1 }}>{k.value}</div>
-              </div>
-            ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+            <StatCard label="Total productos"    value={String(productos.length)} />
+            <StatCard label="Tipos distintos"    value={String(categorias.length - 1)} valueColor={palette.accent1} />
+            <StatCard label="Pedidos entregados" value={String(pedidosEntregados)}     valueColor={palette.accent3} />
+            <StatCard label="Pasos promedio"     value={`${tiempoPromedio} pasos`}     valueColor={palette.accent2} />
           </div>
 
-          {/* Filtros + buscador */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
-            {categorias.map(cat => (
-              <button key={cat} onClick={() => setCatActiva(cat)} style={{ padding: "7px 18px", borderRadius: 20, fontSize: 13, fontWeight: 700, border: `1px solid ${catActiva === cat ? "#FF3366" : palette.cardBorder}`, background: catActiva === cat ? "linear-gradient(135deg, #FF6B9D, #FF3366)" : "#fff", color: catActiva === cat ? "#fff" : palette.textSecondary, cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit" }}>
-                {cat}
-              </button>
+          {/* Filters + search */}
+          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 22, flexWrap: "wrap" }}>
+            {categorias.map((cat) => (
+              <PillBtn key={cat} label={cat} active={catActiva === cat} onClick={() => setCatActiva(cat)} />
             ))}
-            <div style={{ position: "relative", marginLeft: "auto" }}>
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2}
-                style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                <circle cx="11" cy="11" r="8"/><path strokeLinecap="round" d="M21 21l-4.35-4.35"/>
-              </svg>
-              <input type="text" placeholder="Buscar receta..." value={searchTerm}
-                onChange={e => { setSearchTerm(e.target.value); setCatActiva("Todas"); }}
-                style={{ paddingLeft: 36, paddingRight: 16, height: 38, borderRadius: 20, border: `1px solid ${palette.cardBorder}`, background: "#fff", fontSize: 13, color: palette.textPrimary, outline: "none", width: 200, fontFamily: "inherit" }}
-              />
+            <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ position: "relative" }}>
+                <svg
+                  width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
+                  style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                >
+                  <circle cx="11" cy="11" r="8"/><path strokeLinecap="round" d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Buscar receta..."
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCatActiva("Todas"); }}
+                  style={{
+                    paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
+                    border: `1px solid ${palette.border}`, background: palette.bgCard,
+                    fontSize: 12.5, color: palette.textDark, width: 196,
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                  onBlur={(e)  => (e.target.style.borderColor = palette.border)}
+                />
+              </div>
+              <button
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 16px", borderRadius: 20, fontSize: 12.5, fontWeight: 600,
+                  border: "none", background: palette.primary, color: "#fff", cursor: "pointer",
+                  fontFamily: "'DM Sans', sans-serif",
+                  boxShadow: `0 2px 10px ${palette.primary}33`,
+                }}
+              >
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Nueva receta
+              </button>
             </div>
           </div>
 
           {/* Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-            {filtrados.map(p => (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+            {filtrados.map((p, i) => (
               <RecetaCard
                 key={p.idProducto}
                 producto={p}
                 pasos={getPasos(p.idProducto)}
-                usada={0} // TODO: cruzar con detalles-pedidos cuando tengas el endpoint listo
+                usada={0}
+                idx={i}
               />
             ))}
             {filtrados.length === 0 && (
-              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "60px 0", color: palette.textMuted, fontSize: 14 }}>
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "60px 0", color: palette.textLight, fontSize: 13 }}>
                 No se encontraron recetas
               </div>
             )}
           </div>
-
-          {/* FAB */}
-          <button title="Nueva receta" style={{ position: "fixed", bottom: 36, right: 36, width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #FF6B9D, #FF3366)", color: "#fff", border: "none", fontSize: 26, cursor: "pointer", boxShadow: "0 6px 20px rgba(255,51,102,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit", zIndex: 100 }}>
-            +
-          </button>
         </>
       )}
     </div>

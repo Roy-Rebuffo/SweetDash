@@ -13,20 +13,32 @@ import palette from "./theme/palette";
 import "./index.css";
 
 const views = {
-  home: HomeView,
-  clientes: ClientesView,
-  pedidos: PedidosView,
-  productos: InventarioView,
-  recetas: RecetasView,
-  calendario: CalendarioView,
-  admin: AdminView,
+  home:         HomeView,
+  clientes:     ClientesView,
+  pedidos:      PedidosView,
+  productos:    InventarioView,
+  recetas:      RecetasView,
+  calendario:   CalendarioView,
+  admin:        AdminView,
   estadisticas: EstadisticasView,
+};
+
+const VIEW_META = {
+  home:         { title: 'Bienvenida',     sub: 'Resumen de hoy en tu repostería'       },
+  pedidos:      { title: 'Pedidos',        sub: 'Gestiona y supervisa todos los pedidos' },
+  clientes:     { title: 'Clientes',       sub: 'Base de clientes activos'              },
+  productos:    { title: 'Inventario',     sub: 'Stock y catálogo de productos'         },
+  recetas:      { title: 'Recetas',        sub: 'Biblioteca de recetas guardadas'       },
+  calendario:   { title: 'Calendario',     sub: 'Entregas y eventos programados'        },
+  estadisticas: { title: 'Estadísticas',   sub: 'Analítica y rendimiento'               },
+  admin:        { title: 'Administración', sub: 'Configuración de la tienda'            },
 };
 
 export default function App() {
   const [activeModule, setActiveModule] = useState("home");
 
   const ActiveView = views[activeModule] || HomeView;
+  const meta = VIEW_META[activeModule] || VIEW_META.home;
 
   return (
     <div
@@ -35,21 +47,20 @@ export default function App() {
         height: "100vh",
         width: "100vw",
         overflow: "hidden",
-        background: palette.background,
-        fontFamily: "'Nunito', sans-serif",
+        background: palette.bg,
+        fontFamily: "'DM Sans', sans-serif",
       }}
     >
       <Sidebar active={activeModule} onNavigate={setActiveModule} />
 
-      {/* Columna derecha: TopBar fija + contenido scrollable */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <TopBar />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+        <TopBar title={meta.title} sub={meta.sub} />
         <main
           style={{
             flex: 1,
             overflow: "auto",
-            padding: "32px 40px",
-            background: palette.background,
+            padding: "28px 36px",
+            background: palette.bg,
           }}
         >
           <ActiveView onNavigate={setActiveModule} />

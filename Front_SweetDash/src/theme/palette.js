@@ -1,35 +1,41 @@
-// SweetDash Color Palette
-// Cambiar esta paleta para usar distintos estilos en la app
+// SweetDash — Blush & Crema palette (minimalista repostería)
+const P = {
+  bg:         'oklch(98.5% 0.008 55)',
+  bgSidebar:  'oklch(97.5% 0.012 28)',
+  bgCard:     'oklch(99.8% 0.004 50)',
+  border:     'oklch(91% 0.015 35)',
+  primary:    'oklch(57% 0.13 355)',
+  primaryMid: 'oklch(72% 0.09 355)',
+  primaryLt:  'oklch(93% 0.04 355)',
+  accent1:    'oklch(66% 0.09 290)',
+  accent1Lt:  'oklch(93% 0.04 290)',
+  accent2:    'oklch(69% 0.10 62)',
+  accent2Lt:  'oklch(94% 0.04 62)',
+  accent3:    'oklch(63% 0.09 155)',
+  accent3Lt:  'oklch(93% 0.04 155)',
+  textDark:   'oklch(22% 0.025 35)',
+  textMid:    'oklch(50% 0.025 35)',
+  textLight:  'oklch(69% 0.015 35)',
+};
 
 const palette = {
-  name: "Purple Dream",
-
-  // Colores principales
-  primary: "#522566",       // Morado oscuro - acciones principales, sidebar activo
-  secondary: "#7A3A8E",     // Morado medio - hover, acentos secundarios
-  accent: "#AD74C3",        // Lila - badges, highlights
-  soft: "#EADFF0",          // Lavanda suave - fondos de cards, bordes
-  background: "#F8EDFB",    // Blanco rosado - fondo general de la app
-
-  // Derivados útiles
-  sidebarBg: "#522566",
-  sidebarText: "#EADFF0",
-  sidebarActive: "#7A3A8E",
-  sidebarHover: "rgba(234, 223, 240, 0.15)",
-  sidebarIcon: "#AD74C3",
-
-  cardBg: "#FFFFFF",
-  cardBorder: "#EADFF0",
-  cardShadow: "0 4px 24px rgba(82, 37, 102, 0.08)",
-
-  textPrimary: "#2D1040",
-  textSecondary: "#7A3A8E",
-  textMuted: "#AD74C3",
-
-  bubbleCentral: "#522566",
-  bubbleSecondary: "#7A3A8E",
-  bubbleAccent: "#AD74C3",
-  bubbleSoft: "#EADFF0",
+  ...P,
+  // Legacy aliases so existing views keep working without changes
+  background:    P.bg,
+  sidebarBg:     P.bgSidebar,
+  cardBg:        P.bgCard,
+  cardBorder:    P.border,
+  secondary:     P.primaryMid,
+  accent:        P.accent1,
+  soft:          P.primaryLt,
+  textPrimary:   P.textDark,
+  textSecondary: P.textMid,
+  textMuted:     P.textLight,
+  cardShadow:    '0 1px 4px oklch(0% 0 0 / 0.04)',
+  sidebarText:   P.textDark,
+  sidebarActive: P.primaryLt,
+  sidebarHover:  P.primaryLt,
+  sidebarIcon:   P.primary,
 };
 
 export default palette;

@@ -1,365 +1,345 @@
 import { useState } from "react";
 import palette from "../theme/palette";
 
-// ── Mock data – reemplazar con fetch al backend ──────────────────────────────
-//
-// LÓGICA DE ESTADOS:
-// - "pendiente"  → la fase aún no ha llegado su día (trabajo futuro)
-// - "en_proceso" → la fase está en curso hoy
-// - "Entrega"    → último día = entrega real al cliente
-// - "Finalizado" → pedido completamente terminado
-//
-const pedidosConFases = [
-  {
-    // Pedido en curso: día 1 finalizado, día 2 en proceso hoy, día 3 = entrega
-    id: "ORD-001",
-    producto: "Tarta de chocolate",
-    cliente: "ELSA",
-    emoji: "🎂",
-    totalFases: 3,
-    fases: [
-      { dia: 4,  numFase: 1, tareas: ["Preparar bizcocho", "Preparar almíbar"],       estado: "Finalizado" },
-      { dia: 5,  numFase: 2, tareas: ["Montar capas", "Aplicar ganache"],             estado: "en_proceso" },
-      { dia: 6,  numFase: 3, tareas: ["Decorar con fondant", "Poner velas"],          estado: "Entrega"    },
-    ],
-  },
-  {
-    // Pedido futuro: ninguna fase ha empezado, el último día es la entrega
-    id: "ORD-002",
-    producto: "Cupcakes vainilla x12",
-    cliente: "Juan",
-    emoji: "🧁",
-    totalFases: 2,
-    fases: [
-      { dia: 10, numFase: 1, tareas: ["Preparar masa", "Hornear"],                    estado: "pendiente"  },
-      { dia: 11, numFase: 2, tareas: ["Decorar frosting", "Empaquetar"],              estado: "Entrega"    },
-    ],
-  },
-  {
-    // Pedido totalmente finalizado
-    id: "ORD-003",
-    producto: "Macarons bautizo x30",
-    cliente: "Ruiz",
-    emoji: "🍬",
-    totalFases: 3,
-    fases: [
-      { dia: 1,  numFase: 1, tareas: ["Preparar ganache de relleno"],                 estado: "Finalizado" },
-      { dia: 2,  numFase: 2, tareas: ["Hornear conchas", "Rellenar"],                 estado: "Finalizado" },
-      { dia: 3,  numFase: 3, tareas: ["Control calidad", "Empaquetar en caja"],       estado: "Finalizado" },
-    ],
-  },
-  {
-    // Pedido nuevo sin empezar, entrega al final
-    id: "ORD-004",
-    producto: "Galletas decoradas x50",
-    cliente: "TechCorp",
-    emoji: "🍪",
-    totalFases: 3,
-    fases: [
-      { dia: 18, numFase: 1, tareas: ["Preparar masa sablé", "Cortar figuras"],       estado: "pendiente"  },
-      { dia: 19, numFase: 2, tareas: ["Hornear", "Dejar enfriar"],                    estado: "pendiente"  },
-      { dia: 20, numFase: 3, tareas: ["Decorar con glasa", "Empaquetar en cajas"],    estado: "Entrega"    },
-    ],
-  },
+// ── Mock data ─────────────────────────────────────────────────────────────────
+const mockEventos = [
+  { id: 1,  titulo: "Tarta Fondant — María G.",     hora: "09:00", tipo: "Entrega",    dia: 27 },
+  { id: 2,  titulo: "Cupcakes x12 — Carlos L.",     hora: "11:30", tipo: "Entrega",    dia: 27 },
+  { id: 3,  titulo: "Consulta diseño nupcial",       hora: "14:00", tipo: "Consulta",   dia: 27 },
+  { id: 4,  titulo: "Macarons x24 — Ana M.",         hora: "10:00", tipo: "Entrega",    dia: 28 },
+  { id: 5,  titulo: "Pedido Brownies x20",           hora: "16:00", tipo: "En proceso", dia: 28 },
+  { id: 6,  titulo: "Tarta Nupcial — Sofía T.",      hora: "09:30", tipo: "Entrega",    dia: 29 },
+  { id: 7,  titulo: "Revisión inventario",           hora: "12:00", tipo: "Finalizado", dia: 26 },
+  { id: 8,  titulo: "Cheesecake — Pablo R.",         hora: "11:00", tipo: "Pendiente",  dia: 30 },
+  { id: 9,  titulo: "Consulta tarta cumpleaños",     hora: "15:30", tipo: "Consulta",   dia: 30 },
+  { id: 10, titulo: "Galletas decoradas — Carmen",   hora: "10:00", tipo: "Finalizado", dia: 24 },
 ];
 
-// Eventos sueltos (entregas, consultas sin subdivisión de proceso)
-const eventosSueltos = [
-  { id: "E-01", dia: 7,  hora: "11:00", titulo: "Entrega: Tarta chocolate - ELSA",    tipo: "entrega"  },
-  { id: "E-02", dia: 9,  hora: "17:00", titulo: "Entrega: Cupcakes - Juan",            tipo: "entrega"  },
-  { id: "E-03", dia: 5,  hora: "16:30", titulo: "Consulta: Diseño personalizado",      tipo: "consulta" },
-  { id: "E-04", dia: 20, hora: "10:00", titulo: "Entrega: Macarons bautizo - Ruiz",    tipo: "entrega"  },
-];
-
-// ── Estilos por estado ───────────────────────────────────────────────────────
-const estadoStyle = {
-  pendiente:   { label: "Pendiente",  emoji: "⏳", color: "#F97316", bg: "#FFF7ED", dot: "#F97316" },
-  en_proceso:  { label: "En proceso", emoji: "🔥", color: "#6366F1", bg: "#EEF2FF", dot: "#6366F1" },
-  Entrega:     { label: "Entrega",    emoji: "🚚", color: "#10B981", bg: "#ECFDF5", dot: "#10B981" },
-  Finalizado:  { label: "Finalizado", emoji: "📦", color: "#6B7280", bg: "#F3F4F6", dot: "#9CA3AF" },
-};
-
-const tipoStyle = {
-  entrega:  { color: "#10B981", bg: "#ECFDF5", label: "Entrega"  },
-  consulta: { color: "#A855F7", bg: "#F5F3FF", label: "Consulta" },
-};
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-const MESES    = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-const DIAS     = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
-const DIASLONG = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-
-function getCells(year, month) {
-  const firstDay  = new Date(year, month, 1).getDay();
-  const totalDias = new Date(year, month + 1, 0).getDate();
-  const offset    = (firstDay + 6) % 7;
-  const cells     = [];
-  for (let i = 0; i < offset; i++) cells.push(null);
-  for (let d = 1; d <= totalDias; d++) cells.push(d);
-  while (cells.length % 7 !== 0) cells.push(null);
-  return cells;
+// ── Estilos por tipo ──────────────────────────────────────────────────────────
+function tipoStyle(tipo) {
+  return ({
+    "Pendiente":  { bg: palette.accent2Lt,          color: palette.accent2  },
+    "En proceso": { bg: palette.accent1Lt,          color: palette.accent1  },
+    "Entrega":    { bg: palette.accent3Lt,          color: palette.accent3  },
+    "Finalizado": { bg: "oklch(93% 0.01 40)",       color: "oklch(46% 0.02 40)" },
+    "Consulta":   { bg: palette.primaryLt,          color: palette.primary  },
+  })[tipo] || { bg: palette.primaryLt, color: palette.primary };
 }
 
-// Construye mapa dia → { fases: [...], eventos: [...] }
-function buildDayMap() {
-  const map = {};
-  pedidosConFases.forEach(pedido => {
-    pedido.fases.forEach(fase => {
-      if (!map[fase.dia]) map[fase.dia] = { fases: [], eventos: [] };
-      map[fase.dia].fases.push({ ...fase, pedido });
-    });
-  });
-  eventosSueltos.forEach(ev => {
-    if (!map[ev.dia]) map[ev.dia] = { fases: [], eventos: [] };
-    map[ev.dia].eventos.push(ev);
-  });
-  return map;
-}
+const LEGEND_TIPOS = ["Pendiente", "En proceso", "Entrega", "Finalizado", "Consulta"];
+const DIAS_HDR     = ["L", "M", "X", "J", "V", "S", "D"];
+const MESES        = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
-// ── Tarjeta de fase de proceso ───────────────────────────────────────────────
-function FaseCard({ item }) {
-  // item = { ...fase, pedido } — todos los campos de fase están aplanados
-  const { pedido, estado, numFase, tareas } = item;
-  const es = estadoStyle[estado] || estadoStyle.pendiente;
-
+// ── Stat card ─────────────────────────────────────────────────────────────────
+function StatCard({ label, value, trend, trendColor }) {
   return (
-    <div style={{
-      borderRadius: 14, padding: "14px 16px",
-      background: es.bg,
-      border: `1px solid ${es.color}30`,
-      borderLeft: `4px solid ${es.color}`,
-    }}>
-      {/* Cabecera: emoji + "Día N de M" */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <span style={{ fontSize: 18 }}>{pedido.emoji}</span>
-        <span style={{ fontSize: 14, fontWeight: 900, color: es.color }}>
-          Día {numFase} de {pedido.totalFases}
-        </span>
+    <div
+      style={{
+        background: palette.bgCard, borderRadius: 14,
+        border: `1px solid ${palette.border}`,
+        boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
+        padding: "20px 22px",
+      }}
+    >
+      <div style={{ fontSize: 10.5, fontWeight: 600, color: palette.textLight, letterSpacing: "0.7px", textTransform: "uppercase", marginBottom: 10 }}>
+        {label}
       </div>
-
-      {/* Lista de tareas del día */}
-      <div style={{ marginBottom: 10 }}>
-        {tareas.map((t, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 4 }}>
-            <span style={{ color: es.color, fontSize: 12, marginTop: 1 }}>•</span>
-            <span style={{ fontSize: 13, color: "#374151" }}>{t}</span>
-          </div>
-        ))}
+      <div style={{ fontSize: 26, fontWeight: 700, color: palette.textDark, letterSpacing: "-0.5px", lineHeight: 1, marginBottom: 8 }}>
+        {value}
       </div>
-
-      {/* Para + Cliente */}
-      <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 10 }}>
-        Para: <b style={{ color: "#1A0D2E" }}>{pedido.producto}</b>
-        <br />
-        Cliente: <b style={{ color: "#1A0D2E" }}>{pedido.cliente}</b>
-      </div>
-
-      {/* Estado badge */}
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 5,
-        background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "4px 12px",
-        border: `1px solid ${es.color}40`,
-      }}>
-        <span style={{ fontSize: 13 }}>{es.emoji}</span>
-        <span style={{ fontSize: 11, fontWeight: 800, color: es.color, letterSpacing: "0.3px" }}>
-          {es.label}
-        </span>
-      </div>
+      {trend && (
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: trendColor || palette.accent3, fontWeight: 500 }}>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={trendColor || palette.accent3} strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+          {trend}
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Componente principal ─────────────────────────────────────────────────────
+// ── Main component ────────────────────────────────────────────────────────────
 export default function CalendarioView() {
-  const now  = new Date();
-  const [year,  setYear]  = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
-  const [selectedDia, setSelectedDia] = useState(now.getDate());
+  const [viewYear,  setViewYear]  = useState(2026);
+  const [viewMonth, setViewMonth] = useState(3); // 0-indexed: April
+  const [diaActivo, setDiaActivo] = useState(27);
 
-  const cells  = getCells(year, month);
-  const dayMap = buildDayMap();
+  const daysInMonth  = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstWeekday = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7; // Mon=0
 
-  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
-  const todayNum       = isCurrentMonth ? now.getDate() : -1;
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewYear((y) => y - 1); setViewMonth(11); }
+    else setViewMonth((m) => m - 1);
+    setDiaActivo(null);
+  };
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewYear((y) => y + 1); setViewMonth(0); }
+    else setViewMonth((m) => m + 1);
+    setDiaActivo(null);
+  };
 
-  const prevMonth = () => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); setSelectedDia(null); };
-  const nextMonth = () => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); setSelectedDia(null); };
+  const isCurrentMock = viewYear === 2026 && viewMonth === 3;
+  const eventosDia    = diaActivo && isCurrentMock
+    ? mockEventos.filter((e) => e.dia === diaActivo)
+    : [];
 
-  const diaData    = selectedDia ? (dayMap[selectedDia] || { fases: [], eventos: [] }) : { fases: [], eventos: [] };
-  const totalItems = diaData.fases.length + diaData.eventos.length;
+  const hasEvent = (day) => isCurrentMock && mockEventos.some((e) => e.dia === day);
 
-  const totalSemana   = Object.values(dayMap).reduce((acc, d) => acc + d.fases.length + d.eventos.length, 0);
-  const totalEntregas = eventosSueltos.filter(e => e.tipo === "entrega").length;
-  const totalConsultas= eventosSueltos.filter(e => e.tipo === "consulta").length;
-
-  const todayLabel = `${DIASLONG[now.getDay()]}, ${now.getDate()} de ${MESES[now.getMonth()]} ${now.getFullYear()}`;
+  const cells = [
+    ...Array(firstWeekday).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+    <div style={{ maxWidth: 1080, margin: "0 auto", animation: "fadeUp 0.3s ease" }}>
 
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg, #10B981, #059669)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📅</div>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 900, color: palette.textPrimary, margin: 0, letterSpacing: "-0.5px" }}>Calendario</h1>
-            <p style={{ color: palette.textMuted, margin: "2px 0 0", fontSize: 13 }}>Organiza tus entregas y eventos</p>
-          </div>
+      {/* KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 16 }}>
+        <StatCard label="Entregas hoy"   value="2" />
+        <StatCard label="Esta semana"    value="7" trend="3 entregas" trendColor={palette.accent3} />
+        <StatCard label="Pendientes"     value="1" />
+        <StatCard label="Próximo evento" value="9:00" />
+      </div>
+
+      {/* Controls row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 24 }}>
+        <div style={{ position: "relative" }}>
+          <svg
+            width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
+            style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+          >
+            <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar evento..."
+            style={{
+              paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
+              border: `1px solid ${palette.border}`, background: palette.bgCard,
+              fontSize: 12.5, color: palette.textDark, width: 196,
+              outline: "none",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+            onBlur={(e)  => (e.target.style.borderColor = palette.border)}
+          />
         </div>
-        <button style={{ background: "linear-gradient(135deg, #10B981, #059669)", color: "#fff", border: "none", borderRadius: 20, padding: "10px 22px", fontWeight: 800, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 4px 14px rgba(16,185,129,0.35)", fontFamily: "inherit" }}>
-          + Nuevo Evento
+        <button
+          style={{
+            display: "flex", alignItems: "center", gap: 7,
+            padding: "8px 18px", borderRadius: 20, fontSize: 12.5, fontWeight: 600,
+            border: "none", background: palette.primary, color: "#fff", cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif",
+            boxShadow: `0 2px 10px ${palette.primary}33`,
+          }}
+        >
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Nuevo evento
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.55fr", gap: 20 }}>
 
-        {/* Cuadrícula */}
-        <div style={{ background: "#fff", borderRadius: 20, boxShadow: palette.cardShadow, border: `1px solid ${palette.cardBorder}`, overflow: "hidden" }}>
-
-          {/* Nav mes */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 12px" }}>
-            <span style={{ fontSize: 17, fontWeight: 900, color: palette.textPrimary }}>{MESES[month]} {year}</span>
-            <div style={{ display: "flex", gap: 6 }}>
-              {[{ fn: prevMonth, icon: "‹" }, { fn: nextMonth, icon: "›" }].map(({ fn, icon }) => (
-                <button key={icon} onClick={fn} style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.cardBorder}`, background: "#fff", cursor: "pointer", fontSize: 18, fontWeight: 700, color: palette.textSecondary, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>{icon}</button>
-              ))}
+        {/* Calendar */}
+        <div
+          style={{
+            background: palette.bgCard, borderRadius: 14,
+            border: `1px solid ${palette.border}`,
+            boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
+            padding: 22,
+          }}
+        >
+          {/* Month nav */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+            <button
+              onClick={prevMonth}
+              style={{
+                width: 28, height: 28, borderRadius: 7,
+                border: `1px solid ${palette.border}`, background: palette.bg,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                color: palette.textMid, transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = palette.primaryLt; e.currentTarget.style.borderColor = palette.primary; e.currentTarget.style.color = palette.primary; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = palette.bg;        e.currentTarget.style.borderColor = palette.border;  e.currentTarget.style.color = palette.textMid; }}
+            >
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: palette.textDark }}>
+                {MESES[viewMonth]}
+              </div>
+              <div style={{ fontSize: 10.5, color: palette.textLight, marginTop: 1 }}>{viewYear}</div>
             </div>
+            <button
+              onClick={nextMonth}
+              style={{
+                width: 28, height: 28, borderRadius: 7,
+                border: `1px solid ${palette.border}`, background: palette.bg,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                color: palette.textMid, transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = palette.primaryLt; e.currentTarget.style.borderColor = palette.primary; e.currentTarget.style.color = palette.primary; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = palette.bg;        e.currentTarget.style.borderColor = palette.border;  e.currentTarget.style.color = palette.textMid; }}
+            >
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
 
-          {/* Cabecera días */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", padding: "0 16px" }}>
-            {DIAS.map(d => (
-              <div key={d} style={{ padding: "8px 0", textAlign: "center", fontSize: 12, fontWeight: 700, color: "#9CA3AF" }}>{d}</div>
+          {/* Day headers */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2, marginBottom: 4 }}>
+            {DIAS_HDR.map((d) => (
+              <div
+                key={d}
+                style={{
+                  textAlign: "center", fontSize: 10, fontWeight: 700,
+                  color: palette.textLight, letterSpacing: "0.3px", padding: "0 0 6px",
+                }}
+              >
+                {d}
+              </div>
             ))}
           </div>
 
-          {/* Celdas */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", padding: "0 16px 16px", gap: 4 }}>
-            {cells.map((dia, idx) => {
-              const dd       = dia ? (dayMap[dia] || { fases: [], eventos: [] }) : null;
-              const hasItems = dd && (dd.fases.length + dd.eventos.length) > 0;
-              const isToday  = dia === todayNum;
-              const isSel    = dia === selectedDia;
-
-              // Dot colors for this day
-              const dots = [
-                ...( dd?.fases.map(f => estadoStyle[f.estado]?.dot) || [] ),
-                ...( dd?.eventos.map(e => tipoStyle[e.tipo]?.color) || [] ),
-              ].slice(0, 3);
-
+          {/* Day grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
+            {cells.map((day, idx) => {
+              if (!day) return <div key={`e-${idx}`} />;
+              const isActive = day === diaActivo;
+              const isToday  = viewYear === 2026 && viewMonth === 3 && day === 27;
+              const hasEv    = hasEvent(day);
               return (
-                <div
-                  key={idx}
-                  onClick={() => dia && setSelectedDia(dia === selectedDia ? null : dia)}
+                <button
+                  key={day}
+                  onClick={() => setDiaActivo(day === diaActivo ? null : day)}
                   style={{
-                    minHeight: 72, borderRadius: 12, padding: "8px 10px",
-                    background: isToday ? "#10B981" : isSel ? "#FFF0F3" : hasItems ? "#FFF0F3" : "transparent",
-                    cursor: dia ? "pointer" : "default",
-                    transition: "background 0.12s", position: "relative",
+                    position: "relative",
+                    width: "100%", aspectRatio: "1", borderRadius: 7, fontSize: 12,
+                    border: isActive
+                      ? `1.5px solid ${palette.primary}`
+                      : isToday
+                      ? `1px dashed ${palette.primaryMid}`
+                      : "1px solid transparent",
+                    background: isActive ? palette.primary : isToday ? palette.primaryLt : "transparent",
+                    color: isActive ? "#fff" : isToday ? palette.primary : palette.textDark,
+                    fontWeight: isActive || isToday ? 700 : 400,
+                    cursor: "pointer", transition: "all 0.15s",
                   }}
-                  onMouseEnter={e => { if (dia && !isToday && !isSel) e.currentTarget.style.background = "#F9FAFB"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = isToday ? "#10B981" : isSel ? "#FFF0F3" : hasItems ? "#FFF0F3" : "transparent"; }}
+                  onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = palette.primaryLt; e.currentTarget.style.color = palette.primary; } }}
+                  onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = isToday ? palette.primaryLt : "transparent"; e.currentTarget.style.color = isToday ? palette.primary : palette.textDark; } }}
                 >
-                  {dia && (
-                    <>
-                      <div style={{ fontSize: 14, fontWeight: isToday ? 900 : 600, color: isToday ? "#fff" : palette.textPrimary }}>{dia}</div>
-                      {hasItems && (
-                        <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 3 }}>
-                          {dots.map((c, i) => (
-                            <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: isToday ? "rgba(255,255,255,0.8)" : c }} />
-                          ))}
-                        </div>
-                      )}
-                    </>
+                  {day}
+                  {hasEv && (
+                    <span
+                      style={{
+                        position: "absolute", bottom: 3, left: "50%", transform: "translateX(-50%)",
+                        width: 4, height: 4, borderRadius: "50%",
+                        background: isActive ? "rgba(255,255,255,0.8)" : palette.primary,
+                      }}
+                    />
                   )}
-                </div>
+                </button>
               );
             })}
           </div>
 
-          {/* Leyenda */}
-          <div style={{ padding: "14px 24px 18px", borderTop: `1px solid ${palette.cardBorder}` }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: palette.textMuted, letterSpacing: "0.5px", marginBottom: 10 }}>LEYENDA</div>
-            <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
-              {Object.entries(estadoStyle).map(([key, val]) => (
-                <div key={key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 9, height: 9, borderRadius: "50%", background: val.dot }} />
-                  <span style={{ fontSize: 12, color: palette.textSecondary, fontWeight: 600 }}>{val.label}</span>
+          {/* Legend */}
+          <div style={{ height: 1, background: palette.border, margin: "16px 0 14px" }} />
+          <div style={{ fontSize: 10, color: palette.textLight, marginBottom: 10, fontWeight: 700, letterSpacing: "0.7px", textTransform: "uppercase" }}>
+            Tipos de evento
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 8px" }}>
+            {LEGEND_TIPOS.map((tipo) => {
+              const s = tipoStyle(tipo);
+              return (
+                <div key={tipo} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: palette.textMid }}>{tipo}</span>
                 </div>
-              ))}
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 9, height: 9, borderRadius: "50%", background: "#10B981" }} />
-                <span style={{ fontSize: 12, color: palette.textSecondary, fontWeight: 600 }}>Entrega</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 9, height: 9, borderRadius: "50%", background: "#A855F7" }} />
-                <span style={{ fontSize: 12, color: palette.textSecondary, fontWeight: 600 }}>Consulta</span>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Panel lateral */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-          {/* Eventos del día */}
-          <div style={{ background: "#fff", borderRadius: 20, boxShadow: palette.cardShadow, border: `1px solid ${palette.cardBorder}`, padding: "22px 20px" }}>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 900, color: palette.textPrimary }}>
-                {selectedDia ? `Eventos del día ${selectedDia}` : "Eventos de hoy"}
-              </div>
-              <div style={{ fontSize: 12, color: palette.textMuted, marginTop: 3 }}>{todayLabel}</div>
+        {/* Events panel */}
+        <div
+          style={{
+            background: palette.bgCard, borderRadius: 14,
+            border: `1px solid ${palette.border}`,
+            boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
+            padding: 24,
+          }}
+        >
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 17, color: palette.textDark }}>
+              {diaActivo
+                ? `${diaActivo} de ${MESES[viewMonth].toLowerCase()}`
+                : `${MESES[viewMonth]} ${viewYear}`}
             </div>
+            <div style={{ fontSize: 11.5, color: palette.textLight, marginTop: 3 }}>
+              {diaActivo
+                ? `${eventosDia.length} evento${eventosDia.length !== 1 ? "s" : ""} programado${eventosDia.length !== 1 ? "s" : ""}`
+                : "Selecciona un día para ver sus eventos"}
+            </div>
+          </div>
 
+          {!diaActivo ? (
+            <div style={{ textAlign: "center", padding: "48px 0", color: palette.textLight, fontSize: 13 }}>
+              <div
+                style={{
+                  width: 44, height: 44, borderRadius: 12, background: palette.primaryLt,
+                  display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px",
+                }}
+              >
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={palette.primary} strokeWidth={1.7}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              Haz clic en un día del calendario
+            </div>
+          ) : eventosDia.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 0", color: palette.textLight, fontSize: 13 }}>
+              Sin eventos este día
+            </div>
+          ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {totalItems === 0 ? (
-                <div style={{ textAlign: "center", padding: "20px 0", color: palette.textMuted, fontSize: 13 }}>
-                  Sin eventos este día
-                </div>
-              ) : (
-                <>
-                  {/* Fases de proceso */}
-                  {diaData.fases.map((item, i) => (
-                    <FaseCard key={i} item={item} />
-                  ))}
-
-                  {/* Eventos sueltos (entregas / consultas) */}
-                  {diaData.eventos.map(ev => {
-                    const ts = tipoStyle[ev.tipo] || { color: "#6B7280", bg: "#F3F4F6", label: ev.tipo };
-                    return (
-                      <div key={ev.id} style={{
-                        borderRadius: 12, padding: "12px 14px",
-                        background: ts.bg, borderLeft: `4px solid ${ts.color}`,
-                        display: "flex", alignItems: "center", justifyContent: "space-between",
-                      }}>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: palette.textPrimary, marginBottom: 2 }}>{ev.titulo}</div>
-                          <div style={{ fontSize: 12, color: "#6B7280" }}>{ev.hora}</div>
-                        </div>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: ts.color, background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "3px 10px" }}>
-                          {ts.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
+              {eventosDia.map((ev) => {
+                const s = tipoStyle(ev.tipo);
+                return (
+                  <div
+                    key={ev.id}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 14,
+                      padding: "14px 16px", borderRadius: 11,
+                      background: palette.bg, border: `1px solid ${palette.border}`,
+                      borderLeft: `3px solid ${s.color}`,
+                    }}
+                  >
+                    <div style={{ flexShrink: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: palette.textDark }}>{ev.hora}</div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>{ev.titulo}</div>
+                    </div>
+                    <span
+                      style={{
+                        display: "inline-flex", padding: "3px 9px", borderRadius: 20,
+                        background: s.bg, color: s.color,
+                        fontSize: 10.5, fontWeight: 600,
+                      }}
+                    >
+                      {ev.tipo}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-          </div>
-
-          {/* Resumen del mes */}
-          <div style={{ background: "#fff", borderRadius: 20, boxShadow: palette.cardShadow, border: `1px solid ${palette.cardBorder}`, padding: "20px" }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: palette.textPrimary, marginBottom: 14 }}>Resumen del mes</div>
-            {[
-              { label: "Eventos esta semana", value: totalSemana,    color: palette.primary },
-              { label: "Entregas pendientes", value: totalEntregas,  color: "#10B981"       },
-              { label: "Consultas agendadas", value: totalConsultas, color: "#A855F7"       },
-            ].map(row => (
-              <div key={row.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${palette.cardBorder}` }}>
-                <span style={{ fontSize: 13, color: "#6B7280", fontWeight: 600 }}>{row.label}</span>
-                <span style={{ fontSize: 15, fontWeight: 900, color: row.color }}>{row.value}</span>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </div>
     </div>
