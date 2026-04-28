@@ -191,15 +191,15 @@ function BackupCard({ isMobile }) {
       </div>
 
       {/* Info row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: isMobile ? 8 : 12, marginTop: isMobile ? 14 : 18 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(3,1fr)", gap: isMobile ? 8 : 12, marginTop: isMobile ? 14 : 18 }}>
         {[
           { label: "Frecuencia automática", value: "Diaria — 03:00 h" },
           { label: "Retención",             value: "30 copias"        },
           { label: "Almacenamiento usado",  value: "124 MB / 500 MB"  },
-        ].map((item) => (
+        ].map((item, i) => (
           <div
             key={item.label}
-            style={{ padding: isMobile ? "8px 10px" : "10px 14px", borderRadius: 9, background: palette.bg, border: `1px solid ${palette.border}` }}
+            style={{ padding: isMobile ? "8px 10px" : "10px 14px", borderRadius: 9, background: palette.bg, border: `1px solid ${palette.border}`, gridColumn: isMobile && i === 2 ? "1 / -1" : undefined }}
           >
             <div style={{ fontSize: isMobile ? 9 : 10, fontWeight: 700, color: palette.textLight, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 4 }}>
               {item.label}
