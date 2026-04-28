@@ -100,21 +100,21 @@ function StatCard({ label, value, trend, trendKey }) {
 }
 
 // ── Main view ─────────────────────────────────────────────────────────────────
-export default function HomeView({ onNavigate }) {
+export default function HomeView({ onNavigate, isMobile = false }) {
   const [hov, setHov] = useState(null);
 
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto", animation: "fadeUp 0.3s ease" }}>
 
       {/* Quick stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 16 : 28 }}>
         {quickStats.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} trend={s.trend} trendKey={s.trendKey} />
         ))}
       </div>
 
       {/* Main split */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.08fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.08fr", gap: isMobile ? 14 : 20 }}>
 
         {/* Quick access grid */}
         <div
@@ -138,7 +138,7 @@ export default function HomeView({ onNavigate }) {
             Navega entre módulos
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 3},1fr)`, gap: 10 }}>
             {MODULE_CARDS.map((m) => {
               const isHov = hov === m.id;
               const col   = palette[m.accentKey]   || palette.primary;

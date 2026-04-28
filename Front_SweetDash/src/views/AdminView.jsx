@@ -24,14 +24,15 @@ const sections = [
   },
 ];
 
-function ConfigCard({ section }) {
+function ConfigCard({ section, isMobile }) {
+  const pad = isMobile ? "16px" : "24px";
   return (
     <div
       style={{
         background: palette.bgCard, borderRadius: 14,
         border: `1px solid ${palette.border}`,
         boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
-        padding: 24,
+        padding: pad, minWidth: 0,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
@@ -39,41 +40,24 @@ function ConfigCard({ section }) {
           style={{
             width: 34, height: 34, borderRadius: 9,
             background: palette.primaryLt,
-            display: "flex", alignItems: "center", justifyContent: "center",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
           }}
         >
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={palette.primary} strokeWidth={1.7}>
             <path strokeLinecap="round" strokeLinejoin="round" d={section.icon} />
           </svg>
         </div>
-        <div
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontWeight: 700, fontSize: 15, color: palette.textDark,
-          }}
-        >
+        <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15, color: palette.textDark }}>
           {section.title}
         </div>
       </div>
 
       {section.fields.map(([label, value]) => (
         <div key={label} style={{ marginBottom: 14 }}>
-          <div
-            style={{
-              fontSize: 10.5, fontWeight: 700, color: palette.textLight,
-              letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 4,
-            }}
-          >
+          <div style={{ fontSize: 10.5, fontWeight: 700, color: palette.textLight, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 4 }}>
             {label}
           </div>
-          <div
-            style={{
-              padding: "8px 12px", borderRadius: 8,
-              border: `1px solid ${palette.border}`,
-              background: palette.bg,
-              fontSize: 13, color: palette.textDark,
-            }}
-          >
+          <div style={{ padding: "8px 12px", borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 13, color: palette.textDark }}>
             {value}
           </div>
         </div>
@@ -96,7 +80,7 @@ function ConfigCard({ section }) {
   );
 }
 
-function BackupCard() {
+function BackupCard({ isMobile }) {
   const [backupLoading, setBackupLoading] = useState(false);
   const [backupDone,    setBackupDone]    = useState(false);
 
@@ -106,27 +90,29 @@ function BackupCard() {
     setTimeout(() => { setBackupLoading(false); setBackupDone(true); }, 2000);
   };
 
+  const pad = isMobile ? "16px" : "24px";
+
   return (
     <div
       style={{
         background: palette.bgCard, borderRadius: 14,
         border: `1px solid ${palette.border}`,
         boxShadow: "0 1px 4px oklch(0% 0 0 / 0.04)",
-        padding: 24,
-        gridColumn: "1 / -1",
+        padding: pad, gridColumn: "1 / -1", minWidth: 0,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
         {/* Info */}
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
-              width: 44, height: 44, borderRadius: 12,
+              width: isMobile ? 36 : 44, height: isMobile ? 36 : 44, borderRadius: 12,
               background: palette.accent3Lt,
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}
           >
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={palette.accent3} strokeWidth={1.7}>
+            <svg width={isMobile ? 17 : 20} height={isMobile ? 17 : 20} fill="none" viewBox="0 0 24 24" stroke={palette.accent3} strokeWidth={1.7}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
             </svg>
           </div>
@@ -142,10 +128,10 @@ function BackupCard() {
           </div>
         </div>
 
-        {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Buttons */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: isMobile ? "wrap" : "nowrap", width: isMobile ? "100%" : "auto" }}>
           {backupDone && (
-            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: palette.accent3, fontWeight: 600 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: palette.accent3, fontWeight: 600, width: isMobile ? "100%" : "auto" }}>
               <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.accent3} strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
@@ -156,25 +142,21 @@ function BackupCard() {
             onClick={handleBackup}
             disabled={backupLoading}
             style={{
-              display: "flex", alignItems: "center", gap: 7,
-              padding: "9px 20px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+              padding: isMobile ? "8px 14px" : "9px 20px",
+              borderRadius: 10, fontSize: isMobile ? 12 : 13, fontWeight: 600,
               border: "none",
               background: backupLoading ? palette.border : palette.accent3,
               color: backupLoading ? palette.textLight : "#fff",
               cursor: backupLoading ? "default" : "pointer",
               fontFamily: "'DM Sans', sans-serif",
+              flex: isMobile ? 1 : undefined,
               transition: "all 0.2s",
             }}
           >
             {backupLoading ? (
               <>
-                <span
-                  style={{
-                    width: 13, height: 13, borderRadius: "50%",
-                    border: `2px solid ${palette.textLight}`, borderTopColor: "transparent",
-                    animation: "spin 0.7s linear infinite", display: "inline-block",
-                  }}
-                />
+                <span style={{ width: 13, height: 13, borderRadius: "50%", border: `2px solid ${palette.textLight}`, borderTopColor: "transparent", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
                 Generando...
               </>
             ) : (
@@ -188,11 +170,13 @@ function BackupCard() {
           </button>
           <button
             style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "9px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: isMobile ? "8px 14px" : "9px 16px",
+              borderRadius: 10, fontSize: isMobile ? 12 : 13, fontWeight: 600,
               border: `1px solid ${palette.border}`, background: palette.bg,
               color: palette.textMid, cursor: "pointer",
               fontFamily: "'DM Sans', sans-serif",
+              flex: isMobile ? 1 : undefined,
               transition: "border-color 0.15s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = palette.primaryMid)}
@@ -207,23 +191,20 @@ function BackupCard() {
       </div>
 
       {/* Info row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginTop: 18 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: isMobile ? 8 : 12, marginTop: isMobile ? 14 : 18 }}>
         {[
-          { label: "Frecuencia automática", value: "Diaria — 03:00 h"   },
-          { label: "Retención",             value: "30 copias"           },
-          { label: "Almacenamiento usado",  value: "124 MB / 500 MB"     },
+          { label: "Frecuencia automática", value: "Diaria — 03:00 h" },
+          { label: "Retención",             value: "30 copias"        },
+          { label: "Almacenamiento usado",  value: "124 MB / 500 MB"  },
         ].map((item) => (
           <div
             key={item.label}
-            style={{
-              padding: "10px 14px", borderRadius: 9,
-              background: palette.bg, border: `1px solid ${palette.border}`,
-            }}
+            style={{ padding: isMobile ? "8px 10px" : "10px 14px", borderRadius: 9, background: palette.bg, border: `1px solid ${palette.border}` }}
           >
-            <div style={{ fontSize: 10, fontWeight: 700, color: palette.textLight, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ fontSize: isMobile ? 9 : 10, fontWeight: 700, color: palette.textLight, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 4 }}>
               {item.label}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>
+            <div style={{ fontSize: isMobile ? 11 : 13, fontWeight: 600, color: palette.textDark }}>
               {item.value}
             </div>
           </div>
@@ -233,14 +214,14 @@ function BackupCard() {
   );
 }
 
-export default function AdminView() {
+export default function AdminView({ isMobile = false }) {
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", animation: "fadeUp 0.3s ease" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+    <div style={{ maxWidth: "100%", animation: "fadeUp 0.3s ease" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 20 }}>
         {sections.map((s) => (
-          <ConfigCard key={s.title} section={s} />
+          <ConfigCard key={s.title} section={s} isMobile={isMobile} />
         ))}
-        <BackupCard />
+        <BackupCard isMobile={isMobile} />
       </div>
     </div>
   );

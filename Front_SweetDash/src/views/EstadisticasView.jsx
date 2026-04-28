@@ -74,20 +74,20 @@ function MiniBar({ label, value, max, colorKey }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function EstadisticasView() {
+export default function EstadisticasView({ isMobile = false }) {
   const maxVal = Math.max(...ventasMes.map((v) => v.val));
 
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto", animation: "fadeUp 0.3s ease" }}>
 
       {/* KPI cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 14 : 24 }}>
         {kpis.map((k) => (
           <StatCard key={k.label} label={k.label} value={k.value} trend={k.trend} trendKey={k.trendKey} />
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.6fr 1fr", gap: 20 }}>
 
         {/* Bar chart */}
         <div

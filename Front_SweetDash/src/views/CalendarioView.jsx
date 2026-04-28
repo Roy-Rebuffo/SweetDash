@@ -60,7 +60,7 @@ function StatCard({ label, value, trend, trendColor }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function CalendarioView() {
+export default function CalendarioView({ isMobile = false }) {
   const [viewYear,  setViewYear]  = useState(2026);
   const [viewMonth, setViewMonth] = useState(3); // 0-indexed: April
   const [diaActivo, setDiaActivo] = useState(27);
@@ -95,7 +95,7 @@ export default function CalendarioView() {
     <div style={{ maxWidth: 1080, margin: "0 auto", animation: "fadeUp 0.3s ease" }}>
 
       {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 12 : 16 }}>
         <StatCard label="Entregas hoy"   value="2" />
         <StatCard label="Esta semana"    value="7" trend="3 entregas" trendColor={palette.accent3} />
         <StatCard label="Pendientes"     value="1" />
@@ -103,8 +103,8 @@ export default function CalendarioView() {
       </div>
 
       {/* Controls row */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 24 }}>
-        <div style={{ position: "relative" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 24, ...(isMobile ? { flexWrap: "wrap" } : {}) }}>
+        <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>
           <svg
             width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
             style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
@@ -117,7 +117,7 @@ export default function CalendarioView() {
             style={{
               paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
               border: `1px solid ${palette.border}`, background: palette.bgCard,
-              fontSize: 12.5, color: palette.textDark, width: 196,
+              fontSize: 12.5, color: palette.textDark, width: isMobile ? "100%" : 196,
               outline: "none",
             }}
             onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
@@ -140,7 +140,7 @@ export default function CalendarioView() {
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.55fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.55fr", gap: 20 }}>
 
         {/* Calendar */}
         <div

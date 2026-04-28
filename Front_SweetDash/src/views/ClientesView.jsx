@@ -69,7 +69,7 @@ function StatCard({ label, value, trend, trendColor }) {
 
 const ITEMS_PER_PAGE = 8;
 
-export default function ClientesView() {
+export default function ClientesView({ isMobile = false }) {
   const [clientes,   setClientes]   = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
@@ -118,7 +118,7 @@ export default function ClientesView() {
       {!loading && !error && (
         <>
           {/* KPI cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 14 : 24 }}>
             <StatCard label="Total clientes"   value={String(clientes.length)} />
             <StatCard label="Activos este mes"  value="—" trend="+8 nuevos"     trendColor={palette.accent3} />
             <StatCard label="Ticket promedio"   value="—" />
@@ -126,8 +126,8 @@ export default function ClientesView() {
           </div>
 
           {/* Search + new button */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 16 }}>
-            <div style={{ position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 16, ...(isMobile ? { flexWrap: "wrap" } : {}) }}>
+            <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>
               <svg
                 width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
                 style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
@@ -142,7 +142,7 @@ export default function ClientesView() {
                 style={{
                   paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
                   border: `1px solid ${palette.border}`, background: palette.bgCard,
-                  fontSize: 12.5, color: palette.textDark, width: 196,
+                  fontSize: 12.5, color: palette.textDark, width: isMobile ? "100%" : 196,
                 }}
                 onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
                 onBlur={(e)  => (e.target.style.borderColor = palette.border)}
@@ -164,8 +164,43 @@ export default function ClientesView() {
             </button>
           </div>
 
-          {/* Table */}
-          <div
+          {/* Mobile: tarjetas */}
+          {isMobile && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {paginados.length === 0 ? (
+                <div style={{ padding: "48px 0", textAlign: "center", color: palette.textLight, fontSize: 13 }}>No se encontraron clientes</div>
+              ) : (
+                paginados.map((c, i) => (
+                  <div key={c.id} style={{ background: palette.bgCard, borderRadius: 12, border: `1px solid ${palette.border}`, padding: "14px 16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                      <Avatar nombre={c.nombre} idx={i} />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>{c.nombre}</div>
+                        <div style={{ fontSize: 11, color: palette.textLight }}>{c.email}</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 12, color: palette.textMid }}>{c.telefono}</div>
+                  </div>
+                ))
+              )}
+              {totalPages > 1 && (
+                <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 4 }}>
+                  <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: page === 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: page === 1 ? 0.35 : 1 }}>
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                    <button key={n} onClick={() => setPage(n)} style={{ width: 32, height: 32, borderRadius: 8, fontSize: 13, fontWeight: 600, border: `1px solid ${n === page ? palette.primary : palette.border}`, background: n === page ? palette.primary : palette.bgCard, color: n === page ? "#fff" : palette.textMid, cursor: "pointer" }}>{n}</button>
+                  ))}
+                  <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: page === totalPages ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: page === totalPages ? 0.35 : 1 }}>
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Desktop: tabla */}
+          {!isMobile && <div
             style={{
               background: palette.bgCard, borderRadius: 14,
               border: `1px solid ${palette.border}`,
@@ -338,7 +373,7 @@ export default function ClientesView() {
                 </button>
               </div>
             </div>
-          </div>
+          </div>}
         </>
       )}
     </div>

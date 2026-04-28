@@ -57,181 +57,168 @@ function NavIcon({ path, size = 15, color = "currentColor", sw = 1.7 }) {
   );
 }
 
-export default function Sidebar({ active, onNavigate }) {
+export default function Sidebar({ active, onNavigate, isMobile = false, mobileOpen = false, onClose }) {
   const [hov, setHov] = useState(null);
 
+  if (isMobile && !mobileOpen) return null;
+
   return (
-    <aside
-      style={{
-        width: 232,
-        minWidth: 232,
-        height: "100vh",
-        background: palette.bgSidebar,
-        borderRight: `1px solid ${palette.border}`,
-        display: "flex",
-        flexDirection: "column",
-        zIndex: 10,
-        flexShrink: 0,
-      }}
-    >
-      {/* Logo */}
-      <div
+    <>
+      {/* Overlay oscuro en mobile */}
+      {isMobile && (
+        <div
+          onClick={onClose}
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            zIndex: 40,
+            animation: "fadeIn 0.2s ease",
+          }}
+        />
+      )}
+
+      <aside
         style={{
-          padding: "26px 22px 18px",
-          borderBottom: `1px solid ${palette.border}`,
+          width: 232,
+          minWidth: 232,
+          height: "100vh",
+          background: palette.bgSidebar,
+          borderRight: `1px solid ${palette.border}`,
+          display: "flex",
+          flexDirection: "column",
+          zIndex: isMobile ? 50 : 10,
+          flexShrink: 0,
+          ...(isMobile ? {
+            position: "fixed",
+            top: 0,
+            left: 0,
+            boxShadow: "4px 0 24px rgba(0,0,0,0.12)",
+            animation: "slideInLeft 0.25s ease",
+          } : {}),
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: palette.primaryLt,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: `1.5px solid ${palette.primaryMid}33`,
-            }}
-          >
-            <svg
-              width="18" height="18" viewBox="0 0 24 24"
-              fill="none" stroke={palette.primary} strokeWidth="1.8"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 15.5A3.5 3.5 0 0117.5 19H6.5A3.5 3.5 0 013 15.5V14a2 2 0 012-2h14a2 2 0 012 2v1.5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12V9a4 4 0 018 0v3" />
-              <circle cx="12" cy="6.5" r="1.2" fill={palette.primary} stroke="none" />
-            </svg>
-          </div>
-          <div>
+        {/* Logo */}
+        <div
+          style={{
+            padding: "26px 22px 18px",
+            borderBottom: `1px solid ${palette.border}`,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
             <div
               style={{
-                fontFamily: "'Playfair Display', serif",
-                fontWeight: 700,
-                fontSize: 16,
-                color: palette.textDark,
-                letterSpacing: "0.1px",
+                width: 36, height: 36, borderRadius: 10,
+                background: palette.primaryLt,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                border: `1.5px solid ${palette.primaryMid}33`,
               }}
             >
-              SweetDash
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={palette.primary} strokeWidth="1.8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 15.5A3.5 3.5 0 0117.5 19H6.5A3.5 3.5 0 013 15.5V14a2 2 0 012-2h14a2 2 0 012 2v1.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12V9a4 4 0 018 0v3" />
+                <circle cx="12" cy="6.5" r="1.2" fill={palette.primary} stroke="none" />
+              </svg>
             </div>
-            <div
-              style={{
-                fontSize: 9.5,
-                color: palette.textLight,
-                fontWeight: 500,
-                letterSpacing: "1px",
-                textTransform: "uppercase",
-                marginTop: 1,
-              }}
-            >
-              Repostería
+            <div>
+              <div
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontWeight: 700, fontSize: 16,
+                  color: palette.textDark, letterSpacing: "0.1px",
+                }}
+              >
+                SweetDash
+              </div>
+              <div
+                style={{
+                  fontSize: 9.5, color: palette.textLight, fontWeight: 500,
+                  letterSpacing: "1px", textTransform: "uppercase", marginTop: 1,
+                }}
+              >
+                Repostería
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: "12px 10px", overflowY: "auto" }}>
-        {navItems.map((item) => {
-          const isActive = active === item.id;
-          const isHov    = hov === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              onMouseEnter={() => setHov(item.id)}
-              onMouseLeave={() => setHov(null)}
+        {/* Nav */}
+        <nav style={{ flex: 1, padding: "12px 10px", overflowY: "auto" }}>
+          {navItems.map((item) => {
+            const isActive = active === item.id;
+            const isHov    = hov === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                onMouseEnter={() => setHov(item.id)}
+                onMouseLeave={() => setHov(null)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 9,
+                  width: "100%", padding: "8.5px 11px",
+                  borderRadius: 9, border: "none", cursor: "pointer",
+                  marginBottom: 2,
+                  background: isActive
+                    ? palette.primaryLt
+                    : isHov
+                    ? `${palette.primaryLt}88`
+                    : "transparent",
+                  color: isActive ? palette.primary : isHov ? palette.textDark : palette.textMid,
+                  fontWeight: isActive ? 600 : 400,
+                  fontSize: 13.5, textAlign: "left",
+                  transition: "all 0.15s ease",
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: "0.1px",
+                }}
+              >
+                <span style={{ opacity: isActive ? 1 : 0.65 }}>
+                  <NavIcon
+                    path={item.path}
+                    size={15}
+                    color={isActive ? palette.primary : "currentColor"}
+                    sw={isActive ? 2 : 1.6}
+                  />
+                </span>
+                {item.label}
+                {isActive && (
+                  <span
+                    style={{
+                      marginLeft: "auto", width: 5, height: 5, borderRadius: "50%",
+                      background: palette.primary, flexShrink: 0,
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Divider */}
+        <div style={{ padding: "0 16px 8px" }}>
+          <div style={{ height: 1, background: palette.border }} />
+        </div>
+
+        {/* User */}
+        <div style={{ padding: "12px 18px 18px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+            <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 9,
-                width: "100%",
-                padding: "8.5px 11px",
-                borderRadius: 9,
-                border: "none",
-                cursor: "pointer",
-                marginBottom: 2,
-                background: isActive
-                  ? palette.primaryLt
-                  : isHov
-                  ? `${palette.primaryLt}88`
-                  : "transparent",
-                color: isActive
-                  ? palette.primary
-                  : isHov
-                  ? palette.textDark
-                  : palette.textMid,
-                fontWeight: isActive ? 600 : 400,
-                fontSize: 13.5,
-                textAlign: "left",
-                transition: "all 0.15s ease",
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: "0.1px",
+                width: 30, height: 30, borderRadius: "50%",
+                background: palette.primaryLt,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: palette.primary, fontWeight: 700, fontSize: 11,
+                border: `1.5px solid ${palette.primaryMid}44`,
+                flexShrink: 0,
               }}
             >
-              <span style={{ opacity: isActive ? 1 : 0.65 }}>
-                <NavIcon
-                  path={item.path}
-                  size={15}
-                  color={isActive ? palette.primary : "currentColor"}
-                  sw={isActive ? 2 : 1.6}
-                />
-              </span>
-              {item.label}
-              {isActive && (
-                <span
-                  style={{
-                    marginLeft: "auto",
-                    width: 5,
-                    height: 5,
-                    borderRadius: "50%",
-                    background: palette.primary,
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Divider */}
-      <div style={{ padding: "0 16px 8px" }}>
-        <div style={{ height: 1, background: palette.border }} />
-      </div>
-
-      {/* User */}
-      <div style={{ padding: "12px 18px 18px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: "50%",
-              background: palette.primaryLt,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: palette.primary,
-              fontWeight: 700,
-              fontSize: 11,
-              border: `1.5px solid ${palette.primaryMid}44`,
-              flexShrink: 0,
-            }}
-          >
-            FB
-          </div>
-          <div>
-            <div style={{ fontSize: 12.5, fontWeight: 600, color: palette.textDark }}>
-              Flor Baker
+              FB
             </div>
-            <div style={{ fontSize: 10, color: palette.textLight, letterSpacing: "0.3px" }}>
-              Head Pastry Chef
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: palette.textDark }}>Flor Baker</div>
+              <div style={{ fontSize: 10, color: palette.textLight, letterSpacing: "0.3px" }}>Head Pastry Chef</div>
             </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

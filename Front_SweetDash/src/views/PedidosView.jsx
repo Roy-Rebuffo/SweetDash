@@ -105,7 +105,7 @@ function StatCard({ label, value, trend, trendColor }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function PedidosView() {
+export default function PedidosView({ isMobile = false }) {
   const [pedidos,    setPedidos]    = useState([]);
   const [detalles,   setDetalles]   = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -177,7 +177,7 @@ export default function PedidosView() {
       {!loading && !error && (
         <>
           {/* KPI cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 16 : 24 }}>
             <StatCard label="Pedidos hoy"  value={String(pedidosHoy)} />
             <StatCard label="Pendientes"   value={String(pendientes)}  trend="esta semana" trendColor={palette.accent2} />
             <StatCard label="En proceso"   value={String(enProceso)} />
@@ -185,13 +185,33 @@ export default function PedidosView() {
           </div>
 
           {/* Filters + search */}
-          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 16, flexWrap: "wrap" }}>
-            {FILTROS.map((f) => (
-              <PillBtn key={f} label={f} active={filtro === f} onClick={() => handleFiltro(f)} />
-            ))}
-            <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+            {/* Dropdown filtro */}
+            <div style={{ position: "relative" }}>
+              <select
+                value={filtro}
+                onChange={(e) => handleFiltro(e.target.value)}
+                style={{
+                  height: 34, paddingLeft: 14, paddingRight: 32, borderRadius: 20,
+                  border: `1px solid ${palette.border}`, background: palette.bgCard,
+                  fontSize: 12.5, color: palette.textDark, cursor: "pointer",
+                  appearance: "none", WebkitAppearance: "none", outline: "none",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                onBlur={(e)  => (e.target.style.borderColor = palette.border)}
+              >
+                {FILTROS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2.5}
+                style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center", ...(isMobile ? { width: "100%" } : {}) }}>
               {/* Search */}
-              <div style={{ position: "relative" }}>
+              <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>
                 <svg
                   width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
                   style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
@@ -206,7 +226,7 @@ export default function PedidosView() {
                   style={{
                     paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
                     border: `1px solid ${palette.border}`, background: palette.bgCard,
-                    fontSize: 12.5, color: palette.textDark, width: 196,
+                    fontSize: 12.5, color: palette.textDark, width: isMobile ? "100%" : 196,
                   }}
                   onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
                   onBlur={(e)  => (e.target.style.borderColor = palette.border)}
@@ -216,10 +236,9 @@ export default function PedidosView() {
               <button
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  padding: "7px 16px", borderRadius: 20, fontSize: 12.5, fontWeight: 600,
+                  padding: "7px 12px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
                   border: "none", background: palette.primary, color: "#fff", cursor: "pointer",
-                  fontFamily: "'DM Sans', sans-serif",
-                  boxShadow: `0 2px 10px ${palette.primary}33`,
+                  fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap", flexShrink: 0,
                 }}
               >
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2.5}>
@@ -230,8 +249,69 @@ export default function PedidosView() {
             </div>
           </div>
 
-          {/* Table */}
-          <div
+          {/* Mobile: tarjetas apiladas */}
+          {isMobile && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {paginados.length === 0 ? (
+                <div style={{ padding: "48px 0", textAlign: "center", color: palette.textLight, fontSize: 13 }}>
+                  No se encontraron pedidos
+                </div>
+              ) : (
+                paginados.map((p, i) => {
+                  const es            = estadoStyle[p.estado] || estadoStyle["Pendiente"];
+                  const producto       = getProducto(p.idPedido, detalles);
+                  const total          = calcularTotal(p.idPedido, detalles);
+                  const nombreCompleto = getNombreCompleto(p);
+                  return (
+                    <div
+                      key={p.idPedido}
+                      style={{
+                        background: palette.bgCard, borderRadius: 12,
+                        border: `1px solid ${palette.border}`,
+                        padding: "14px 16px",
+                        display: "flex", flexDirection: "column", gap: 8,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                          <Avatar nombre={nombreCompleto} idx={i} />
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>{nombreCompleto}</div>
+                            <div style={{ fontSize: 11, color: palette.textLight }}>#{String(p.idPedido).padStart(4, "0")}</div>
+                          </div>
+                        </div>
+                        <span style={{ display: "inline-flex", padding: "3.5px 10px", borderRadius: 20, background: es.bg, color: es.color, fontSize: 11, fontWeight: 600 }}>
+                          {p.estado}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 12, color: palette.textMid, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 8 }}>{producto}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: palette.textDark, flexShrink: 0 }}>{total}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: palette.textLight }}>{formatFecha(p.fechaEntrega)}</div>
+                    </div>
+                  );
+                })
+              )}
+              {/* Paginación mobile */}
+              {totalPages > 1 && (
+                <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 4 }}>
+                  <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: page === 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: page === 1 ? 0.35 : 1 }}>
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                    <button key={n} onClick={() => setPage(n)} style={{ width: 32, height: 32, borderRadius: 8, fontSize: 13, fontWeight: 600, border: `1px solid ${n === page ? palette.primary : palette.border}`, background: n === page ? palette.primary : palette.bgCard, color: n === page ? "#fff" : palette.textMid, cursor: "pointer" }}>{n}</button>
+                  ))}
+                  <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: page === totalPages ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: page === totalPages ? 0.35 : 1 }}>
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Desktop: tabla completa */}
+          {!isMobile && <div
             style={{
               background: palette.bgCard, borderRadius: 14,
               border: `1px solid ${palette.border}`,
@@ -386,7 +466,7 @@ export default function PedidosView() {
                 </button>
               </div>
             </div>
-          </div>
+          </div>}
         </>
       )}
     </div>

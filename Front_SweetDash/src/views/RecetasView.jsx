@@ -236,7 +236,7 @@ function PillBtn({ label, active, onClick }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function RecetasView() {
+export default function RecetasView({ isMobile = false }) {
   const [productos,  setProductos]  = useState([]);
   const [procesos,   setProcesos]   = useState([]);
   const [pedidos,    setPedidos]    = useState([]);
@@ -300,7 +300,7 @@ export default function RecetasView() {
       {!loading && !error && (
         <>
           {/* KPI cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 14 : 24 }}>
             <StatCard label="Total productos"    value={String(productos.length)} />
             <StatCard label="Tipos distintos"    value={String(categorias.length - 1)} valueColor={palette.accent1} />
             <StatCard label="Pedidos entregados" value={String(pedidosEntregados)}     valueColor={palette.accent3} />
@@ -308,12 +308,32 @@ export default function RecetasView() {
           </div>
 
           {/* Filters + search */}
-          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 22, flexWrap: "wrap" }}>
-            {categorias.map((cat) => (
-              <PillBtn key={cat} label={cat} active={catActiva === cat} onClick={() => setCatActiva(cat)} />
-            ))}
-            <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
-              <div style={{ position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 22, flexWrap: "wrap" }}>
+            {/* Dropdown filtro */}
+            <div style={{ position: "relative" }}>
+              <select
+                value={catActiva}
+                onChange={(e) => { setCatActiva(e.target.value); setSearchTerm(""); }}
+                style={{
+                  height: 34, paddingLeft: 14, paddingRight: 32, borderRadius: 20,
+                  border: `1px solid ${palette.border}`, background: palette.bgCard,
+                  fontSize: 12.5, color: palette.textDark, cursor: "pointer",
+                  appearance: "none", WebkitAppearance: "none", outline: "none",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                onBlur={(e)  => (e.target.style.borderColor = palette.border)}
+              >
+                {categorias.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
+              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2.5}
+                style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            <div style={{ marginLeft: isMobile ? 0 : "auto", display: "flex", gap: 8, alignItems: "center", ...(isMobile ? { width: "100%" } : {}) }}>
+              <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>
                 <svg
                   width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
                   style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
@@ -328,7 +348,7 @@ export default function RecetasView() {
                   style={{
                     paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20,
                     border: `1px solid ${palette.border}`, background: palette.bgCard,
-                    fontSize: 12.5, color: palette.textDark, width: 196,
+                    fontSize: 12.5, color: palette.textDark, width: isMobile ? "100%" : 196,
                   }}
                   onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
                   onBlur={(e)  => (e.target.style.borderColor = palette.border)}
@@ -352,7 +372,7 @@ export default function RecetasView() {
           </div>
 
           {/* Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 1 : 3},1fr)`, gap: 16 }}>
             {filtrados.map((p, i) => (
               <RecetaCard
                 key={p.idProducto}
