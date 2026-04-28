@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
 import { productosApi, procesosApi, pedidosApi } from "../services/api";
+import FilterSelect from "../components/FilterSelect";
 
 // ── Colores por índice para el placeholder de foto ────────────────────────────
 const STRIPE_COLORS = [
@@ -310,27 +311,12 @@ export default function RecetasView({ isMobile = false }) {
           {/* Filters + search */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 22, flexWrap: "wrap" }}>
             {/* Dropdown filtro */}
-            <div style={{ position: "relative" }}>
-              <select
-                value={catActiva}
-                onChange={(e) => { setCatActiva(e.target.value); setSearchTerm(""); }}
-                style={{
-                  height: 34, paddingLeft: 14, paddingRight: 32, borderRadius: 20,
-                  border: `1px solid ${palette.border}`, background: palette.bgCard,
-                  fontSize: 12.5, color: palette.textDark, cursor: "pointer",
-                  appearance: "none", WebkitAppearance: "none", outline: "none",
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                onBlur={(e)  => (e.target.style.borderColor = palette.border)}
-              >
-                {categorias.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-              </select>
-              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2.5}
-                style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+            <FilterSelect
+              value={catActiva}
+              onChange={(v) => { setCatActiva(v); setSearchTerm(""); }}
+              options={categorias}
+              minWidth={130}
+            />
 
             <div style={{ marginLeft: isMobile ? 0 : "auto", display: "flex", gap: 8, alignItems: "center", ...(isMobile ? { width: "100%" } : {}) }}>
               <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>

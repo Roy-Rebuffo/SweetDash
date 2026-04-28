@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
 import { stockMaterialesApi, materiasPrimasApi } from "../services/api";
+import FilterSelect from "../components/FilterSelect";
 
 function getEstado(stock, max) {
   const pct = (stock / max) * 100;
@@ -191,27 +192,7 @@ export default function InventarioView({ isMobile = false }) {
           {/* Tabs + search + button */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
             {/* Dropdown filtro */}
-            <div style={{ position: "relative" }}>
-              <select
-                value={tab}
-                onChange={(e) => handleTab(e.target.value)}
-                style={{
-                  height: 34, paddingLeft: 14, paddingRight: 32, borderRadius: 20,
-                  border: `1px solid ${palette.border}`, background: palette.bgCard,
-                  fontSize: 12.5, color: palette.textDark, cursor: "pointer",
-                  appearance: "none", WebkitAppearance: "none", outline: "none",
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                onBlur={(e)  => (e.target.style.borderColor = palette.border)}
-              >
-                {TABS.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-              <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2.5}
-                style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+            <FilterSelect value={tab} onChange={handleTab} options={TABS} minWidth={155} />
 
             <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center", ...(isMobile ? { width: "100%" } : {}) }}>
               <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>
