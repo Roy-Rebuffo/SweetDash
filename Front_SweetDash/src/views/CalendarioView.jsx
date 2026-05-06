@@ -4,19 +4,20 @@ import { pedidosApi, tareasApi, clientesApi } from "../services/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const DIAS_HDR = ["L", "M", "X", "J", "V", "S", "D"];
-const MESES    = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 function tipoStyle(tipo) {
   return ({
-    "Pendiente":  { bg: palette.accent2Lt, color: palette.accent2  },
-    "En proceso": { bg: palette.accent1Lt, color: palette.accent1  },
-    "Entrega":    { bg: palette.accent3Lt, color: palette.accent3  },
+    "Pendiente": { bg: palette.accent2Lt, color: palette.accent2 },
+    "En proceso": { bg: palette.accent1Lt, color: palette.accent1 },
+    "Entrega": { bg: palette.accent3Lt, color: palette.accent3 },
     "Finalizado": { bg: "oklch(93% 0.01 40)", color: "oklch(46% 0.02 40)" },
-    "Preparado":  { bg: palette.primaryLt, color: palette.primary  },
+    "Completada": { bg: palette.primaryLt, color: palette.primary },
+    "Entregada": { bg: "oklch(93% 0.01 40)", color: "oklch(46% 0.02 40)" },
   })[tipo] || { bg: palette.primaryLt, color: palette.primary };
 }
 
-const LEGEND_TIPOS = ["Pendiente", "En proceso", "Entrega", "Finalizado", "Preparado"];
+const LEGEND_TIPOS = ["Pendiente", "En proceso", "Entrega", "Completada", "Entregada"];
 
 function formatFechaKey(date) {
   // devuelve "YYYY-MM-DD"
@@ -44,16 +45,16 @@ function StatCard({ label, value, trend, trendColor }) {
 
 export default function CalendarioView({ isMobile = false }) {
   const now = new Date();
-  const [viewYear,  setViewYear]  = useState(now.getFullYear());
+  const [viewYear, setViewYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth());
   const [diaActivo, setDiaActivo] = useState(now.getDate());
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [pedidos,   setPedidos]   = useState([]);
-  const [tareas,    setTareas]    = useState([]);
-  const [clientes,  setClientes]  = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState(null);
+  const [pedidos, setPedidos] = useState([]);
+  const [tareas, setTareas] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -79,11 +80,14 @@ export default function CalendarioView({ isMobile = false }) {
     const cliente = clientes.find((c) => c.idCliente === p.idCliente);
     const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellidos || ""}`.trim() : p.nombreCliente || "Cliente";
     eventosMap[key].push({
-      id:     `pedido-${p.idPedido}`,
+      id: `pedido-${p.idPedido}`,
       titulo: `Entrega — ${nombreCliente}`,
-      hora:   "—",
-      tipo:   "Entrega",
+      hora: "—",
+      tipo: p.estado === "Entregado" ? "Entregada" : "Entrega",
       idPedido: p.idPedido,
+      idCliente: p.idCliente,
+      fechaEntrega: p.fechaEntrega,
+      estadoPedido: p.estado,
     });
   });
 
@@ -93,13 +97,13 @@ export default function CalendarioView({ isMobile = false }) {
     if (!key) return;
     if (!eventosMap[key]) eventosMap[key] = [];
     eventosMap[key].push({
-      id:     `tarea-${t.idTarea}`,
+      id: `tarea-${t.idTarea}`,
       titulo: t.nombreProceso,
-      hora:   "—",
-      tipo:   t.estado || "Pendiente",
-      idTarea:  t.idTarea,
+      hora: "—",
+      tipo: t.estado || "Pendiente",
+      idTarea: t.idTarea,
       idPedido: t.idPedido,
-      estado:   t.estado,
+      estado: t.estado,
     });
   });
 
@@ -115,11 +119,11 @@ export default function CalendarioView({ isMobile = false }) {
 
   // KPIs
   const todayKey = formatFechaKey(new Date());
-  const entregasHoy  = (eventosMap[todayKey] || []).filter((e) => e.tipo === "Entrega").length;
-  const pendientes   = tareas.filter((t) => t.estado === "Pendiente").length;
-  const estaSemana   = (() => {
+  const entregasHoy = (eventosMap[todayKey] || []).filter((e) => e.tipo === "Entrega").length;
+  const pendientes = tareas.filter((t) => t.estado === "Pendiente").length;
+  const estaSemana = (() => {
     const start = new Date(); start.setDate(start.getDate() - start.getDay() + 1);
-    const end   = new Date(start); end.setDate(end.getDate() + 6);
+    const end = new Date(start); end.setDate(end.getDate() + 6);
     return pedidos.filter((p) => {
       const f = new Date(p.fechaEntrega);
       return f >= start && f <= end;
@@ -130,7 +134,7 @@ export default function CalendarioView({ isMobile = false }) {
   const proximoHoy = (eventosMap[todayKey] || [])[0];
 
   // Calendario
-  const daysInMonth  = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstWeekday = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
   const cells = [...Array(firstWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
 
@@ -168,6 +172,26 @@ export default function CalendarioView({ isMobile = false }) {
     }
   };
 
+  const handleEntregarPedido = async (idPedido, idCliente, fechaEntrega) => {
+    try {
+      await pedidosApi.update(idPedido, {
+        idCliente: idCliente,
+        fechaEntrega: fechaEntrega,
+        estado: "Entregado",
+      });
+      const [newPeds, newTar, newClis] = await Promise.all([
+        pedidosApi.getAll(),
+        tareasApi.getAll(),
+        clientesApi.getAll()
+      ]);
+      setPedidos(newPeds);
+      setTareas(newTar);
+      setClientes(newClis);
+    } catch (e) {
+      alert("Error al entregar: " + e.message);
+    }
+  };
+
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto" }}>
 
@@ -194,8 +218,8 @@ export default function CalendarioView({ isMobile = false }) {
         <>
           {/* KPIs */}
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 12 : 16 }}>
-            <StatCard label="Entregas hoy"  value={String(entregasHoy)} />
-            <StatCard label="Esta semana"   value={String(estaSemana)} trend="entregas" trendColor={palette.accent3} />
+            <StatCard label="Entregas hoy" value={String(entregasHoy)} />
+            <StatCard label="Esta semana" value={String(estaSemana)} trend="entregas" trendColor={palette.accent3} />
             <StatCard label="Tareas pendientes" value={String(pendientes)} />
             <StatCard label="Próximo evento" value={proximoHoy ? proximoHoy.tipo : "—"} />
           </div>
@@ -211,7 +235,7 @@ export default function CalendarioView({ isMobile = false }) {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20, border: `1px solid ${palette.border}`, background: palette.bgCard, fontSize: 12.5, color: palette.textDark, width: isMobile ? "100%" : 196, outline: "none" }}
                 onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                onBlur={(e)  => (e.target.style.borderColor = palette.border)} />
+                onBlur={(e) => (e.target.style.borderColor = palette.border)} />
             </div>
           </div>
 
@@ -250,8 +274,8 @@ export default function CalendarioView({ isMobile = false }) {
                 {cells.map((day, idx) => {
                   if (!day) return <div key={`e-${idx}`} />;
                   const isActive = day === diaActivo;
-                  const tod      = isToday(day);
-                  const hasEv    = hasEvent(day);
+                  const tod = isToday(day);
+                  const hasEv = hasEvent(day);
                   return (
                     <button key={day} onClick={() => setDiaActivo(day === diaActivo ? null : day)}
                       style={{ position: "relative", width: "100%", aspectRatio: "1", borderRadius: 7, fontSize: 12, border: isActive ? `1.5px solid ${palette.primary}` : tod ? `1px dashed ${palette.primaryMid}` : "1px solid transparent", background: isActive ? palette.primary : tod ? palette.primaryLt : "transparent", color: isActive ? "#fff" : tod ? palette.primary : palette.textDark, fontWeight: isActive || tod ? 700 : 400, cursor: "pointer", transition: "all 0.15s" }}
@@ -322,13 +346,22 @@ export default function CalendarioView({ isMobile = false }) {
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                           <span style={{ display: "inline-flex", padding: "3px 9px", borderRadius: 20, background: s.bg, color: s.color, fontSize: 10.5, fontWeight: 600 }}>{ev.tipo}</span>
-                          {esTarea && ev.estado !== "Finalizado" && (
+                          {esTarea && ev.estado !== "Completada" && ev.estado !== "Entregada" && (
                             <button
-                              onClick={() => handleActualizarEstado(ev.idTarea, ev.estado === "Pendiente" ? "En proceso" : "Finalizado")}
+                              onClick={() => handleActualizarEstado(ev.idTarea, ev.estado === "Pendiente" ? "En proceso" : "Completada")}
                               style={{ padding: "4px 10px", borderRadius: 7, border: `1px solid ${palette.primary}`, background: "none", fontSize: 11, fontWeight: 600, color: palette.primary, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" }}
                               onMouseEnter={(e) => { e.currentTarget.style.background = palette.primaryLt; }}
                               onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}>
-                              {ev.estado === "Pendiente" ? "Iniciar" : "Finalizar"}
+                              {ev.estado === "Pendiente" ? "Iniciar" : "Completar"}
+                            </button>
+                          )}
+                          {ev.tipo === "Entrega" && ev.estadoPedido !== "Entregado" && (
+                            <button
+                              onClick={() => handleEntregarPedido(ev.idPedido, ev.idCliente, ev.fechaEntrega)}
+                              style={{ padding: "4px 10px", borderRadius: 7, border: `1px solid ${palette.accent3}`, background: "none", fontSize: 11, fontWeight: 600, color: palette.accent3, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = palette.accent3Lt; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}>
+                              Listo para entregar
                             </button>
                           )}
                         </div>
