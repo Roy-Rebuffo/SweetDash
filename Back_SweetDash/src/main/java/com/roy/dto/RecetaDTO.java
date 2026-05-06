@@ -1,16 +1,16 @@
 package com.roy.dto;
 
 public class RecetaDTO {
-    private int idReceta;
+    private Integer idReceta;
     private double cantidadNecesaria;
-    private int idProducto;
+    private Integer idProducto;
     private String nombreProducto;
-    private int idMateriaPrima;
+    private Integer idMateriaPrima;
     private String nombreMateriaPrima;
 
     public RecetaDTO() {}
 
-    public RecetaDTO(int id, double cant, int idProd, String nomProd, int idMat, String nomMat) {
+    public RecetaDTO(Integer id, double cant, Integer idProd, String nomProd, Integer idMat, String nomMat) {
         this.idReceta = id;
         this.cantidadNecesaria = cant;
         this.idProducto = idProd;
@@ -19,11 +19,11 @@ public class RecetaDTO {
         this.nombreMateriaPrima = nomMat;
     }
 
-	public int getIdReceta() {
+	public Integer getIdReceta() {
 		return idReceta;
 	}
 
-	public void setIdReceta(int idReceta) {
+	public void setIdReceta(Integer idReceta) {
 		this.idReceta = idReceta;
 	}
 
@@ -35,11 +35,11 @@ public class RecetaDTO {
 		this.cantidadNecesaria = cantidadNecesaria;
 	}
 
-	public int getIdProducto() {
+	public Integer getIdProducto() {
 		return idProducto;
 	}
 
-	public void setIdProducto(int idProducto) {
+	public void setIdProducto(Integer idProducto) {
 		this.idProducto = idProducto;
 	}
 
@@ -51,11 +51,11 @@ public class RecetaDTO {
 		this.nombreProducto = nombreProducto;
 	}
 
-	public int getIdMateriaPrima() {
+	public Integer getIdMateriaPrima() {
 		return idMateriaPrima;
 	}
 
-	public void setIdMateriaPrima(int idMateriaPrima) {
+	public void setIdMateriaPrima(Integer idMateriaPrima) {
 		this.idMateriaPrima = idMateriaPrima;
 	}
 

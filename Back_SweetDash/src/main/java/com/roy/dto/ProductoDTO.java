@@ -1,32 +1,37 @@
 package com.roy.dto;
+
 import java.math.BigDecimal;
 
 public class ProductoDTO {
-    private int idProducto;
-    private String nombre;
-    private String descripcion;
-    private String tipo;
-    private String cantidadPersonas;
-    private BigDecimal precioBase;
-    private String imagenUrl;
+	private Integer idProducto;
+	private String nombre;
+	private String descripcion;
+	private String tipo;
+	private String cantidadPersonas;
+	private BigDecimal precioBase;
+	private String imagenUrl;
+	private Integer idPlantilla;
 
-    public ProductoDTO() {}
+	public ProductoDTO() {
+	}
 
-    public ProductoDTO(int idProducto, String nombre, String descripcion, String tipo, String cantidadPersonas, BigDecimal precioBase, String imagenUrl) {
-        this.idProducto = idProducto;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.tipo = tipo;
-        this.cantidadPersonas = cantidadPersonas;
-        this.precioBase = precioBase;
-        this.imagenUrl = imagenUrl;
-    }
+	public ProductoDTO(Integer idProducto, String nombre, String descripcion, String tipo, String cantidadPersonas,
+			BigDecimal precioBase, String imagenUrl, Integer idPlantilla) {
+		this.idProducto = idProducto;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.tipo = tipo;
+		this.cantidadPersonas = cantidadPersonas;
+		this.precioBase = precioBase;
+		this.imagenUrl = imagenUrl;
+		this.idPlantilla = idPlantilla;
+	}
 
-	public int getIdProducto() {
+	public Integer getIdProducto() {
 		return idProducto;
 	}
 
-	public void setIdProducto(int idProducto) {
+	public void setIdProducto(Integer idProducto) {
 		this.idProducto = idProducto;
 	}
 
@@ -69,13 +74,20 @@ public class ProductoDTO {
 	public void setPrecioBase(BigDecimal precioBase) {
 		this.precioBase = precioBase;
 	}
-	
+
 	public String getImagenUrl() {
-	    return imagenUrl;
+		return imagenUrl;
 	}
-	
+
 	public void setImagenUrl(String imagenUrl) {
-	    this.imagenUrl = imagenUrl;
+		this.imagenUrl = imagenUrl;
 	}
-    
+
+	public Integer getIdPlantilla() {
+		return idPlantilla;
+	}
+
+	public void setIdPlantilla(Integer idPlantilla) {
+		this.idPlantilla = idPlantilla;
+	}
 }

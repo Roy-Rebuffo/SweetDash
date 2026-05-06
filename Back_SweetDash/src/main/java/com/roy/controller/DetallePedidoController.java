@@ -28,7 +28,8 @@ public class DetallePedidoController {
                 d.getNotas(),
                 d.getPrecioCongelado(),
                 d.getPedido().getIdPedido(),
-                d.getProducto().getNombre()
+                d.getProducto().getNombre(),
+                d.getProducto().getIdProducto()
             ));
         }
         return listaDTO;

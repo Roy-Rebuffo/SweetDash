@@ -1,25 +1,25 @@
 package com.roy.dto;
 
 public class ProcesoProduccionDTO {
-    private int idProceso;
+    private Integer idProceso;
     private String nombre;
-    private int diasAntesEntrega;
-    private int idPlantilla;
+    private Integer diasAntesEntrega;
+    private Integer idPlantilla;
 
     public ProcesoProduccionDTO() {}
 
-    public ProcesoProduccionDTO(int id, String nombre, int dias, int idPlantilla) {
+    public ProcesoProduccionDTO(Integer id, String nombre, Integer dias, Integer idPlantilla) {
         this.idProceso = id;
         this.nombre = nombre;
         this.diasAntesEntrega = dias;
         this.idPlantilla = idPlantilla;
     }
 
-	public int getIdProceso() {
+	public Integer getIdProceso() {
 		return idProceso;
 	}
 
-	public void setIdProceso(int idProceso) {
+	public void setIdProceso(Integer idProceso) {
 		this.idProceso = idProceso;
 	}
 
@@ -31,19 +31,19 @@ public class ProcesoProduccionDTO {
 		this.nombre = nombre;
 	}
 
-	public int getDiasAntesEntrega() {
+	public Integer getDiasAntesEntrega() {
 		return diasAntesEntrega;
 	}
 
-	public void setDiasAntesEntrega(int diasAntesEntrega) {
+	public void setDiasAntesEntrega(Integer diasAntesEntrega) {
 		this.diasAntesEntrega = diasAntesEntrega;
 	}
 
-	public int getIdPlantilla() {
+	public Integer getIdPlantilla() {
 		return idPlantilla;
 	}
 
-	public void setIdPlantilla(int idPlantilla) {
+	public void setIdPlantilla(Integer idPlantilla) {
 		this.idPlantilla = idPlantilla;
 	}
     

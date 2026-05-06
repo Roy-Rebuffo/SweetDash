@@ -2,37 +2,39 @@ package com.roy.dto;
 import java.math.BigDecimal;
 
 public class DetallePedidoDTO {
-    private int idDetalle;
-    private int cantidad;
+    private Integer idDetalle;
+    private Integer cantidad;
     private String notas;
     private BigDecimal precioCongelado;
-    private int idPedido;
+    private Integer idPedido;
     private String nombreProducto; // Muy útil para React
+    private Integer idProducto;
 
     public DetallePedidoDTO() {}
 
-    public DetallePedidoDTO(int idDetalle, int cantidad, String notas, BigDecimal precioCongelado, int idPedido, String nombreProducto) {
+    public DetallePedidoDTO(Integer idDetalle, Integer cantidad, String notas, BigDecimal precioCongelado, Integer idPedido, String nombreProducto, Integer idProducto) {
         this.idDetalle = idDetalle;
         this.cantidad = cantidad;
         this.notas = notas;
         this.precioCongelado = precioCongelado;
         this.idPedido = idPedido;
         this.nombreProducto = nombreProducto;
+        this.idProducto = idProducto;
     }
 
-	public int getIdDetalle() {
+	public Integer getIdDetalle() {
 		return idDetalle;
 	}
 
-	public void setIdDetalle(int idDetalle) {
+	public void setIdDetalle(Integer idDetalle) {
 		this.idDetalle = idDetalle;
 	}
 
-	public int getCantidad() {
+	public Integer getCantidad() {
 		return cantidad;
 	}
 
-	public void setCantidad(int cantidad) {
+	public void setCantidad(Integer cantidad) {
 		this.cantidad = cantidad;
 	}
 
@@ -52,11 +54,11 @@ public class DetallePedidoDTO {
 		this.precioCongelado = precioCongelado;
 	}
 
-	public int getIdPedido() {
+	public Integer getIdPedido() {
 		return idPedido;
 	}
 
-	public void setIdPedido(int idPedido) {
+	public void setIdPedido(Integer idPedido) {
 		this.idPedido = idPedido;
 	}
 
@@ -66,6 +68,13 @@ public class DetallePedidoDTO {
 
 	public void setNombreProducto(String nombreProducto) {
 		this.nombreProducto = nombreProducto;
+	}
+	
+	public Integer getIdProducto() {
+	    return idProducto;
+	}
+	public void setIdProducto(Integer idProducto) {
+	    this.idProducto = idProducto;
 	}
     
 }

@@ -2,16 +2,16 @@ package com.roy.dto;
 import java.util.Date;
 
 public class MateriaPrimaDTO {
-    private int idMateriaPrima;
+    private Integer idMateriaPrima;
     private String nombre;
     private double cantidadStock;
     private String unidad;
     private Date fechaCaducidad;
-    private int stockMaximo;
+    private Integer stockMaximo;
 
     public MateriaPrimaDTO() {}
 
-    public MateriaPrimaDTO(int id, String nombre, double stock, String unidad, Date caducidad, int stockMaximo) {
+    public MateriaPrimaDTO(Integer id, String nombre, double stock, String unidad, Date caducidad, Integer stockMaximo) {
         this.idMateriaPrima = id;
         this.nombre = nombre;
         this.cantidadStock = stock;
@@ -21,11 +21,11 @@ public class MateriaPrimaDTO {
         
     }
 
-	public int getIdMateriaPrima() {
+	public Integer getIdMateriaPrima() {
 		return idMateriaPrima;
 	}
 
-	public void setIdMateriaPrima(int idMateriaPrima) {
+	public void setIdMateriaPrima(Integer idMateriaPrima) {
 		this.idMateriaPrima = idMateriaPrima;
 	}
 
@@ -61,11 +61,11 @@ public class MateriaPrimaDTO {
 		this.fechaCaducidad = fechaCaducidad;
 	}
 	
-	public int getStockMaximo() {
+	public Integer getStockMaximo() {
 	    return stockMaximo;
 	}
 	
-	public void setStockMaximo(int stockMaximo) {
+	public void setStockMaximo(Integer stockMaximo) {
 	    this.stockMaximo = stockMaximo;
 	}
     

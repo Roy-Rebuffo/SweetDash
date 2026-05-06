@@ -2,27 +2,29 @@ package com.roy.dto;
 import java.util.Date;
 
 public class TareaProgramadaDTO {
-    private int idTarea;
+    private Integer idTarea;
     private String estado;
     private Date fechaEjecucion;
-    private int idPedido;
+    private Integer idPedido;
     private String nombreProceso; // Para saber qué tarea es (ej: "Hornear")
+    private Integer diasAntesEntrega;
 
     public TareaProgramadaDTO() {}
 
-    public TareaProgramadaDTO(int id, String estado, Date fecha, int idPed, String nomProc) {
+    public TareaProgramadaDTO(Integer id, String estado, Date fecha, Integer idPed, String nomProc, Integer diasAntesEntrega) {
         this.idTarea = id;
         this.estado = estado;
         this.fechaEjecucion = fecha;
         this.idPedido = idPed;
         this.nombreProceso = nomProc;
+        this.diasAntesEntrega = diasAntesEntrega;
     }
 
-	public int getIdTarea() {
+	public Integer getIdTarea() {
 		return idTarea;
 	}
 
-	public void setIdTarea(int idTarea) {
+	public void setIdTarea(Integer idTarea) {
 		this.idTarea = idTarea;
 	}
 
@@ -42,11 +44,11 @@ public class TareaProgramadaDTO {
 		this.fechaEjecucion = fechaEjecucion;
 	}
 
-	public int getIdPedido() {
+	public Integer getIdPedido() {
 		return idPedido;
 	}
 
-	public void setIdPedido(int idPedido) {
+	public void setIdPedido(Integer idPedido) {
 		this.idPedido = idPedido;
 	}
 
@@ -57,5 +59,9 @@ public class TareaProgramadaDTO {
 	public void setNombreProceso(String nombreProceso) {
 		this.nombreProceso = nombreProceso;
 	}
+	
+	public Integer getDiasAntesEntrega() { return diasAntesEntrega; }
+	
+	public void setDiasAntesEntrega(Integer diasAntesEntrega) { this.diasAntesEntrega = diasAntesEntrega; }
     
 }

@@ -8,10 +8,14 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.roy.dto.ProcesoProduccionDTO;
 import com.roy.model.ProcesoProduccion;
 import com.roy.service.IProcesosProduccionService;
+import com.roy.model.PlantillaProceso;
+import com.roy.service.IPlantillasProcesosService;
 
 @RestController
 @RequestMapping("/api/procesos")
@@ -19,11 +23,14 @@ import com.roy.service.IProcesosProduccionService;
 public class ProcesoProduccionController {
 
     @Autowired
-    private IProcesosProduccionService serviceProcesos;
+    private IProcesosProduccionService serviceProceso;
+    
+    @Autowired
+    private IPlantillasProcesosService servicePlantilla;
 
     @GetMapping
     public List<ProcesoProduccionDTO> obtenerTodos() {
-        List<ProcesoProduccion> listaBD = serviceProcesos.buscarTodas();
+        List<ProcesoProduccion> listaBD = serviceProceso.buscarTodas();
         List<ProcesoProduccionDTO> listaDTO = new ArrayList<>();
 
         for (ProcesoProduccion p : listaBD) {
@@ -35,5 +42,32 @@ public class ProcesoProduccionController {
             ));
         }
         return listaDTO;
+    }
+    
+ // GET procesos por plantilla — clave para el front
+    @GetMapping("/plantilla/{idPlantilla}")
+    public List<ProcesoProduccion> obtenerPorPlantilla(@PathVariable Integer idPlantilla) {
+        List<ProcesoProduccion> todos = serviceProceso.buscarTodas();
+        List<ProcesoProduccion> resultado = new ArrayList<>();
+        for (ProcesoProduccion p : todos) {
+            if (p.getPlantillaProceso().getIdPlantilla() == idPlantilla) {
+                resultado.add(p);
+            }
+        }
+        return resultado;
+    }
+
+    @PostMapping
+    public ResponseEntity<ProcesoProduccion> crear(@RequestBody ProcesoProduccion proceso) {
+        serviceProceso.guardar(proceso);
+        return ResponseEntity.status(201).body(proceso);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        ProcesoProduccion existente = serviceProceso.buscarPorId(id);
+        if (existente == null) return ResponseEntity.notFound().build();
+        serviceProceso.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

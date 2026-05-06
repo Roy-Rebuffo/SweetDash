@@ -1,7 +1,7 @@
 package com.roy.dto;
 
 public class ClienteDTO {
-    private int idCliente;
+    private Integer idCliente;
     private String nombre;
     private String apellidos;
     private String direccion;
@@ -11,7 +11,7 @@ public class ClienteDTO {
 
     public ClienteDTO() {}
 
-    public ClienteDTO(int idCliente, String nombre, String apellidos, String direccion, String email, String telefono, String notas) {
+    public ClienteDTO(Integer idCliente, String nombre, String apellidos, String direccion, String email, String telefono, String notas) {
         this.idCliente = idCliente;
         this.nombre = nombre;
         this.apellidos = apellidos;
@@ -21,11 +21,11 @@ public class ClienteDTO {
         this.notas = notas;
     }
 
-	public int getIdCliente() {
+	public Integer getIdCliente() {
 		return idCliente;
 	}
 
-	public void setIdCliente(int idCliente) {
+	public void setIdCliente(Integer idCliente) {
 		this.idCliente = idCliente;
 	}
 

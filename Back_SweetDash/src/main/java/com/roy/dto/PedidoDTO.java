@@ -2,16 +2,16 @@ package com.roy.dto;
 import java.util.Date;
 
 public class PedidoDTO {
-    private int idPedido;
+    private Integer idPedido;
     private Date fechaEntrega;
     private String estado;
     // Solo guardamos el ID y el nombre del cliente, no el objeto entero
-    private int idCliente; 
+    private Integer idCliente; 
     private String nombreCliente;
 
     public PedidoDTO() {}
 
-    public PedidoDTO(int idPedido, Date fechaEntrega, String estado, int idCliente, String nombreCliente) {
+    public PedidoDTO(Integer idPedido, Date fechaEntrega, String estado, Integer idCliente, String nombreCliente) {
         this.idPedido = idPedido;
         this.fechaEntrega = fechaEntrega;
         this.estado = estado;
@@ -19,11 +19,11 @@ public class PedidoDTO {
         this.nombreCliente = nombreCliente;
     }
 
-	public int getIdPedido() {
+	public Integer getIdPedido() {
 		return idPedido;
 	}
 
-	public void setIdPedido(int idPedido) {
+	public void setIdPedido(Integer idPedido) {
 		this.idPedido = idPedido;
 	}
 
@@ -43,11 +43,11 @@ public class PedidoDTO {
 		this.estado = estado;
 	}
 
-	public int getIdCliente() {
+	public Integer getIdCliente() {
 		return idCliente;
 	}
 
-	public void setIdCliente(int idCliente) {
+	public void setIdCliente(Integer idCliente) {
 		this.idCliente = idCliente;
 	}
 

@@ -2,16 +2,16 @@ package com.roy.dto;
 import java.math.BigDecimal;
 
 public class MaterialPedidoDTO {
-    private int idMaterialPedido;
-    private int cantidadNecesaria;
+    private Integer idMaterialPedido;
+    private Integer cantidadNecesaria;
     private BigDecimal precioVenta;
-    private int idPedido;
-    private int idStock;
+    private Integer idPedido;
+    private Integer idStock;
     private String nombreMaterial; // Del StockMaterial
 
     public MaterialPedidoDTO() {}
 
-    public MaterialPedidoDTO(int idMaterial, int cant, BigDecimal precio, int idPed, int idSt, String nombreMat) {
+    public MaterialPedidoDTO(Integer idMaterial, Integer cant, BigDecimal precio, Integer idPed, Integer idSt, String nombreMat) {
         this.idMaterialPedido = idMaterial;
         this.cantidadNecesaria = cant;
         this.precioVenta = precio;
@@ -20,19 +20,19 @@ public class MaterialPedidoDTO {
         this.nombreMaterial = nombreMat;
     }
 
-	public int getIdMaterialPedido() {
+	public Integer getIdMaterialPedido() {
 		return idMaterialPedido;
 	}
 
-	public void setIdMaterialPedido(int idMaterialPedido) {
+	public void setIdMaterialPedido(Integer idMaterialPedido) {
 		this.idMaterialPedido = idMaterialPedido;
 	}
 
-	public int getCantidadNecesaria() {
+	public Integer getCantidadNecesaria() {
 		return cantidadNecesaria;
 	}
 
-	public void setCantidadNecesaria(int cantidadNecesaria) {
+	public void setCantidadNecesaria(Integer cantidadNecesaria) {
 		this.cantidadNecesaria = cantidadNecesaria;
 	}
 
@@ -44,19 +44,19 @@ public class MaterialPedidoDTO {
 		this.precioVenta = precioVenta;
 	}
 
-	public int getIdPedido() {
+	public Integer getIdPedido() {
 		return idPedido;
 	}
 
-	public void setIdPedido(int idPedido) {
+	public void setIdPedido(Integer idPedido) {
 		this.idPedido = idPedido;
 	}
 
-	public int getIdStock() {
+	public Integer getIdStock() {
 		return idStock;
 	}
 
-	public void setIdStock(int idStock) {
+	public void setIdStock(Integer idStock) {
 		this.idStock = idStock;
 	}
 

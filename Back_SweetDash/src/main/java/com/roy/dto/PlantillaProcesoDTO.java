@@ -1,23 +1,23 @@
 package com.roy.dto;
 
 public class PlantillaProcesoDTO {
-    private int idPlantilla;
+    private Integer idPlantilla;
     private String nombre;
     private String descripcion;
 
     public PlantillaProcesoDTO() {}
 
-    public PlantillaProcesoDTO(int id, String nombre, String desc) {
+    public PlantillaProcesoDTO(Integer id, String nombre, String desc) {
         this.idPlantilla = id;
         this.nombre = nombre;
         this.descripcion = desc;
     }
 
-	public int getIdPlantilla() {
+	public Integer getIdPlantilla() {
 		return idPlantilla;
 	}
 
-	public void setIdPlantilla(int idPlantilla) {
+	public void setIdPlantilla(Integer idPlantilla) {
 		this.idPlantilla = idPlantilla;
 	}
 

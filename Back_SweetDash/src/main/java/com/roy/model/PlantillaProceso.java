@@ -3,7 +3,7 @@ package com.roy.model;
 import java.io.Serializable;
 import jakarta.persistence.*;
 import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * The persistent class for the plantilla_proceso database table.
@@ -26,10 +26,12 @@ public class PlantillaProceso implements Serializable {
 	private String nombre;
 
 	//bi-directional many-to-one association to ProcesoProduccion
+	@JsonIgnore
 	@OneToMany(mappedBy="plantillaProceso")
 	private List<ProcesoProduccion> procesoProduccions;
 
 	//bi-directional many-to-one association to Producto
+	@JsonIgnore
 	@OneToMany(mappedBy="plantillaProceso")
 	private List<Producto> productos;
 

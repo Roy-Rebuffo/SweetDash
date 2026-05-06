@@ -2,6 +2,8 @@ package com.roy.model;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class Pedido implements Serializable {
 	
 	// Relación con los detalles (productos del pedido)
     @OneToMany(mappedBy="pedido", cascade = CascadeType.ALL)
-    private List<DetallePedido> detalles;
+    private List<DetallePedido> detalles = new ArrayList<>();
     
     // Relación con los materiales extra gastados
     @OneToMany(mappedBy="pedido", cascade = CascadeType.ALL)
@@ -72,6 +74,14 @@ public class Pedido implements Serializable {
 
 	public void setIdPedido(int idPedido) {
 		this.idPedido = idPedido;
+	}
+	
+	public List<DetallePedido> getDetalles() {
+	    return detalles;
+	}
+
+	public void setDetalles(List<DetallePedido> detalles) {
+	    this.detalles = detalles;
 	}
 	
 }
