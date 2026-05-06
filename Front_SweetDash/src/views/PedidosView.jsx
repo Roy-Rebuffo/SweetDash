@@ -233,6 +233,7 @@ function CambiarFechaModal({ pedido, onClose, onSaved }) {
 
       onSaved();
     } catch (e) {
+      console.error("ERROR en handleSubmit:", e);
       setError(e.message);
     } finally {
       setSaving(false);
@@ -325,6 +326,7 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
   };
 
   const handleSubmit = async () => {
+    console.log("handleSubmit ejecutado");
     if (!idCliente) { setError("Selecciona un cliente"); return; }
     if (!fechaEntrega) { setError("La fecha de entrega es obligatoria"); return; }
     if (lineas.length === 0) { setError("Añade al menos un producto"); return; }
@@ -348,14 +350,17 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
           notas: l.notas,
         });
       }
+      console.log("Detalles añadidos, pedidoId:", pedidoId);
 
       // Comprobar tareas en pasado
+      console.log("Detalles añadidos, pedidoId:", pedidoId);
       const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
       const tareas = await tareasApi.getByPedido(pedidoId);
       const tareasPasado = tareas.filter((t) => {
-        const fecha = parseFechaLocal(t.fechaEjecucion);
+        if (!t.fechaEjecucion) return false;
+        const fecha = parseFechaLocal(String(t.fechaEjecucion).slice(0, 10));
         fecha.setHours(0, 0, 0, 0);
-        return fecha < hoy;
+        return !isNaN(fecha) && fecha < hoy;
       });
 
       if (tareasPasado.length > 0) {
@@ -370,6 +375,7 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
         onSaved();
       }
     } catch (e) {
+      console.error("ERROR en handleSubmit:", e);
       setError(e.message);
     } finally {
       setSaving(false);
