@@ -2,6 +2,7 @@ package com.roy.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,16 +28,8 @@ public class MateriaPrimaController {
     public List<MateriaPrimaDTO> obtenerTodas() {
         List<MateriaPrima> listaBD = serviceMateria.buscarTodas();
         List<MateriaPrimaDTO> listaDTO = new ArrayList<>();
-
         for (MateriaPrima m : listaBD) {
-            listaDTO.add(new MateriaPrimaDTO(
-                m.getIdMateriaPrima(),
-                m.getNombre(),
-                m.getCantidadStock(),
-                m.getUnidad(),
-                m.getFechaCaducidad(),
-                m.getStockMaximo()
-            ));
+            listaDTO.add(toDTO(m));
         }
         return listaDTO;
     }
@@ -67,6 +60,8 @@ public class MateriaPrimaController {
         existente.setStockMaximo(dto.getStockMaximo());
         existente.setUnidad(dto.getUnidad());
         existente.setFechaCaducidad(dto.getFechaCaducidad());
+        existente.setPrecioPaquete(dto.getPrecioPaquete() != null ? dto.getPrecioPaquete() : BigDecimal.ZERO);
+        existente.setUnidadesPaquete(dto.getUnidadesPaquete() != null ? dto.getUnidadesPaquete() : BigDecimal.ONE);
         serviceMateria.guardar(existente);
         return ResponseEntity.ok(toDTO(existente));
     }
@@ -86,14 +81,16 @@ public class MateriaPrimaController {
 
     // Helpers para no repetir código
     private MateriaPrimaDTO toDTO(MateriaPrima m) {
-        return new MateriaPrimaDTO(
-            m.getIdMateriaPrima(),
-            m.getNombre(),
-            m.getCantidadStock(),
-            m.getUnidad(),
-            m.getFechaCaducidad(),
-            m.getStockMaximo()
-        );
+    	return new MateriaPrimaDTO(
+    	        m.getIdMateriaPrima(),
+    	        m.getNombre(),
+    	        m.getCantidadStock(),
+    	        m.getUnidad(),
+    	        m.getFechaCaducidad(),
+    	        m.getStockMaximo(),
+    	        m.getPrecioPaquete(),
+    	        m.getUnidadesPaquete()
+    	    );
     }
 
     private MateriaPrima toEntity(MateriaPrimaDTO dto) {
@@ -103,6 +100,8 @@ public class MateriaPrimaController {
         m.setStockMaximo(dto.getStockMaximo());
         m.setUnidad(dto.getUnidad());
         m.setFechaCaducidad(dto.getFechaCaducidad());
+        m.setPrecioPaquete(dto.getPrecioPaquete());
+        m.setUnidadesPaquete(dto.getUnidadesPaquete());
         return m;
     }
 }

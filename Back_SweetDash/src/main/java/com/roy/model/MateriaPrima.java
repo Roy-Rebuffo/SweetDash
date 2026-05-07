@@ -38,6 +38,12 @@ public class MateriaPrima implements Serializable {
 	//bi-directional many-to-one association to Receta
 	@OneToMany(mappedBy="materiaPrima")
 	private List<Receta> recetas;
+	
+	@Column(name="precio_paquete")
+	private java.math.BigDecimal precioPaquete;
+
+	@Column(name="unidades_paquete")
+	private java.math.BigDecimal unidadesPaquete;
 
 	public MateriaPrima() {
 	}
@@ -110,5 +116,20 @@ public class MateriaPrima implements Serializable {
 		receta.setMateriaPrima(null);
 
 		return receta;
+	}
+	
+	public java.math.BigDecimal getPrecioPaquete() {
+	    return precioPaquete;
+	}
+	public void setPrecioPaquete(java.math.BigDecimal precioPaquete) {
+	    this.precioPaquete = precioPaquete;
+	}
+
+	public java.math.BigDecimal getUnidadesPaquete() {
+	    return unidadesPaquete;
+	}
+	
+	public void setUnidadesPaquete(java.math.BigDecimal unidadesPaquete) {
+	    this.unidadesPaquete = unidadesPaquete;
 	}
 }

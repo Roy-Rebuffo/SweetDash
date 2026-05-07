@@ -11,12 +11,13 @@ public class ProductoDTO {
 	private BigDecimal precioBase;
 	private String imagenUrl;
 	private Integer idPlantilla;
+	private BigDecimal costeFijo;
 
 	public ProductoDTO() {
 	}
 
 	public ProductoDTO(Integer idProducto, String nombre, String descripcion, String tipo, String cantidadPersonas,
-			BigDecimal precioBase, String imagenUrl, Integer idPlantilla) {
+			BigDecimal precioBase, String imagenUrl, Integer idPlantilla, BigDecimal costeFijo) {
 		this.idProducto = idProducto;
 		this.nombre = nombre;
 		this.descripcion = descripcion;
@@ -25,6 +26,7 @@ public class ProductoDTO {
 		this.precioBase = precioBase;
 		this.imagenUrl = imagenUrl;
 		this.idPlantilla = idPlantilla;
+		this.costeFijo = costeFijo;
 	}
 
 	public Integer getIdProducto() {
@@ -90,4 +92,7 @@ public class ProductoDTO {
 	public void setIdPlantilla(Integer idPlantilla) {
 		this.idPlantilla = idPlantilla;
 	}
+	
+	public BigDecimal getCosteFijo() { return costeFijo; }
+	public void setCosteFijo(BigDecimal costeFijo) { this.costeFijo = costeFijo; }
 }

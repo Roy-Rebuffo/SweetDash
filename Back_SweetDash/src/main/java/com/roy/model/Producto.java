@@ -43,6 +43,9 @@ public class Producto implements Serializable {
 	
 	@OneToMany(mappedBy="producto")
     private List<DetallePedido> ventas;
+	
+	@Column(name="coste_fijo")
+	private BigDecimal costeFijo;
 
 	public Producto() {
 	}
@@ -141,4 +144,11 @@ public class Producto implements Serializable {
 		this.ventas = ventas;
 	}
 	
+	public BigDecimal getCosteFijo() {
+	    return costeFijo;
+	}
+	
+	public void setCosteFijo(BigDecimal costeFijo) {
+	    this.costeFijo = costeFijo;
+	}
 }
