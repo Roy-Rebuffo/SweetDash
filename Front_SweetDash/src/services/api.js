@@ -40,6 +40,9 @@ export const productosApi = {
   getById: (id) => request(`/productos/${id}`),
   create: (data) => request("/productos", { method: "POST", body: JSON.stringify(data) }),
   update: (id, data) => request(`/productos/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  desvincularPlantilla: (id) => 
+  fetch(`${BASE_URL}/productos/${id}/desvincular-plantilla`, { method: "PUT" })
+    .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
   delete: (id) => fetch(`${BASE_URL}/productos/${id}`, { method: "DELETE" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
   subirImagen: (id, archivo) => {
     const form = new FormData();

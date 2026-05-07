@@ -1,27 +1,27 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
-import { productosApi, procesosApi, pedidosApi, recetasApi, materiasPrimasApi, plantillasApi, recetasTamañoApi } from "../services/api";
+import { productosApi, procesosApi, pedidosApi, materiasPrimasApi, plantillasApi, recetasTamañoApi } from "../services/api";
 import FilterSelect from "../components/FilterSelect";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const STRIPE_COLORS = [
-  [palette.primaryLt,  palette.primary  + "22"],
-  [palette.accent1Lt,  palette.accent1  + "22"],
-  [palette.accent2Lt,  palette.accent2  + "22"],
-  [palette.accent3Lt,  palette.accent3  + "22"],
+  [palette.primaryLt, palette.primary + "22"],
+  [palette.accent1Lt, palette.accent1 + "22"],
+  [palette.accent2Lt, palette.accent2 + "22"],
+  [palette.accent3Lt, palette.accent3 + "22"],
 ];
 
 function getDificultad(pasos) {
-  if (pasos === 0) return { label: "—",     bg: palette.border,    color: palette.textLight };
-  if (pasos <= 2)  return { label: "Baja",  bg: palette.accent3Lt, color: palette.accent3   };
-  if (pasos <= 4)  return { label: "Media", bg: palette.accent2Lt, color: palette.accent2   };
-  return               { label: "Alta",  bg: palette.primaryLt,  color: palette.primary   };
+  if (pasos === 0) return { label: "—", bg: palette.border, color: palette.textLight };
+  if (pasos <= 2) return { label: "Baja", bg: palette.accent3Lt, color: palette.accent3 };
+  if (pasos <= 4) return { label: "Media", bg: palette.accent2Lt, color: palette.accent2 };
+  return { label: "Alta", bg: palette.primaryLt, color: palette.primary };
 }
 
 function PhotoPlaceholder({ idx, imagenUrl, tipo }) {
   const [sc1, sc2] = STRIPE_COLORS[idx % STRIPE_COLORS.length];
   const accentColors = [palette.primary, palette.accent1, palette.accent2, palette.accent3];
-  const accentColor  = accentColors[idx % accentColors.length];
+  const accentColor = accentColors[idx % accentColors.length];
 
   if (imagenUrl) {
     return (
@@ -71,15 +71,15 @@ function RecetaCard({ producto, pasos, usada, idx, onEditar, onEliminar }) {
         <div style={{ fontSize: 11.5, color: palette.textLight, marginBottom: 12 }}>{producto.descripcion}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 14 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: palette.textMid }}>
-            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" d="M12 6v6l4 2"/></svg>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" d="M12 6v6l4 2" /></svg>
             {pasos > 0 ? `${pasos} paso${pasos !== 1 ? "s" : ""}` : "—"}
           </span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: palette.textMid }}>
-            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             {producto.cantidadPersonas || "—"}
           </span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: palette.textMid }}>
-            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4"/></svg>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4" /></svg>
             € {producto.precioBase}
           </span>
           <span style={{ marginLeft: "auto", display: "inline-flex", padding: "2.5px 9px", borderRadius: 20, background: dif.bg, color: dif.color, fontSize: 10.5, fontWeight: 600 }}>{dif.label}</span>
@@ -144,8 +144,6 @@ function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove }) {
 
   return (
     <div style={{ background: palette.bg, borderRadius: 12, border: `1px solid ${palette.border}`, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-
-      {/* Cabecera tamaño */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, alignItems: "center" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <label style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px" }}>Tamaño</label>
@@ -153,21 +151,20 @@ function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove }) {
             placeholder="20cm · 8-10p / 450gr / 12 unidades..."
             style={inputStyle}
             onFocus={e => e.target.style.borderColor = palette.primaryMid}
-            onBlur={e  => e.target.style.borderColor = palette.border} />
+            onBlur={e => e.target.style.borderColor = palette.border} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <label style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px" }}>Precio venta (€)</label>
           <input type="number" min="0" step="0.01" value={tamaño.precioVenta} onChange={e => onChange(idx, "precioVenta", e.target.value)}
             placeholder="35.00" style={inputStyle}
             onFocus={e => e.target.style.borderColor = palette.primaryMid}
-            onBlur={e  => e.target.style.borderColor = palette.border} />
+            onBlur={e => e.target.style.borderColor = palette.border} />
         </div>
         <button onClick={() => onRemove(idx)} style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0, marginTop: 16 }}>
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
 
-      {/* Ingredientes del tamaño */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px" }}>Ingredientes y cantidades</span>
@@ -188,7 +185,7 @@ function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove }) {
               <select value={ing.idMateriaPrima} onChange={e => updateIng(i, "idMateriaPrima", Number(e.target.value))}
                 style={{ ...inputStyle, appearance: "none", fontSize: 12 }}
                 onFocus={e => e.target.style.borderColor = palette.primaryMid}
-                onBlur={e  => e.target.style.borderColor = palette.border}>
+                onBlur={e => e.target.style.borderColor = palette.border}>
                 {materiasPrimas.map(m => <option key={m.idMateriaPrima} value={m.idMateriaPrima}>{m.nombre} ({m.unidad})</option>)}
               </select>
               <div style={{ position: "relative" }}>
@@ -196,7 +193,7 @@ function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove }) {
                   onChange={e => updateIng(i, "cantidadUsada", e.target.value)}
                   placeholder="180" style={{ ...inputStyle, paddingRight: mp ? 32 : 10, fontSize: 12 }}
                   onFocus={e => e.target.style.borderColor = palette.primaryMid}
-                  onBlur={e  => e.target.style.borderColor = palette.border} />
+                  onBlur={e => e.target.style.borderColor = palette.border} />
                 {mp && <span style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: palette.textLight, pointerEvents: "none" }}>{mp.unidad}</span>}
               </div>
               <button onClick={() => removeIng(i)} style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
@@ -218,44 +215,35 @@ function RecetaModal({ producto, onClose, onSaved }) {
   const isEdit = !!producto;
 
   const [materiasPrimas, setMateriasPrimas] = useState([]);
-  const [loadingData,    setLoadingData]    = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
 
   const [form, setForm] = useState(isEdit ? {
-    nombre:           producto.nombre           || "",
-    descripcion:      producto.descripcion      || "",
-    tipo:             producto.tipo             || "",
+    nombre: producto.nombre || "",
+    descripcion: producto.descripcion || "",
+    tipo: producto.tipo || "",
     cantidadPersonas: producto.cantidadPersonas || "",
-    precioBase:       producto.precioBase       || "",
+    precioBase: producto.precioBase || "",
   } : EMPTY_PROD);
 
-  const [imagenFile,    setImagenFile]    = useState(null);
+  const [imagenFile, setImagenFile] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(producto?.imagenUrl || null);
-  const [ingredientes,  setIngredientes]  = useState([]);
-  const [plantillaNombre,      setPlantillaNombre]      = useState("");
+  const [plantillaNombre, setPlantillaNombre] = useState("");
   const [plantillaDescripcion, setPlantillaDescripcion] = useState("");
-  const [pasos,                setPasos]                = useState([]);
+  const [pasos, setPasos] = useState([]);
   const [plantillaExistenteId, setPlantillaExistenteId] = useState(null);
-  const [tamaños,              setTamaños]              = useState([]); // escandallos por tamaño
+  const [tamaños, setTamaños] = useState([]);
   const [saving, setSaving] = useState(false);
-  const [error,  setError]  = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const promises = [materiasPrimasApi.getAll()];
     if (isEdit) {
-      promises.push(recetasApi.getByProducto(producto.idProducto));
       promises.push(recetasTamañoApi.getByProducto(producto.idProducto));
     }
 
-    Promise.all(promises).then(async ([mps, recetas, tamañosExistentes]) => {
+    Promise.all(promises).then(async ([mps, tamañosExistentes]) => {
       setMateriasPrimas(mps);
 
-      if (recetas && recetas.length > 0) {
-        setIngredientes(recetas.map((r) => ({
-          idReceta: r.idReceta, idMateriaPrima: r.idMateriaPrima, cantidadNecesaria: r.cantidadNecesaria,
-        })));
-      }
-
-      // Cargar tamaños existentes
       if (tamañosExistentes && tamañosExistentes.length > 0) {
         setTamaños(tamañosExistentes.map(t => ({
           id: t.id,
@@ -263,7 +251,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
           precioVenta: t.precioVenta || "",
           ingredientes: (t.ingredientes || []).map(i => ({
             idMateriaPrima: i.idMateriaPrima,
-            cantidadUsada:  i.cantidadUsada,
+            cantidadUsada: i.cantidadUsada,
           })),
         })));
       }
@@ -276,7 +264,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
           setPlantillaExistenteId(plantilla.idPlantilla);
           const procesosData = await procesosApi.getByPlantilla(plantilla.idPlantilla);
           setPasos(procesosData.map((p) => ({ idProceso: p.idProceso, nombre: p.nombre, diasAntesEntrega: p.diasAntesEntrega })));
-        } catch {}
+        } catch { }
       }
     }).finally(() => setLoadingData(false));
   }, []);
@@ -288,26 +276,20 @@ function RecetaModal({ producto, onClose, onSaved }) {
     setImagenPreview(URL.createObjectURL(file));
   };
 
-  // Ingredientes receta base
-  const addIngrediente    = () => { if (materiasPrimas.length === 0) return; setIngredientes((l) => [...l, { idMateriaPrima: materiasPrimas[0].idMateriaPrima, cantidadNecesaria: 1 }]); };
-  const removeIngrediente = (idx) => setIngredientes((l) => l.filter((_, i) => i !== idx));
-  const updateIngrediente = (idx, key, value) => setIngredientes((l) => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
-
   // Pasos elaboración
-  const addPaso    = () => setPasos((l) => [...l, { nombre: "", diasAntesEntrega: 1 }]);
+  const addPaso = () => setPasos((l) => [...l, { nombre: "", diasAntesEntrega: 1 }]);
   const removePaso = (idx) => setPasos((l) => l.filter((_, i) => i !== idx));
   const updatePaso = (idx, key, value) => setPasos((l) => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
 
   // Tamaños escandallo
-  const addTamaño    = () => setTamaños(l => [...l, EMPTY_TAMAÑO()]);
+  const addTamaño = () => setTamaños(l => [...l, EMPTY_TAMAÑO()]);
   const removeTamaño = (idx) => setTamaños(l => l.filter((_, i) => i !== idx));
   const updateTamaño = (idx, key, value) => setTamaños(l => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
 
   const handleSubmit = async () => {
-    if (!form.nombre.trim())       { setError("El nombre es obligatorio");      return; }
-    if (!form.tipo.trim())         { setError("El tipo es obligatorio");        return; }
-    if (!form.precioBase)          { setError("El precio base es obligatorio"); return; }
-    if (ingredientes.length === 0) { setError("Añade al menos un ingrediente"); return; }
+    if (!form.nombre.trim()) { setError("El nombre es obligatorio"); return; }
+    if (!form.tipo.trim()) { setError("El tipo es obligatorio"); return; }
+    if (!form.precioBase) { setError("El precio base es obligatorio"); return; }
 
     setSaving(true); setError(null);
     try {
@@ -317,18 +299,12 @@ function RecetaModal({ producto, onClose, onSaved }) {
       if (isEdit) {
         await productosApi.update(producto.idProducto, payload);
         productoId = producto.idProducto;
-        const recetasActuales = await recetasApi.getByProducto(productoId);
-        for (const r of recetasActuales) await recetasApi.delete(r.idReceta);
       } else {
         const nuevo = await productosApi.create(payload);
         productoId = nuevo.idProducto;
       }
 
       if (imagenFile) await productosApi.subirImagen(productoId, imagenFile);
-
-      for (const ing of ingredientes) {
-        await recetasApi.create({ idProducto: productoId, idMateriaPrima: Number(ing.idMateriaPrima), cantidadNecesaria: Number(ing.cantidadNecesaria) });
-      }
 
       // Plantilla elaboración
       if (plantillaNombre.trim() || pasos.length > 0) {
@@ -352,10 +328,10 @@ function RecetaModal({ producto, onClose, onSaved }) {
       for (const tam of tamaños) {
         if (!tam.precioVenta) continue;
         const tamPayload = {
-          idProducto:       productoId,
+          idProducto: productoId,
           descripcionTamaño: tam.descripcionTamaño || null,
-          precioVenta:      Number(tam.precioVenta),
-          ingredientes:     tam.ingredientes
+          precioVenta: Number(tam.precioVenta),
+          ingredientes: tam.ingredientes
             .filter(i => i.cantidadUsada)
             .map(i => ({ idMateriaPrima: Number(i.idMateriaPrima), cantidadUsada: Number(i.cantidadUsada) })),
         };
@@ -394,7 +370,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* ── 1. Producto ── */}
+            {/* ── 1. Datos del producto ── */}
             <SectionHeader title="Datos del producto" />
 
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -437,34 +413,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
               </div>
             </div>
 
-            {/* ── 2. Ingredientes base ── */}
-            <SectionHeader title="Ingredientes base" onAdd={addIngrediente} addLabel="Añadir ingrediente" />
-
-            {ingredientes.length === 0 && (
-              <div style={{ padding: "14px", textAlign: "center", color: palette.textLight, fontSize: 12, background: palette.bg, borderRadius: 8, border: `1px dashed ${palette.border}` }}>
-                Pulsa "Añadir ingrediente" para incluir materias primas
-              </div>
-            )}
-
-            {ingredientes.map((ing, idx) => (
-              <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8, alignItems: "center", background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "10px 12px" }}>
-                <select value={ing.idMateriaPrima} onChange={(e) => updateIngrediente(idx, "idMateriaPrima", e.target.value)}
-                  style={{ ...inputStyle, fontSize: 12, appearance: "none" }}
-                  onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                  onBlur={(e)  => (e.target.style.borderColor = palette.border)}>
-                  {materiasPrimas.map((mp) => <option key={mp.idMateriaPrima} value={mp.idMateriaPrima}>{mp.nombre} ({mp.unidad})</option>)}
-                </select>
-                <input type="number" min="0" step="0.01" value={ing.cantidadNecesaria} onChange={(e) => updateIngrediente(idx, "cantidadNecesaria", e.target.value)} placeholder="Cantidad"
-                  style={{ ...inputStyle, width: 90, fontSize: 12 }}
-                  onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                  onBlur={(e)  => (e.target.style.borderColor = palette.border)} />
-                <button onClick={() => removeIngrediente(idx)} style={{ width: 34, height: 36, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
-                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
-              </div>
-            ))}
-
-            {/* ── 3. Coste por tamaño (escandallo) ── */}
+            {/* ── 2. Coste por tamaño ── */}
             <SectionHeader title="Coste por tamaño" onAdd={addTamaño} addLabel="Añadir tamaño" />
 
             <div style={{ fontSize: 11.5, color: palette.textLight, marginTop: -8 }}>
@@ -488,7 +437,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
               />
             ))}
 
-            {/* ── 4. Plantilla de elaboración ── */}
+            {/* ── 3. Plantilla de elaboración ── */}
             <SectionHeader title="Plantilla de elaboración" onAdd={addPaso} addLabel="Añadir paso" />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -517,14 +466,14 @@ function RecetaModal({ producto, onClose, onSaved }) {
                   <input value={paso.nombre} onChange={(e) => updatePaso(idx, "nombre", e.target.value)} placeholder="Ej: Hacer el bizcocho..."
                     style={{ ...inputStyle, fontSize: 12 }}
                     onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                    onBlur={(e)  => (e.target.style.borderColor = palette.border)} />
+                    onBlur={(e) => (e.target.style.borderColor = palette.border)} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                   <span style={{ fontSize: 9, color: palette.textLight, whiteSpace: "nowrap" }}>Días antes</span>
                   <input type="number" min="0" value={paso.diasAntesEntrega} onChange={(e) => updatePaso(idx, "diasAntesEntrega", e.target.value)}
                     style={{ ...inputStyle, width: 64, fontSize: 12, textAlign: "center" }}
                     onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                    onBlur={(e)  => (e.target.style.borderColor = palette.border)} />
+                    onBlur={(e) => (e.target.style.borderColor = palette.border)} />
                 </div>
                 <button onClick={() => removePaso(idx)} style={{ width: 34, height: 36, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
                   <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -561,7 +510,7 @@ function ConfirmModal({ nombre, onClose, onConfirm, loading }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{ background: palette.bgCard, borderRadius: 18, border: `1px solid ${palette.border}`, boxShadow: "0 8px 32px oklch(0% 0 0 / 0.12)", width: "100%", maxWidth: 360, padding: 28 }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: palette.textDark, marginBottom: 10 }}>Eliminar receta</div>
-        <div style={{ fontSize: 13, color: palette.textMid, marginBottom: 22 }}>¿Seguro que quieres eliminar <b>{nombre}</b>? Se eliminará el producto, sus ingredientes, su plantilla y sus escandallos de coste. Esta acción no se puede deshacer.</div>
+        <div style={{ fontSize: 13, color: palette.textMid, marginBottom: 22 }}>¿Seguro que quieres eliminar <b>{nombre}</b>? Se eliminará el producto, su plantilla y sus escandallos de coste. Esta acción no se puede deshacer.</div>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button onClick={onClose} style={{ padding: "8px 18px", borderRadius: 10, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 13, fontWeight: 600, color: palette.textMid, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancelar</button>
           <button onClick={onConfirm} disabled={loading} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: "#EF4444", fontSize: 13, fontWeight: 600, color: "#fff", cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "'DM Sans', sans-serif" }}>
@@ -575,17 +524,17 @@ function ConfirmModal({ nombre, onClose, onConfirm, loading }) {
 
 // ── Vista principal ───────────────────────────────────────────────────────────
 export default function RecetasView({ isMobile = false, productoParaEditar = null, onClearEditar }) {
-  const [productos,  setProductos]  = useState([]);
-  const [procesos,   setProcesos]   = useState([]);
-  const [pedidos,    setPedidos]    = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [procesos, setProcesos] = useState([]);
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [catActiva,  setCatActiva]  = useState("Todas");
-  const [modalOpen,    setModalOpen]    = useState(false);
+  const [catActiva, setCatActiva] = useState("Todas");
+  const [modalOpen, setModalOpen] = useState(false);
   const [editProducto, setEditProducto] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleting,     setDeleting]     = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const cargarDatos = () => {
     setLoading(true);
@@ -597,41 +546,43 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
 
   useEffect(() => { cargarDatos(); }, []);
 
-useEffect(() => {
-  if (productoParaEditar) {
-    setEditProducto(productoParaEditar);
-    setModalOpen(true);
-    onClearEditar && onClearEditar();
-  }
-}, [productoParaEditar]);
+  useEffect(() => {
+    if (productoParaEditar) {
+      setEditProducto(productoParaEditar);
+      setModalOpen(true);
+      onClearEditar && onClearEditar();
+    }
+  }, [productoParaEditar]);
 
-  const handleNuevo  = () => { setEditProducto(null); setModalOpen(true); };
-  const handleEditar = (p) => { setEditProducto(p);   setModalOpen(true); };
-  const handleSaved  = () => { setModalOpen(false);   cargarDatos();      };
+  const handleNuevo = () => { setEditProducto(null); setModalOpen(true); };
+  const handleEditar = (p) => { setEditProducto(p); setModalOpen(true); };
+  const handleSaved = () => { setModalOpen(false); cargarDatos(); };
 
   const handleEliminar = async () => {
-    setDeleting(true);
-    try {
-      // Eliminar escandallos de tamaño
-      const tamañosExistentes = await recetasTamañoApi.getByProducto(deleteTarget.idProducto);
-      for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
+  setDeleting(true);
+  try {
+    // 1. Borrar escandallos
+    const tamañosExistentes = await recetasTamañoApi.getByProducto(deleteTarget.idProducto);
+    for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
 
-      const recetas = await recetasApi.getByProducto(deleteTarget.idProducto);
-      for (const r of recetas) await recetasApi.delete(r.idReceta);
-      if (deleteTarget.idPlantilla) {
-        const pasosActuales = await procesosApi.getByPlantilla(deleteTarget.idPlantilla);
-        for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
-        await plantillasApi.delete(deleteTarget.idPlantilla);
-      }
-      await productosApi.delete(deleteTarget.idProducto);
-      setDeleteTarget(null);
-      cargarDatos();
-    } catch (e) {
-      alert("Error al eliminar: " + e.message);
-    } finally {
-      setDeleting(false);
+    // 2. Desvincular y borrar plantilla
+    if (deleteTarget.idPlantilla) {
+      await productosApi.desvincularPlantilla(deleteTarget.idProducto);
+      const pasosActuales = await procesosApi.getByPlantilla(deleteTarget.idPlantilla);
+      for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
+      await plantillasApi.delete(deleteTarget.idPlantilla);
     }
-  };
+
+    // 3. Borrar el producto
+    await productosApi.delete(deleteTarget.idProducto);
+    setDeleteTarget(null);
+    cargarDatos();
+  } catch (e) {
+    alert("Error al eliminar: " + e.message);
+  } finally {
+    setDeleting(false);
+  }
+};
 
   function getPasos(idProducto) {
     return procesos.filter((p) => p.idPlantilla === idProducto).length;
@@ -645,7 +596,7 @@ useEffect(() => {
 
   const filtrados = productos.filter((p) => {
     const matchSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || (p.tipo || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCat    = catActiva === "Todas" || p.tipo === catActiva;
+    const matchCat = catActiva === "Todas" || p.tipo === catActiva;
     return matchSearch && matchCat;
   });
 
@@ -675,10 +626,10 @@ useEffect(() => {
       {!loading && !error && (
         <>
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: isMobile ? 10 : 14, marginBottom: isMobile ? 14 : 24 }}>
-            <StatCard label="Total productos"    value={String(productos.length)} />
-            <StatCard label="Tipos distintos"    value={String(categorias.length - 1)} valueColor={palette.accent1} />
-            <StatCard label="Pedidos entregados" value={String(pedidosEntregados)}     valueColor={palette.accent3} />
-            <StatCard label="Pasos promedio"     value={`${tiempoPromedio} pasos`}     valueColor={palette.accent2} />
+            <StatCard label="Total productos" value={String(productos.length)} />
+            <StatCard label="Tipos distintos" value={String(categorias.length - 1)} valueColor={palette.accent1} />
+            <StatCard label="Pedidos entregados" value={String(pedidosEntregados)} valueColor={palette.accent3} />
+            <StatCard label="Pasos promedio" value={`${tiempoPromedio} pasos`} valueColor={palette.accent2} />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 22, flexWrap: "wrap" }}>
@@ -686,13 +637,13 @@ useEffect(() => {
             <div style={{ marginLeft: isMobile ? 0 : "auto", display: "flex", gap: 8, alignItems: "center", ...(isMobile ? { width: "100%" } : {}) }}>
               <div style={{ position: "relative", flex: isMobile ? 1 : undefined }}>
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                  <circle cx="11" cy="11" r="8"/><path strokeLinecap="round" d="M21 21l-4.35-4.35"/>
+                  <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35" />
                 </svg>
                 <input type="text" placeholder="Buscar receta..." value={searchTerm}
                   onChange={(e) => { setSearchTerm(e.target.value); setCatActiva("Todas"); }}
                   style={{ paddingLeft: 32, paddingRight: 14, height: 34, borderRadius: 20, border: `1px solid ${palette.border}`, background: palette.bgCard, fontSize: 12.5, color: palette.textDark, width: isMobile ? "100%" : 196 }}
                   onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                  onBlur={(e)  => (e.target.style.borderColor = palette.border)} />
+                  onBlur={(e) => (e.target.style.borderColor = palette.border)} />
               </div>
               <button onClick={handleNuevo} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 16px", borderRadius: 20, fontSize: 12.5, fontWeight: 600, border: "none", background: palette.primary, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: `0 2px 10px ${palette.primary}33` }}>
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>

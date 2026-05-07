@@ -225,9 +225,12 @@ function CambiarFechaModal({ pedido, onClose, onSaved }) {
       for (const t of tareas) {
         const nuevaFecha = new Date(nuevaEntrega);
         nuevaFecha.setDate(nuevaFecha.getDate() - (t.diasAntesEntrega || 0));
+        const yyyy = nuevaFecha.getFullYear();
+        const mm   = String(nuevaFecha.getMonth() + 1).padStart(2, "0");
+        const dd   = String(nuevaFecha.getDate()).padStart(2, "0");
         await tareasApi.actualizarFecha(t.idTarea, {
           ...t,
-          fechaEjecucion: nuevaFecha.toISOString().slice(0, 10),
+          fechaEjecucion: `${yyyy}-${mm}-${dd}`,
         });
       }
 
