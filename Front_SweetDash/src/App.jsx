@@ -10,18 +10,20 @@ import RecetasView from "./views/RecetasView";
 import CalendarioView from "./views/CalendarioView";
 import AdminView from "./views/AdminView";
 import EstadisticasView from "./views/EstadisticasView";
+import CostesView from "./views/CostesView";
 import useIsMobile from "./hooks/useIsMobile";
 import palette from "./theme/palette";
 import "./index.css";
 
 const VIEW_META = {
   home:         { title: "Bienvenida",     sub: "Resumen de hoy en tu repostería"        },
-  pedidos:      { title: "Pedidos",        sub: "Gestiona y supervisa todos los pedidos"  },
+  pedidos:      { title: "Pedidos",        sub: "Gestiona y supervisa todos los pedidos" },
   clientes:     { title: "Clientes",       sub: "Base de clientes activos"               },
   productos:    { title: "Inventario",     sub: "Stock y catálogo de productos"          },
   recetas:      { title: "Recetas",        sub: "Biblioteca de recetas guardadas"        },
   calendario:   { title: "Calendario",     sub: "Entregas y eventos programados"         },
   estadisticas: { title: "Estadísticas",   sub: "Analítica y rendimiento"                },
+  costes:       { title: "Costes",         sub: "Costes y márgenes por producto"     },
   admin:        { title: "Administración", sub: "Configuración de la tienda"             },
 };
 
@@ -44,6 +46,7 @@ export default function App() {
       case "recetas":      return <RecetasView {...vp} />;
       case "calendario":   return <CalendarioView {...vp} />;
       case "estadisticas": return <EstadisticasView {...vp} />;
+      case "costes":       return <CostesView {...vp} />;
       case "admin":        return <AdminView {...vp} />;
       default:             return <HomeView onNavigate={navigate} {...vp} />;
     }

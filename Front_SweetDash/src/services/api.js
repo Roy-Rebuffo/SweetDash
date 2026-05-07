@@ -108,3 +108,12 @@ export const tareasApi = {
   actualizarEstado: (id, data)  => request(`/tareas/${id}/estado`, { method: "PUT", body: JSON.stringify(data) }),
   actualizarFecha:  (id, data)  => request(`/tareas/${id}/fecha`,  { method: "PUT", body: JSON.stringify(data) }),
 };
+
+export const recetasTamañoApi = {
+  getAll:          ()          => request("/recetas-tamaño"),
+  getById:         (id)        => request(`/recetas-tamaño/${id}`),
+  getByProducto:   (id)        => request(`/recetas-tamaño/producto/${id}`),
+  create:          (data)      => request("/recetas-tamaño", { method: "POST", body: JSON.stringify(data) }),
+  update:          (id, data)  => request(`/recetas-tamaño/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete:          (id)        => fetch(`${BASE_URL}/recetas-tamaño/${id}`, { method: "DELETE" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
+};
