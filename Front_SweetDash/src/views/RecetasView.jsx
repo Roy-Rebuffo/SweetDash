@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
-import { productosApi, procesosApi, pedidosApi, recetasApi, materiasPrimasApi, plantillasApi } from "../services/api";
+import { productosApi, procesosApi, pedidosApi, recetasApi, materiasPrimasApi, plantillasApi, recetasTamañoApi } from "../services/api";
 import FilterSelect from "../components/FilterSelect";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -131,8 +131,88 @@ function SectionHeader({ title, onAdd, addLabel }) {
   );
 }
 
+// ── Subcomponente: un tamaño con sus ingredientes ─────────────────────────────
+function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove }) {
+  const inputStyle = { height: 34, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, padding: "0 10px", fontSize: 12, color: palette.textDark, fontFamily: "'DM Sans', sans-serif", width: "100%" };
+
+  const addIng = () => {
+    if (materiasPrimas.length === 0) return;
+    onChange(idx, "ingredientes", [...tamaño.ingredientes, { idMateriaPrima: materiasPrimas[0].idMateriaPrima, cantidadUsada: "" }]);
+  };
+  const removeIng = (i) => onChange(idx, "ingredientes", tamaño.ingredientes.filter((_, j) => j !== i));
+  const updateIng = (i, key, value) => onChange(idx, "ingredientes", tamaño.ingredientes.map((ing, j) => j !== i ? ing : { ...ing, [key]: value }));
+
+  return (
+    <div style={{ background: palette.bg, borderRadius: 12, border: `1px solid ${palette.border}`, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Cabecera tamaño */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <label style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px" }}>Tamaño</label>
+          <input type="text" value={tamaño.descripcionTamaño} onChange={e => onChange(idx, "descripcionTamaño", e.target.value)}
+            placeholder="20cm · 8-10p / 450gr / 12 unidades..."
+            style={inputStyle}
+            onFocus={e => e.target.style.borderColor = palette.primaryMid}
+            onBlur={e  => e.target.style.borderColor = palette.border} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <label style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px" }}>Precio venta (€)</label>
+          <input type="number" min="0" step="0.01" value={tamaño.precioVenta} onChange={e => onChange(idx, "precioVenta", e.target.value)}
+            placeholder="35.00" style={inputStyle}
+            onFocus={e => e.target.style.borderColor = palette.primaryMid}
+            onBlur={e  => e.target.style.borderColor = palette.border} />
+        </div>
+        <button onClick={() => onRemove(idx)} style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0, marginTop: 16 }}>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      {/* Ingredientes del tamaño */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px" }}>Ingredientes y cantidades</span>
+          <button onClick={addIng} style={{ fontSize: 11, fontWeight: 600, color: palette.primary, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontFamily: "'DM Sans', sans-serif" }}>
+            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+            Añadir
+          </button>
+        </div>
+
+        {tamaño.ingredientes.length === 0 && (
+          <div style={{ fontSize: 11, color: palette.textLight, padding: "8px 0", textAlign: "center" }}>Sin ingredientes — pulsa Añadir</div>
+        )}
+
+        {tamaño.ingredientes.map((ing, i) => {
+          const mp = materiasPrimas.find(m => m.idMateriaPrima === Number(ing.idMateriaPrima));
+          return (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: 8, alignItems: "center" }}>
+              <select value={ing.idMateriaPrima} onChange={e => updateIng(i, "idMateriaPrima", Number(e.target.value))}
+                style={{ ...inputStyle, appearance: "none", fontSize: 12 }}
+                onFocus={e => e.target.style.borderColor = palette.primaryMid}
+                onBlur={e  => e.target.style.borderColor = palette.border}>
+                {materiasPrimas.map(m => <option key={m.idMateriaPrima} value={m.idMateriaPrima}>{m.nombre} ({m.unidad})</option>)}
+              </select>
+              <div style={{ position: "relative" }}>
+                <input type="number" min="0" step="0.01" value={ing.cantidadUsada}
+                  onChange={e => updateIng(i, "cantidadUsada", e.target.value)}
+                  placeholder="180" style={{ ...inputStyle, paddingRight: mp ? 32 : 10, fontSize: 12 }}
+                  onFocus={e => e.target.style.borderColor = palette.primaryMid}
+                  onBlur={e  => e.target.style.borderColor = palette.border} />
+                {mp && <span style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: palette.textLight, pointerEvents: "none" }}>{mp.unidad}</span>}
+              </div>
+              <button onClick={() => removeIng(i)} style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Modal Receta/Producto ─────────────────────────────────────────────────────
 const EMPTY_PROD = { nombre: "", descripcion: "", tipo: "", cantidadPersonas: "", precioBase: "" };
+const EMPTY_TAMAÑO = () => ({ id: null, descripcionTamaño: "", precioVenta: "", ingredientes: [] });
 
 function RecetaModal({ producto, onClose, onSaved }) {
   const isEdit = !!producto;
@@ -155,20 +235,39 @@ function RecetaModal({ producto, onClose, onSaved }) {
   const [plantillaDescripcion, setPlantillaDescripcion] = useState("");
   const [pasos,                setPasos]                = useState([]);
   const [plantillaExistenteId, setPlantillaExistenteId] = useState(null);
+  const [tamaños,              setTamaños]              = useState([]); // escandallos por tamaño
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState(null);
 
   useEffect(() => {
     const promises = [materiasPrimasApi.getAll()];
-    if (isEdit) promises.push(recetasApi.getByProducto(producto.idProducto));
+    if (isEdit) {
+      promises.push(recetasApi.getByProducto(producto.idProducto));
+      promises.push(recetasTamañoApi.getByProducto(producto.idProducto));
+    }
 
-    Promise.all(promises).then(async ([mps, recetas]) => {
+    Promise.all(promises).then(async ([mps, recetas, tamañosExistentes]) => {
       setMateriasPrimas(mps);
+
       if (recetas && recetas.length > 0) {
         setIngredientes(recetas.map((r) => ({
           idReceta: r.idReceta, idMateriaPrima: r.idMateriaPrima, cantidadNecesaria: r.cantidadNecesaria,
         })));
       }
+
+      // Cargar tamaños existentes
+      if (tamañosExistentes && tamañosExistentes.length > 0) {
+        setTamaños(tamañosExistentes.map(t => ({
+          id: t.id,
+          descripcionTamaño: t.descripcionTamaño || "",
+          precioVenta: t.precioVenta || "",
+          ingredientes: (t.ingredientes || []).map(i => ({
+            idMateriaPrima: i.idMateriaPrima,
+            cantidadUsada:  i.cantidadUsada,
+          })),
+        })));
+      }
+
       if (isEdit && producto.idPlantilla) {
         try {
           const plantilla = await plantillasApi.getById(producto.idPlantilla);
@@ -189,13 +288,20 @@ function RecetaModal({ producto, onClose, onSaved }) {
     setImagenPreview(URL.createObjectURL(file));
   };
 
-  const addIngrediente  = () => { if (materiasPrimas.length === 0) return; setIngredientes((l) => [...l, { idMateriaPrima: materiasPrimas[0].idMateriaPrima, cantidadNecesaria: 1 }]); };
+  // Ingredientes receta base
+  const addIngrediente    = () => { if (materiasPrimas.length === 0) return; setIngredientes((l) => [...l, { idMateriaPrima: materiasPrimas[0].idMateriaPrima, cantidadNecesaria: 1 }]); };
   const removeIngrediente = (idx) => setIngredientes((l) => l.filter((_, i) => i !== idx));
   const updateIngrediente = (idx, key, value) => setIngredientes((l) => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
 
+  // Pasos elaboración
   const addPaso    = () => setPasos((l) => [...l, { nombre: "", diasAntesEntrega: 1 }]);
   const removePaso = (idx) => setPasos((l) => l.filter((_, i) => i !== idx));
   const updatePaso = (idx, key, value) => setPasos((l) => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
+
+  // Tamaños escandallo
+  const addTamaño    = () => setTamaños(l => [...l, EMPTY_TAMAÑO()]);
+  const removeTamaño = (idx) => setTamaños(l => l.filter((_, i) => i !== idx));
+  const updateTamaño = (idx, key, value) => setTamaños(l => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
 
   const handleSubmit = async () => {
     if (!form.nombre.trim())       { setError("El nombre es obligatorio");      return; }
@@ -224,6 +330,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
         await recetasApi.create({ idProducto: productoId, idMateriaPrima: Number(ing.idMateriaPrima), cantidadNecesaria: Number(ing.cantidadNecesaria) });
       }
 
+      // Plantilla elaboración
       if (plantillaNombre.trim() || pasos.length > 0) {
         let plantillaId = plantillaExistenteId;
         if (plantillaId) {
@@ -239,6 +346,24 @@ function RecetaModal({ producto, onClose, onSaved }) {
           await procesosApi.create({ nombre: paso.nombre, diasAntesEntrega: Number(paso.diasAntesEntrega), plantillaProceso: { idPlantilla: plantillaId } });
         }
         await procesosApi.vincularProducto(productoId, plantillaId);
+      }
+
+      // Escandallos por tamaño
+      for (const tam of tamaños) {
+        if (!tam.precioVenta) continue;
+        const tamPayload = {
+          idProducto:       productoId,
+          descripcionTamaño: tam.descripcionTamaño || null,
+          precioVenta:      Number(tam.precioVenta),
+          ingredientes:     tam.ingredientes
+            .filter(i => i.cantidadUsada)
+            .map(i => ({ idMateriaPrima: Number(i.idMateriaPrima), cantidadUsada: Number(i.cantidadUsada) })),
+        };
+        if (tam.id) {
+          await recetasTamañoApi.update(tam.id, tamPayload);
+        } else {
+          await recetasTamañoApi.create(tamPayload);
+        }
       }
 
       onSaved();
@@ -312,8 +437,8 @@ function RecetaModal({ producto, onClose, onSaved }) {
               </div>
             </div>
 
-            {/* ── 2. Ingredientes ── */}
-            <SectionHeader title="Ingredientes" onAdd={addIngrediente} addLabel="Añadir ingrediente" />
+            {/* ── 2. Ingredientes base ── */}
+            <SectionHeader title="Ingredientes base" onAdd={addIngrediente} addLabel="Añadir ingrediente" />
 
             {ingredientes.length === 0 && (
               <div style={{ padding: "14px", textAlign: "center", color: palette.textLight, fontSize: 12, background: palette.bg, borderRadius: 8, border: `1px dashed ${palette.border}` }}>
@@ -339,7 +464,31 @@ function RecetaModal({ producto, onClose, onSaved }) {
               </div>
             ))}
 
-            {/* ── 3. Plantilla de elaboración ── */}
+            {/* ── 3. Coste por tamaño (escandallo) ── */}
+            <SectionHeader title="Coste por tamaño" onAdd={addTamaño} addLabel="Añadir tamaño" />
+
+            <div style={{ fontSize: 11.5, color: palette.textLight, marginTop: -8 }}>
+              Define el precio de venta y los ingredientes para cada tamaño. Los costes y márgenes se calcularán automáticamente en la sección de Costes.
+            </div>
+
+            {tamaños.length === 0 && (
+              <div style={{ padding: "14px", textAlign: "center", color: palette.textLight, fontSize: 12, background: palette.bg, borderRadius: 8, border: `1px dashed ${palette.border}` }}>
+                Pulsa "Añadir tamaño" para definir escandallos de coste
+              </div>
+            )}
+
+            {tamaños.map((tam, idx) => (
+              <TamañoRow
+                key={idx}
+                tamaño={tam}
+                idx={idx}
+                materiasPrimas={materiasPrimas}
+                onChange={updateTamaño}
+                onRemove={removeTamaño}
+              />
+            ))}
+
+            {/* ── 4. Plantilla de elaboración ── */}
             <SectionHeader title="Plantilla de elaboración" onAdd={addPaso} addLabel="Añadir paso" />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -386,7 +535,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
             {pasos.length > 0 && (
               <div style={{ background: palette.accent3Lt, borderRadius: 8, padding: "10px 14px", fontSize: 12, color: palette.accent3, display: "flex", alignItems: "center", gap: 8 }}>
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                "Días antes" indica cuántos días antes de la entrega se realiza ese paso. Ej: 3 = se hace 3 días antes de entregar.
+                "Días antes" indica cuántos días antes de la entrega se realiza ese paso.
               </div>
             )}
 
@@ -412,7 +561,7 @@ function ConfirmModal({ nombre, onClose, onConfirm, loading }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{ background: palette.bgCard, borderRadius: 18, border: `1px solid ${palette.border}`, boxShadow: "0 8px 32px oklch(0% 0 0 / 0.12)", width: "100%", maxWidth: 360, padding: 28 }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: palette.textDark, marginBottom: 10 }}>Eliminar receta</div>
-        <div style={{ fontSize: 13, color: palette.textMid, marginBottom: 22 }}>¿Seguro que quieres eliminar <b>{nombre}</b>? Se eliminará el producto, sus ingredientes y su plantilla. Esta acción no se puede deshacer.</div>
+        <div style={{ fontSize: 13, color: palette.textMid, marginBottom: 22 }}>¿Seguro que quieres eliminar <b>{nombre}</b>? Se eliminará el producto, sus ingredientes, su plantilla y sus escandallos de coste. Esta acción no se puede deshacer.</div>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button onClick={onClose} style={{ padding: "8px 18px", borderRadius: 10, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 13, fontWeight: 600, color: palette.textMid, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancelar</button>
           <button onClick={onConfirm} disabled={loading} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: "#EF4444", fontSize: 13, fontWeight: 600, color: "#fff", cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "'DM Sans', sans-serif" }}>
@@ -455,6 +604,10 @@ export default function RecetasView({ isMobile = false }) {
   const handleEliminar = async () => {
     setDeleting(true);
     try {
+      // Eliminar escandallos de tamaño
+      const tamañosExistentes = await recetasTamañoApi.getByProducto(deleteTarget.idProducto);
+      for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
+
       const recetas = await recetasApi.getByProducto(deleteTarget.idProducto);
       for (const r of recetas) await recetasApi.delete(r.idReceta);
       if (deleteTarget.idPlantilla) {

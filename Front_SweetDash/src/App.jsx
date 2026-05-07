@@ -46,7 +46,7 @@ export default function App() {
       case "recetas":      return <RecetasView {...vp} />;
       case "calendario":   return <CalendarioView {...vp} />;
       case "estadisticas": return <EstadisticasView {...vp} />;
-      case "costes":       return <CostesView {...vp} />;
+      case "costes":       return <CostesView onNavigate={navigate} {...vp} />;
       case "admin":        return <AdminView {...vp} />;
       default:             return <HomeView onNavigate={navigate} {...vp} />;
     }
