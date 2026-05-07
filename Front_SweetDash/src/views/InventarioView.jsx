@@ -69,7 +69,53 @@ function StatCard({ label, value, trend, trendColor }) {
 }
 
 // ── Modal Materia Prima ───────────────────────────────────────────────────────
-const EMPTY_MP = { nombre: "", cantidadStock: "", stockMaximo: "", unidad: "", fechaCaducidad: "" };
+const EMPTY_MP = { nombre: "", cantidadStock: "", stockMaximo: "", unidad: "", fechaCaducidad: "", precioPaquete: "", unidadesPaquete: "" };
+
+function NuevoItemModal({ onClose, onSaved, materiasPrimas }) {
+  const [tipo, setTipo] = useState(null); // "mp" | "mat"
+
+  if (tipo === "mp") return <MateriaPrimaModal item={null} onClose={onClose} onSaved={onSaved} />;
+  if (tipo === "mat") return <MaterialModal item={null} onClose={onClose} onSaved={onSaved} />;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "oklch(0% 0 0 / 0.35)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: palette.bgCard, borderRadius: 18, border: `1px solid ${palette.border}`, boxShadow: "0 8px 32px oklch(0% 0 0 / 0.12)", width: "100%", maxWidth: 400, padding: 28 }}>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: palette.textDark }}>¿Qué quieres añadir?</div>
+          <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bg, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.textLight }}>
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <button onClick={() => setTipo("mp")}
+            style={{ padding: "16px 20px", borderRadius: 12, border: `1px solid ${palette.border}`, background: palette.bg, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 14, transition: "all 0.15s" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = palette.primary; e.currentTarget.style.background = palette.primaryLt; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = palette.border; e.currentTarget.style.background = palette.bg; }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: palette.accent3Lt, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>🧈</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: palette.textDark }}>Materia Prima</div>
+              <div style={{ fontSize: 12, color: palette.textLight, marginTop: 2 }}>Ingredientes usados en recetas — harina, mantequilla, chocolate...</div>
+            </div>
+          </button>
+
+          <button onClick={() => setTipo("mat")}
+            style={{ padding: "16px 20px", borderRadius: 12, border: `1px solid ${palette.border}`, background: palette.bg, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 14, transition: "all 0.15s" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = palette.primary; e.currentTarget.style.background = palette.primaryLt; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = palette.border; e.currentTarget.style.background = palette.bg; }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: palette.accent1Lt, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>📦</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: palette.textDark }}>Material</div>
+              <div style={{ fontSize: 12, color: palette.textLight, marginTop: 2 }}>Packaging y materiales de apoyo — cajas, moldes, mangas...</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function MateriaPrimaModal({ item, onClose, onSaved }) {
   const isEdit = !!item;
@@ -79,7 +125,13 @@ function MateriaPrimaModal({ item, onClose, onSaved }) {
     stockMaximo: item.stockMax,
     unidad: item.unidad,
     fechaCaducidad: item.caducidad ? item.caducidad.slice(0, 10) : "",
+    precioPaquete: item.precioPaquete ?? "",
+    unidadesPaquete: item.unidadesPaquete ?? "",
   } : EMPTY_MP);
+
+  // Si al editar ya tiene fecha, el checkbox arranca marcado
+  const [tieneCaducidad, setTieneCaducidad] = useState(isEdit ? !!item.caducidad : false);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -97,7 +149,9 @@ function MateriaPrimaModal({ item, onClose, onSaved }) {
         cantidadStock: Number(form.cantidadStock),
         stockMaximo: Number(form.stockMaximo) || 0,
         unidad: form.unidad,
-        fechaCaducidad: form.fechaCaducidad || null,
+        fechaCaducidad: tieneCaducidad ? (form.fechaCaducidad || null) : null,
+        precioPaquete: Number(form.precioPaquete) || 0,
+        unidadesPaquete: Number(form.unidadesPaquete) || 1,
       };
       if (isEdit) await materiasPrimasApi.update(item.rawId, payload);
       else await materiasPrimasApi.create(payload);
@@ -134,17 +188,48 @@ function MateriaPrimaModal({ item, onClose, onSaved }) {
               <input type="number" min="0" step="0.01" value={form.stockMaximo} onChange={(e) => setForm(f => ({ ...f, stockMaximo: e.target.value }))} placeholder="0" style={inputStyle} onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)} onBlur={(e) => (e.target.style.borderColor = palette.border)} />
             </div>
           </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <label style={labelStyle}>Unidad</label>
+            <input value={form.unidad} onChange={(e) => setForm(f => ({ ...f, unidad: e.target.value }))} placeholder="kg, g, L, ud..." style={inputStyle} onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)} onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+          </div>
+
+          {/* Caducidad opcional */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <label style={labelStyle}>Unidad</label>
-              <input value={form.unidad} onChange={(e) => setForm(f => ({ ...f, unidad: e.target.value }))} placeholder="kg, g, L..." style={inputStyle} onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)} onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+              <label style={labelStyle}>Precio paquete (€)</label>
+              <input type="number" min="0" step="0.01" value={form.precioPaquete}
+                onChange={(e) => setForm(f => ({ ...f, precioPaquete: e.target.value }))}
+                placeholder="2.56" style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                onBlur={(e) => (e.target.style.borderColor = palette.border)} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <label style={labelStyle}>Fecha caducidad</label>
-              <input type="date" value={form.fechaCaducidad} onChange={(e) => setForm(f => ({ ...f, fechaCaducidad: e.target.value }))} style={inputStyle} onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)} onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+              <label style={labelStyle}>Unidades por paquete</label>
+              <input type="number" min="0" step="0.01" value={form.unidadesPaquete}
+                onChange={(e) => setForm(f => ({ ...f, unidadesPaquete: e.target.value }))}
+                placeholder="250" style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                onBlur={(e) => (e.target.style.borderColor = palette.border)} />
             </div>
           </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
+              <div onClick={() => setTieneCaducidad(v => !v)}
+                style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${tieneCaducidad ? palette.primary : palette.border}`, background: tieneCaducidad ? palette.primary : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s", cursor: "pointer" }}>
+                {tieneCaducidad && <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+              </div>
+              <span style={{ fontSize: 13, color: palette.textMid, fontWeight: 500 }}>Tiene fecha de caducidad</span>
+            </label>
+
+            {tieneCaducidad && (
+              <input type="date" value={form.fechaCaducidad} onChange={(e) => setForm(f => ({ ...f, fechaCaducidad: e.target.value }))}
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+            )}
+          </div>
         </div>
+
         {error && <div style={{ marginTop: 12, fontSize: 12, color: "#EF4444", background: "#FEF2F2", borderRadius: 8, padding: "8px 12px" }}>{error}</div>}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 22 }}>
           <button onClick={onClose} style={{ padding: "8px 18px", borderRadius: 10, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 13, fontWeight: 600, color: palette.textMid, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancelar</button>
@@ -282,6 +367,8 @@ export default function InventarioView({ isMobile = false }) {
       stockMax: m.stockMaximo,
       unidad: m.unidad,
       caducidad: m.fechaCaducidad,
+      precioPaquete: m.precioPaquete,
+      unidadesPaquete: m.unidadesPaquete,
       emoji: emojiParaNombre(m.nombre),
     })),
     ...materiales.map((m) => ({
@@ -294,6 +381,8 @@ export default function InventarioView({ isMobile = false }) {
       stockMax: m.stockMaximo,
       unidad: "ud",
       caducidad: null,
+      precioPaquete: null,
+      unidadesPaquete: null,
       emoji: emojiParaNombre(m.nombre),
     })),
   ];
@@ -310,9 +399,8 @@ export default function InventarioView({ isMobile = false }) {
   const handleTab = (t) => { setTab(t); setPage(1); };
 
   const handleNuevo = () => {
-    // decide tipo según el tab activo
-    const tipo = tab === "Materiales" ? "mat" : "mp";
-    setEditItem(null); setModalTipo(tipo);
+    setEditItem(null);
+    setModalTipo("nuevo");
   };
   const handleEditar = (item) => { setEditItem(item); setModalTipo(item.tipo); };
   const handleSaved = () => { setModalTipo(null); setEditItem(null); cargarDatos(); };
@@ -356,8 +444,9 @@ export default function InventarioView({ isMobile = false }) {
     <div style={{ maxWidth: 1050, margin: "0 auto", position: "relative" }}>
 
       {/* Modales */}
-      {modalTipo === "mp" && <MateriaPrimaModal item={editItem} onClose={() => { setModalTipo(null); setEditItem(null); }} onSaved={handleSaved} />}
-      {modalTipo === "mat" && <MaterialModal item={editItem} onClose={() => { setModalTipo(null); setEditItem(null); }} onSaved={handleSaved} />}
+      {modalTipo === "nuevo" && !editItem && <NuevoItemModal onClose={() => setModalTipo(null)} onSaved={handleSaved} />}
+      {modalTipo === "mp" && editItem && <MateriaPrimaModal item={editItem} onClose={() => { setModalTipo(null); setEditItem(null); }} onSaved={handleSaved} />}
+      {modalTipo === "mat" && editItem && <MaterialModal item={editItem} onClose={() => { setModalTipo(null); setEditItem(null); }} onSaved={handleSaved} />}
       {deleteTarget && <ConfirmModal nombre={deleteTarget.nombre} onClose={() => setDeleteTarget(null)} onConfirm={handleEliminar} loading={deleting} />}
 
       {/* Loading */}
