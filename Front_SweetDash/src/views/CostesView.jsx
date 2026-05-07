@@ -119,7 +119,7 @@ function EscandalloCard({ receta }) {
 }
 
 // ── Vista principal ───────────────────────────────────────────────────────────
-export default function CostesView({ isMobile = false, onNavigate }) {
+export default function CostesView({ isMobile = false, onNavigate, onEditarReceta }) {
   const [productos,      setProductos]      = useState([]);
   const [materiasPrimas, setMateriasPrimas] = useState([]);
   const [recetas,        setRecetas]        = useState([]);
@@ -234,7 +234,7 @@ export default function CostesView({ isMobile = false, onNavigate }) {
               </div>
 
               {/* Botón editar receta */}
-              <button onClick={() => onNavigate && onNavigate("recetas")}
+              <button onClick={() => onEditarReceta && onEditarReceta(productoActivo)}
                 style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 10, border: `1px solid ${palette.primary}`, background: palette.primaryLt, color: palette.primary, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 Editar en Recetas

@@ -574,7 +574,7 @@ function ConfirmModal({ nombre, onClose, onConfirm, loading }) {
 }
 
 // ── Vista principal ───────────────────────────────────────────────────────────
-export default function RecetasView({ isMobile = false }) {
+export default function RecetasView({ isMobile = false, productoParaEditar = null, onClearEditar }) {
   const [productos,  setProductos]  = useState([]);
   const [procesos,   setProcesos]   = useState([]);
   const [pedidos,    setPedidos]    = useState([]);
@@ -596,6 +596,14 @@ export default function RecetasView({ isMobile = false }) {
   };
 
   useEffect(() => { cargarDatos(); }, []);
+
+useEffect(() => {
+  if (productoParaEditar) {
+    setEditProducto(productoParaEditar);
+    setModalOpen(true);
+    onClearEditar && onClearEditar();
+  }
+}, [productoParaEditar]);
 
   const handleNuevo  = () => { setEditProducto(null); setModalOpen(true); };
   const handleEditar = (p) => { setEditProducto(p);   setModalOpen(true); };

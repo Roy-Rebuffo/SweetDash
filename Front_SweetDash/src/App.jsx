@@ -37,16 +37,18 @@ export default function App() {
 
   const vp = { isMobile };
 
+  const [editarProducto, setEditarProducto] = useState(null);
+
   const renderView = () => {
     switch (activeModule) {
       case "home":         return <HomeView onNavigate={navigate} {...vp} />;
       case "pedidos":      return <PedidosView {...vp} />;
       case "clientes":     return <ClientesView {...vp} />;
       case "productos":    return <InventarioView {...vp} />;
-      case "recetas":      return <RecetasView {...vp} />;
+      case "recetas": return <RecetasView productoParaEditar={editarProducto} onClearEditar={() => setEditarProducto(null)} {...vp} />;
       case "calendario":   return <CalendarioView {...vp} />;
       case "estadisticas": return <EstadisticasView {...vp} />;
-      case "costes":       return <CostesView onNavigate={navigate} {...vp} />;
+      case "costes": return <CostesView onNavigate={navigate} onEditarReceta={(prod) => { setEditarProducto(prod); navigate("recetas"); }} {...vp} />;
       case "admin":        return <AdminView {...vp} />;
       default:             return <HomeView onNavigate={navigate} {...vp} />;
     }
