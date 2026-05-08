@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.roy.dto.TareaProgramadaDTO;
 import com.roy.model.TareaProgramada;
+import com.roy.service.IPedidosService;
+import com.roy.service.IProcesosProduccionService;
 import com.roy.service.ITareasProgramadasService;
+import com.roy.model.Pedido;
+import com.roy.model.ProcesoProduccion;
 
 @RestController
 @RequestMapping("/api/tareas")
@@ -22,6 +26,12 @@ public class TareasController {
 
     @Autowired
     private ITareasProgramadasService serviceTareas;
+    
+    @Autowired
+    private IPedidosService servicePedidos;
+    
+    @Autowired
+    private IProcesosProduccionService serviceProcesos;
 
     @GetMapping
     public List<TareaProgramadaDTO> obtenerTodas() {
@@ -94,5 +104,51 @@ public class TareasController {
             tarea.getProcesoProduccion().getNombre(),
             tarea.getProcesoProduccion().getDiasAntesEntrega()
         ));
+    }
+    
+    @PutMapping("/recalcular/plantilla/{idPlantilla}")
+    public ResponseEntity<Void> recalcularPorPlantilla(@PathVariable Integer idPlantilla) {
+        // Obtener todos los pedidos activos (no entregados)
+        List<Pedido> pedidosActivos = servicePedidos.buscarTodas().stream()
+            .filter(p -> !"Entregado".equals(p.getEstado()))
+            .collect(java.util.stream.Collectors.toList());
+
+        // Obtener los nuevos procesos de la plantilla
+        List<ProcesoProduccion> procesos = serviceProcesos.buscarTodas().stream()
+            .filter(proc -> proc.getPlantillaProceso().getIdPlantilla() == idPlantilla)
+            .collect(java.util.stream.Collectors.toList());
+
+        for (Pedido pedido : pedidosActivos) {
+            // Comprobar si algún detalle del pedido usa esta plantilla
+            boolean usaPlantilla = pedido.getDetalles().stream()
+                .anyMatch(d -> d.getProducto().getPlantillaProceso() != null &&
+                    d.getProducto().getPlantillaProceso().getIdPlantilla() == idPlantilla);
+
+            if (!usaPlantilla) continue;
+
+            // Borrar tareas antiguas asociadas a procesos de esta plantilla
+            List<TareaProgramada> tareasAntiguas = serviceTareas.buscarTodas().stream()
+                .filter(t -> t.getPedido().getIdPedido() == pedido.getIdPedido() &&
+                    t.getProcesoProduccion().getPlantillaProceso().getIdPlantilla() == idPlantilla)
+                .collect(java.util.stream.Collectors.toList());
+            for (TareaProgramada t : tareasAntiguas) {
+                serviceTareas.eliminar(t.getIdTarea());
+            }
+
+            // Crear nuevas tareas con los procesos actualizados
+            for (ProcesoProduccion proceso : procesos) {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(pedido.getFechaEntrega());
+                cal.add(java.util.Calendar.DAY_OF_MONTH, -proceso.getDiasAntesEntrega());
+                TareaProgramada tarea = new TareaProgramada();
+                tarea.setPedido(pedido);
+                tarea.setProcesoProduccion(proceso);
+                tarea.setFechaEjecucion(cal.getTime());
+                tarea.setEstado("Pendiente");
+                serviceTareas.guardar(tarea);
+            }
+        }
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import com.roy.dto.ProcesoProduccionDTO;
 import com.roy.model.ProcesoProduccion;
 import com.roy.service.IProcesosProduccionService;
+import com.roy.service.ITareasProgramadasService;
 import com.roy.model.PlantillaProceso;
 import com.roy.service.IPlantillasProcesosService;
+import com.roy.model.TareaProgramada;
 
 @RestController
 @RequestMapping("/api/procesos")
@@ -27,6 +29,9 @@ public class ProcesoProduccionController {
     
     @Autowired
     private IPlantillasProcesosService servicePlantilla;
+    
+    @Autowired
+    private ITareasProgramadasService serviceTareas;
 
     @GetMapping
     public List<ProcesoProduccionDTO> obtenerTodos() {
@@ -46,12 +51,17 @@ public class ProcesoProduccionController {
     
  // GET procesos por plantilla — clave para el front
     @GetMapping("/plantilla/{idPlantilla}")
-    public List<ProcesoProduccion> obtenerPorPlantilla(@PathVariable Integer idPlantilla) {
+    public List<ProcesoProduccionDTO> obtenerPorPlantilla(@PathVariable Integer idPlantilla) {
         List<ProcesoProduccion> todos = serviceProceso.buscarTodas();
-        List<ProcesoProduccion> resultado = new ArrayList<>();
+        List<ProcesoProduccionDTO> resultado = new ArrayList<>();
         for (ProcesoProduccion p : todos) {
             if (p.getPlantillaProceso().getIdPlantilla() == idPlantilla) {
-                resultado.add(p);
+                resultado.add(new ProcesoProduccionDTO(
+                    p.getIdProceso(),
+                    p.getNombre(),
+                    p.getDiasAntesEntrega(),
+                    p.getPlantillaProceso().getIdPlantilla()
+                ));
             }
         }
         return resultado;
@@ -67,6 +77,10 @@ public class ProcesoProduccionController {
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         ProcesoProduccion existente = serviceProceso.buscarPorId(id);
         if (existente == null) return ResponseEntity.notFound().build();
+        List<TareaProgramada> tareas = serviceTareas.buscarPorProceso(id);
+        for (TareaProgramada t : tareas) {
+            serviceTareas.eliminar(t.getIdTarea());
+        }
         serviceProceso.eliminar(id);
         return ResponseEntity.noContent().build();
     }

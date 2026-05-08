@@ -44,5 +44,10 @@ public class TareasProgramadasServiceJpa implements ITareasProgramadasService {
 	public Page<TareaProgramada> buscarTodas(Pageable page) {
 		return tareasProgramadasRepo.findAll(page);
 	}
+	
+	@Override
+	public List<TareaProgramada> buscarPorProceso(Integer idProceso) {
+	    return tareasProgramadasRepo.findByProcesoProduccionIdProceso(idProceso);
+	}
 
 }

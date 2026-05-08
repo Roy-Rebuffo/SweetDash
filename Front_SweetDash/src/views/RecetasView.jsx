@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
-import { productosApi, procesosApi, pedidosApi, materiasPrimasApi, plantillasApi, recetasTamañoApi } from "../services/api";
+import { productosApi, procesosApi, pedidosApi, materiasPrimasApi, plantillasApi, recetasTamañoApi, tareasApi } from "../services/api";
 import FilterSelect from "../components/FilterSelect";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -216,6 +216,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
 
   const [materiasPrimas, setMateriasPrimas] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [avisoHueco, setAvisoHueco] = useState(null);
 
   const [form, setForm] = useState(isEdit ? {
     nombre: producto.nombre || "",
@@ -278,7 +279,17 @@ function RecetaModal({ producto, onClose, onSaved }) {
 
   // Pasos elaboración
   const addPaso = () => setPasos((l) => [...l, { nombre: "", diasAntesEntrega: 1 }]);
-  const removePaso = (idx) => setPasos((l) => l.filter((_, i) => i !== idx));
+  const removePaso = (idx) => {
+    const pasoaBorrar = pasos[idx];
+    const nuevosPasos = pasos.filter((_, i) => i !== idx);
+    // Comprobar si ese diasAntesEntrega se queda sin ningún paso
+    const diasBorrado = Number(pasoaBorrar.diasAntesEntrega);
+    const quedaOtroConMismoDia = nuevosPasos.some(p => Number(p.diasAntesEntrega) === diasBorrado);
+    if (!quedaOtroConMismoDia) {
+      setAvisoHueco({ diasBorrado });
+    }
+    setPasos(nuevosPasos);
+  };
   const updatePaso = (idx, key, value) => setPasos((l) => l.map((item, i) => i !== idx ? item : { ...item, [key]: value }));
 
   // Tamaños escandallo
@@ -322,6 +333,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
           await procesosApi.create({ nombre: paso.nombre, diasAntesEntrega: Number(paso.diasAntesEntrega), plantillaProceso: { idPlantilla: plantillaId } });
         }
         await procesosApi.vincularProducto(productoId, plantillaId);
+        await tareasApi.recalcularPorPlantilla(plantillaId);
       }
 
       // Escandallos por tamaño
@@ -487,7 +499,29 @@ function RecetaModal({ producto, onClose, onSaved }) {
                 "Días antes" indica cuántos días antes de la entrega se realiza ese paso.
               </div>
             )}
-
+            {avisoHueco && (
+              <div style={{ background: palette.accent2Lt, border: `1px solid ${palette.accent2}44`, borderRadius: 10, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={palette.accent2} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>
+                  <span style={{ fontSize: 12.5, fontWeight: 600, color: palette.accent2 }}>
+                    El día {avisoHueco.diasBorrado} antes de la entrega se ha quedado sin ningún paso.
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: palette.textMid }}>
+                  ¿Quieres ajustar los días de los pasos restantes?
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => setAvisoHueco(null)}
+                    style={{ padding: "6px 14px", borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 12, fontWeight: 600, color: palette.textMid, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+                    Dejar como está
+                  </button>
+                  <button onClick={() => { setAvisoHueco(null); }}
+                    style={{ padding: "6px 14px", borderRadius: 8, border: "none", background: palette.accent2, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+                    Ajustar días manualmente
+                  </button>
+                </div>
+              </div>
+            )}
             {error && <div style={{ fontSize: 12, color: "#EF4444", background: "#FEF2F2", borderRadius: 8, padding: "8px 12px" }}>{error}</div>}
 
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
@@ -559,30 +593,30 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
   const handleSaved = () => { setModalOpen(false); cargarDatos(); };
 
   const handleEliminar = async () => {
-  setDeleting(true);
-  try {
-    // 1. Borrar escandallos
-    const tamañosExistentes = await recetasTamañoApi.getByProducto(deleteTarget.idProducto);
-    for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
+    setDeleting(true);
+    try {
+      // 1. Borrar escandallos
+      const tamañosExistentes = await recetasTamañoApi.getByProducto(deleteTarget.idProducto);
+      for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
 
-    // 2. Desvincular y borrar plantilla
-    if (deleteTarget.idPlantilla) {
-      await productosApi.desvincularPlantilla(deleteTarget.idProducto);
-      const pasosActuales = await procesosApi.getByPlantilla(deleteTarget.idPlantilla);
-      for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
-      await plantillasApi.delete(deleteTarget.idPlantilla);
+      // 2. Desvincular y borrar plantilla
+      if (deleteTarget.idPlantilla) {
+        await productosApi.desvincularPlantilla(deleteTarget.idProducto);
+        const pasosActuales = await procesosApi.getByPlantilla(deleteTarget.idPlantilla);
+        for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
+        await plantillasApi.delete(deleteTarget.idPlantilla);
+      }
+
+      // 3. Borrar el producto
+      await productosApi.delete(deleteTarget.idProducto);
+      setDeleteTarget(null);
+      cargarDatos();
+    } catch (e) {
+      alert("Error al eliminar: " + e.message);
+    } finally {
+      setDeleting(false);
     }
-
-    // 3. Borrar el producto
-    await productosApi.delete(deleteTarget.idProducto);
-    setDeleteTarget(null);
-    cargarDatos();
-  } catch (e) {
-    alert("Error al eliminar: " + e.message);
-  } finally {
-    setDeleting(false);
-  }
-};
+  };
 
   function getPasos(idProducto) {
     return procesos.filter((p) => p.idPlantilla === idProducto).length;

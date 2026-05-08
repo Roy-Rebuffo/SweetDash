@@ -11,6 +11,7 @@ public interface ITareasProgramadasService {
 	List<TareaProgramada> buscarTodas();
 	TareaProgramada buscarPorId(Integer id_tarea_programada);
 	void guardar(TareaProgramada tareaProgramada);
+	List<TareaProgramada> buscarPorProceso(Integer idProceso);
 	
 	void eliminar(Integer id_tarea_programada);
 	Page<TareaProgramada> buscarTodas(Pageable page);
