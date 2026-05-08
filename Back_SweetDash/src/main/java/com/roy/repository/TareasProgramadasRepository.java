@@ -1,9 +1,9 @@
 package com.roy.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.util.List;
 import com.roy.model.TareaProgramada;
 
 public interface TareasProgramadasRepository extends JpaRepository<TareaProgramada, Integer> {
-
+	List<TareaProgramada> findByProcesoProduccionIdProceso(Integer idProceso);
 }

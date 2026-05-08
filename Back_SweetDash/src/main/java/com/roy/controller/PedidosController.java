@@ -50,14 +50,18 @@ public class PedidosController {
 
 	@GetMapping
 	public List<PedidoDTO> obtenerTodos() {
-		List<Pedido> listaBD = servicePedido.buscarTodas();
-		List<PedidoDTO> listaDTO = new ArrayList<>();
-
-		for (Pedido p : listaBD) {
-			listaDTO.add(new PedidoDTO(p.getIdPedido(), p.getFechaEntrega(), p.getEstado(),
-					p.getCliente().getIdCliente(), p.getCliente().getNombre()));
-		}
-		return listaDTO;
+	    List<Pedido> listaBD = servicePedido.buscarTodas();
+	    List<PedidoDTO> listaDTO = new ArrayList<>();
+	    for (Pedido p : listaBD) {
+	        listaDTO.add(new PedidoDTO(
+	            p.getIdPedido(),
+	            p.getFechaEntrega(),
+	            p.getEstado(),
+	            p.getCliente().getIdCliente(),
+	            p.getCliente().getNombre() + " " + (p.getCliente().getApellidos() != null ? p.getCliente().getApellidos() : "")
+	        ));
+	    }
+	    return listaDTO;
 	}
 
 	// GET - obtener por id
@@ -184,8 +188,13 @@ public class PedidosController {
 
 	// Helpers
 	private PedidoDTO toDTO(Pedido p) {
-		return new PedidoDTO(p.getIdPedido(), p.getFechaEntrega(), p.getEstado(), p.getCliente().getIdCliente(),
-				p.getCliente().getNombre() + " " + p.getCliente().getApellidos());
+	    return new PedidoDTO(
+	        p.getIdPedido(),
+	        p.getFechaEntrega(),
+	        p.getEstado(),
+	        p.getCliente().getIdCliente(),
+	        p.getCliente().getNombre() + " " + (p.getCliente().getApellidos() != null ? p.getCliente().getApellidos() : "")
+	    );
 	}
 
 	private DetallePedidoDTO toDetalleDTO(DetallePedido d) {

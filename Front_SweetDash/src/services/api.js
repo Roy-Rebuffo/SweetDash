@@ -110,6 +110,9 @@ export const tareasApi = {
   getByPedido:      (id)        => request(`/tareas/pedido/${id}`),
   actualizarEstado: (id, data)  => request(`/tareas/${id}/estado`, { method: "PUT", body: JSON.stringify(data) }),
   actualizarFecha:  (id, data)  => request(`/tareas/${id}/fecha`,  { method: "PUT", body: JSON.stringify(data) }),
+  recalcularPorPlantilla: (idPlantilla) =>
+    fetch(`${BASE_URL}/tareas/recalcular/plantilla/${idPlantilla}`, { method: "PUT" })
+        .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
 };
 
 export const recetasTamañoApi = {
