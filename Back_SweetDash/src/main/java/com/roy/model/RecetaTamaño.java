@@ -29,7 +29,11 @@ public class RecetaTamaño implements Serializable {
     private Producto producto;
 
     @OneToMany(mappedBy="recetaTamaño", cascade=CascadeType.ALL, orphanRemoval=true)
-    private List<RecetaTamañoIngrediente> ingredientes = new ArrayList<>();;
+    private List<RecetaTamañoIngrediente> ingredientes = new ArrayList<>();
+    
+    @ManyToOne
+    @JoinColumn(name = "id_plantilla")
+    private PlantillaProceso plantillaProceso;
 
     public RecetaTamaño() {}
 
@@ -45,4 +49,12 @@ public class RecetaTamaño implements Serializable {
     public void setProducto(Producto producto) { this.producto = producto; }
     public List<RecetaTamañoIngrediente> getIngredientes() { return ingredientes; }
     public void setIngredientes(List<RecetaTamañoIngrediente> ingredientes) { this.ingredientes = ingredientes; }
+    
+    public PlantillaProceso getPlantillaProceso() {
+        return plantillaProceso;
+    }
+
+    public void setPlantillaProceso(PlantillaProceso plantillaProceso) {
+        this.plantillaProceso = plantillaProceso;
+    }
 }

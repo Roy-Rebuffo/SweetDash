@@ -6,10 +6,13 @@ import com.roy.model.RecetaTamaño;
 import com.roy.model.RecetaTamañoIngrediente;
 import com.roy.model.Producto;
 import com.roy.model.MateriaPrima;
+import com.roy.model.PlantillaProceso;
 import com.roy.service.IRecetaTamañoService;
 import com.roy.service.IRecetaTamañoIngredienteService;
 import com.roy.service.IProductosService;
 import com.roy.service.IMateriasPrimasService;
+import com.roy.service.IPlantillasProcesosService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +32,7 @@ public class RecetaTamañoController {
     @Autowired private IRecetaTamañoIngredienteService serviceIngrediente;
     @Autowired private IProductosService serviceProducto;
     @Autowired private IMateriasPrimasService serviceMateria;
+    @Autowired private IPlantillasProcesosService servicePlantilla;
 
     // GET - todas
     @GetMapping
@@ -69,9 +73,14 @@ public class RecetaTamañoController {
         receta.setTamañoCm(dto.getTamañoCm());
         receta.setDescripcionTamaño(dto.getDescripcionTamaño());
         receta.setPrecioVenta(dto.getPrecioVenta());
+
+        if (dto.getIdPlantilla() != null) {
+            PlantillaProceso plantilla = servicePlantilla.buscarPorId(dto.getIdPlantilla());
+            receta.setPlantillaProceso(plantilla);
+        }
+
         RecetaTamaño guardada = serviceReceta.guardar(receta);
 
-        // Guardar ingredientes si vienen en el DTO
         if (dto.getIngredientes() != null) {
             for (RecetaTamañoIngredienteDTO ing : dto.getIngredientes()) {
                 MateriaPrima mp = serviceMateria.buscarPorId(ing.getIdMateriaPrima());
@@ -96,9 +105,16 @@ public class RecetaTamañoController {
         receta.setTamañoCm(dto.getTamañoCm());
         receta.setDescripcionTamaño(dto.getDescripcionTamaño());
         receta.setPrecioVenta(dto.getPrecioVenta());
+
+        if (dto.getIdPlantilla() != null) {
+            PlantillaProceso plantilla = servicePlantilla.buscarPorId(dto.getIdPlantilla());
+            receta.setPlantillaProceso(plantilla);
+        } else {
+            receta.setPlantillaProceso(null);
+        }
+
         serviceReceta.guardar(receta);
 
-        // Eliminar ingredientes anteriores y reemplazar
         if (dto.getIngredientes() != null) {
             for (RecetaTamañoIngrediente ing : receta.getIngredientes()) {
                 serviceIngrediente.eliminar(ing.getId());
@@ -135,6 +151,9 @@ public class RecetaTamañoController {
         dto.setPrecioVenta(r.getPrecioVenta());
         dto.setIdProducto(r.getProducto().getIdProducto());
         dto.setNombreProducto(r.getProducto().getNombre());
+        dto.setIdPlantilla(r.getPlantillaProceso() != null ? r.getPlantillaProceso().getIdPlantilla() : null);
+        dto.setNombrePlantilla(r.getPlantillaProceso() != null ? r.getPlantillaProceso().getNombre() : null);
+        
 
         BigDecimal costeTotal = BigDecimal.ZERO;
         List<RecetaTamañoIngredienteDTO> ings = new ArrayList<>();

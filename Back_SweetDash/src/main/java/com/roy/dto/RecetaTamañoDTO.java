@@ -14,6 +14,8 @@ public class RecetaTamañoDTO {
     private BigDecimal costeTotal;
     private BigDecimal ganancia;
     private BigDecimal margenPct;
+    private Integer idPlantilla;
+    private String nombrePlantilla;
 
     public RecetaTamañoDTO() {}
 
@@ -37,4 +39,22 @@ public class RecetaTamañoDTO {
     public void setGanancia(BigDecimal ganancia) { this.ganancia = ganancia; }
     public BigDecimal getMargenPct() { return margenPct; }
     public void setMargenPct(BigDecimal margenPct) { this.margenPct = margenPct; }
+
+	public Integer getIdPlantilla() {
+		return idPlantilla;
+	}
+
+	public void setIdPlantilla(Integer idPlantilla) {
+		this.idPlantilla = idPlantilla;
+	}
+
+	public String getNombrePlantilla() {
+		return nombrePlantilla;
+	}
+
+	public void setNombrePlantilla(String nombrePlantilla) {
+		this.nombrePlantilla = nombrePlantilla;
+	}
+    
+    
 }
