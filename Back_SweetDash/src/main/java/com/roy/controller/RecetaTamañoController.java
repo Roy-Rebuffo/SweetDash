@@ -111,7 +111,7 @@ public class RecetaTamañoController {
         serviceReceta.guardar(receta);
 
         if (dto.getIngredientes() != null) {
-            for (RecetaTamañoIngrediente ing : receta.getIngredientes()) {
+            for (RecetaTamañoIngrediente ing : serviceIngrediente.buscarPorRecetaTamaño(id)) {
                 serviceIngrediente.eliminar(ing.getId());
             }
             for (RecetaTamañoIngredienteDTO ing : dto.getIngredientes()) {
