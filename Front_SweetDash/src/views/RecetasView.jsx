@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
-import { productosApi, procesosApi, pedidosApi, materiasPrimasApi, plantillasApi, recetasTamañoApi, tareasApi } from "../services/api";
+import { productosApi, procesosApi, pedidosApi, detallesPedidosApi, materiasPrimasApi, plantillasApi, recetasTamañoApi, tareasApi } from "../services/api";
 import FilterSelect from "../components/FilterSelect";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -664,6 +664,7 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
   const [productos, setProductos] = useState([]);
   const [tamañosMap, setTamañosMap] = useState({}); // { idProducto: count }
   const [pedidos, setPedidos] = useState([]);
+  const [usadaMap, setUsadaMap] = useState({}); // { idProducto: numPedidosDistintos }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -677,9 +678,19 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const [prods, peds] = await Promise.all([productosApi.getAll(), pedidosApi.getAll()]);
+      const [prods, peds, detalles] = await Promise.all([productosApi.getAll(), pedidosApi.getAll(), detallesPedidosApi.getAll()]);
       setProductos(prods);
       setPedidos(peds);
+      // Contar pedidos distintos por producto usando los detalles
+      const pedidosPorProducto = {};
+      detalles.forEach(d => {
+        if (!d.idProducto) return;
+        if (!pedidosPorProducto[d.idProducto]) pedidosPorProducto[d.idProducto] = new Set();
+        pedidosPorProducto[d.idProducto].add(d.idPedido);
+      });
+      const uMap = {};
+      Object.entries(pedidosPorProducto).forEach(([id, set]) => { uMap[Number(id)] = set.size; });
+      setUsadaMap(uMap);
       // Cargar número de tamaños por producto
       const map = {};
       await Promise.all(prods.map(async (p) => {
@@ -820,7 +831,7 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
                 key={p.idProducto}
                 producto={p}
                 numTamaños={tamañosMap[p.idProducto] || 0}
-                usada={0}
+                usada={usadaMap[p.idProducto] || 0}
                 idx={i}
                 onVer={setVerProducto}
                 onEditar={handleEditar}

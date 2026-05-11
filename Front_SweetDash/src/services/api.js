@@ -74,6 +74,10 @@ export const clientesApi = {
   }),
 };
 
+export const detallesPedidosApi = {
+  getAll: () => request("/detalles-pedidos"),
+};
+
 export const pedidosApi = {
   getAll: () => request("/pedidos"),
   getById: (id) => request(`/pedidos/${id}`),
