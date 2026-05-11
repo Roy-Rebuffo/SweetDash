@@ -18,7 +18,7 @@ public class TareaProgramada implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_tarea")
-	private int idTarea;
+	private Integer idTarea;
 
 	private String estado;
 
@@ -37,11 +37,11 @@ public class TareaProgramada implements Serializable {
 	public TareaProgramada() {
 	}
 
-	public int getIdTarea() {
+	public Integer getIdTarea() {
 		return this.idTarea;
 	}
 
-	public void setIdTarea(int idTarea) {
+	public void setIdTarea(Integer idTarea) {
 		this.idTarea = idTarea;
 	}
 

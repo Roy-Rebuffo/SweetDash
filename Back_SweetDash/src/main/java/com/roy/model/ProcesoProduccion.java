@@ -19,10 +19,10 @@ public class ProcesoProduccion implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_proceso")
-	private int idProceso;
+	private Integer idProceso;
 
 	@Column(name="dias_antes_entrega")
-	private int diasAntesEntrega;
+	private Integer diasAntesEntrega;
 
 	private String nombre;
 
@@ -37,19 +37,19 @@ public class ProcesoProduccion implements Serializable {
 	public ProcesoProduccion() {
 	}
 
-	public int getIdProceso() {
+	public Integer getIdProceso() {
 		return this.idProceso;
 	}
 
-	public void setIdProceso(int idProceso) {
+	public void setIdProceso(Integer idProceso) {
 		this.idProceso = idProceso;
 	}
 
-	public int getDiasAntesEntrega() {
+	public Integer getDiasAntesEntrega() {
 		return this.diasAntesEntrega;
 	}
 
-	public void setDiasAntesEntrega(int diasAntesEntrega) {
+	public void setDiasAntesEntrega(Integer diasAntesEntrega) {
 		this.diasAntesEntrega = diasAntesEntrega;
 	}
 

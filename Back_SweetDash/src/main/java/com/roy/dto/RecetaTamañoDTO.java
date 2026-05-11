@@ -10,6 +10,7 @@ public class RecetaTamañoDTO {
     private BigDecimal precioVenta;
     private Integer idProducto;
     private String nombreProducto;
+    private Integer idPlantilla;
     private List<RecetaTamañoIngredienteDTO> ingredientes;
     private BigDecimal costeTotal;
     private BigDecimal ganancia;
@@ -31,6 +32,8 @@ public class RecetaTamañoDTO {
     public void setIdProducto(Integer idProducto) { this.idProducto = idProducto; }
     public String getNombreProducto() { return nombreProducto; }
     public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
+    public Integer getIdPlantilla() { return idPlantilla; }
+    public void setIdPlantilla(Integer idPlantilla) { this.idPlantilla = idPlantilla; }
     public List<RecetaTamañoIngredienteDTO> getIngredientes() { return ingredientes; }
     public void setIngredientes(List<RecetaTamañoIngredienteDTO> ingredientes) { this.ingredientes = ingredientes; }
     public BigDecimal getCosteTotal() { return costeTotal; }

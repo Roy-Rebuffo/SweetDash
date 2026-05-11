@@ -40,9 +40,9 @@ export const productosApi = {
   getById: (id) => request(`/productos/${id}`),
   create: (data) => request("/productos", { method: "POST", body: JSON.stringify(data) }),
   update: (id, data) => request(`/productos/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-  desvincularPlantilla: (id) => 
-  fetch(`${BASE_URL}/productos/${id}/desvincular-plantilla`, { method: "PUT" })
-    .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
+  desvincularPlantilla: (id) =>
+    fetch(`${BASE_URL}/productos/${id}/desvincular-plantilla`, { method: "PUT" })
+      .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
   delete: (id) => fetch(`${BASE_URL}/productos/${id}`, { method: "DELETE" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
   subirImagen: (id, archivo) => {
     const form = new FormData();
@@ -86,6 +86,9 @@ export const pedidosApi = {
   }),
   getDetalles: (id) => request(`/pedidos/${id}/detalles`),
   addDetalle: (id, data) => request(`/pedidos/${id}/detalles`, { method: "POST", body: JSON.stringify(data) }),
+  deleteDetalle: (idDetalle) =>
+    fetch(`${BASE_URL}/pedidos/detalles/${idDetalle}`, { method: "DELETE" })
+      .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
 };
 
 export const plantillasApi = {
@@ -106,20 +109,20 @@ export const procesosApi = {
 };
 
 export const tareasApi = {
-  getAll:           ()          => request("/tareas"),
-  getByPedido:      (id)        => request(`/tareas/pedido/${id}`),
-  actualizarEstado: (id, data)  => request(`/tareas/${id}/estado`, { method: "PUT", body: JSON.stringify(data) }),
-  actualizarFecha:  (id, data)  => request(`/tareas/${id}/fecha`,  { method: "PUT", body: JSON.stringify(data) }),
+  getAll: () => request("/tareas"),
+  getByPedido: (id) => request(`/tareas/pedido/${id}`),
+  actualizarEstado: (id, data) => request(`/tareas/${id}/estado`, { method: "PUT", body: JSON.stringify(data) }),
+  actualizarFecha: (id, data) => request(`/tareas/${id}/fecha`, { method: "PUT", body: JSON.stringify(data) }),
   recalcularPorPlantilla: (idPlantilla) =>
     fetch(`${BASE_URL}/tareas/recalcular/plantilla/${idPlantilla}`, { method: "PUT" })
-        .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
+      .then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
 };
 
 export const recetasTamañoApi = {
-  getAll:          ()          => request("/recetas-tamaño"),
-  getById:         (id)        => request(`/recetas-tamaño/${id}`),
-  getByProducto:   (id)        => request(`/recetas-tamaño/producto/${id}`),
-  create:          (data)      => request("/recetas-tamaño", { method: "POST", body: JSON.stringify(data) }),
-  update:          (id, data)  => request(`/recetas-tamaño/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-  delete:          (id)        => fetch(`${BASE_URL}/recetas-tamaño/${id}`, { method: "DELETE" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
+  getAll: () => request("/recetas-tamaño"),
+  getById: (id) => request(`/recetas-tamaño/${id}`),
+  getByProducto: (id) => request(`/recetas-tamaño/producto/${id}`),
+  create: (data) => request("/recetas-tamaño", { method: "POST", body: JSON.stringify(data) }),
+  update: (id, data) => request(`/recetas-tamaño/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id) => fetch(`${BASE_URL}/recetas-tamaño/${id}`, { method: "DELETE" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
 };

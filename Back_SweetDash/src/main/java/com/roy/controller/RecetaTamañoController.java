@@ -12,7 +12,6 @@ import com.roy.service.IRecetaTamañoIngredienteService;
 import com.roy.service.IProductosService;
 import com.roy.service.IMateriasPrimasService;
 import com.roy.service.IPlantillasProcesosService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +64,8 @@ public class RecetaTamañoController {
     // POST - crear
     @PostMapping
     public ResponseEntity<RecetaTamañoDTO> crear(@RequestBody RecetaTamañoDTO dto) {
+    	System.out.println(">>> idPlantilla recibido: " + dto.getIdPlantilla());
+        System.out.println(">>> descripcionTamaño: " + dto.getDescripcionTamaño());
         Producto producto = serviceProducto.buscarPorId(dto.getIdProducto());
         if (producto == null) return ResponseEntity.badRequest().build();
 
@@ -73,12 +74,9 @@ public class RecetaTamañoController {
         receta.setTamañoCm(dto.getTamañoCm());
         receta.setDescripcionTamaño(dto.getDescripcionTamaño());
         receta.setPrecioVenta(dto.getPrecioVenta());
-
         if (dto.getIdPlantilla() != null) {
-            PlantillaProceso plantilla = servicePlantilla.buscarPorId(dto.getIdPlantilla());
-            receta.setPlantillaProceso(plantilla);
+            receta.setPlantillaProceso(servicePlantilla.buscarPorId(dto.getIdPlantilla()));
         }
-
         RecetaTamaño guardada = serviceReceta.guardar(receta);
 
         if (dto.getIngredientes() != null) {
@@ -105,14 +103,11 @@ public class RecetaTamañoController {
         receta.setTamañoCm(dto.getTamañoCm());
         receta.setDescripcionTamaño(dto.getDescripcionTamaño());
         receta.setPrecioVenta(dto.getPrecioVenta());
-
         if (dto.getIdPlantilla() != null) {
-            PlantillaProceso plantilla = servicePlantilla.buscarPorId(dto.getIdPlantilla());
-            receta.setPlantillaProceso(plantilla);
+            receta.setPlantillaProceso(servicePlantilla.buscarPorId(dto.getIdPlantilla()));
         } else {
             receta.setPlantillaProceso(null);
         }
-
         serviceReceta.guardar(receta);
 
         if (dto.getIngredientes() != null) {
@@ -190,6 +185,9 @@ public class RecetaTamañoController {
 
         dto.setIngredientes(ings);
         dto.setCosteTotal(costeTotal.setScale(2, RoundingMode.HALF_UP));
+        if (r.getPlantillaProceso() != null) {
+            dto.setIdPlantilla(r.getPlantillaProceso().getIdPlantilla());
+        }
 
         // Ganancia y margen
         if (r.getPrecioVenta() != null && r.getPrecioVenta().compareTo(BigDecimal.ZERO) > 0) {

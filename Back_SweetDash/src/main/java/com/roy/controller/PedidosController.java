@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.*;
 
 import com.roy.dto.PedidoDTO;
 import com.roy.model.Pedido;
+import com.roy.model.PlantillaProceso;
 import com.roy.service.IPedidosService;
 import com.roy.service.IClientesService;
+import com.roy.service.IDetallesPedidosService;
 import com.roy.service.IProductosService;
 import com.roy.service.IProcesosProduccionService;
 import com.roy.service.ITareasProgramadasService;
+import com.roy.service.IRecetaTamañoService;
 
 import com.roy.model.Cliente;
 import com.roy.model.Producto;
@@ -26,6 +29,7 @@ import com.roy.model.DetallePedido;
 import com.roy.dto.DetallePedidoDTO;
 import com.roy.model.ProcesoProduccion;
 import com.roy.model.TareaProgramada;
+import com.roy.model.RecetaTamaño;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -47,6 +51,12 @@ public class PedidosController {
 
 	@Autowired
 	private IProcesosProduccionService serviceProcesos;
+	
+	@Autowired
+	private IRecetaTamañoService serviceRecetaTamaño;
+	
+	@Autowired
+	private IDetallesPedidosService serviceDetalles;
 
 	@GetMapping
 	public List<PedidoDTO> obtenerTodos() {
@@ -141,49 +151,73 @@ public class PedidosController {
 	@PostMapping("/{id}/detalles")
 	public ResponseEntity<DetallePedidoDTO> añadirDetalle(@PathVariable Integer id, @RequestBody DetallePedidoDTO dto) {
 
-		Pedido pedido = servicePedido.buscarPorId(id);
-		Producto producto = serviceProductos.buscarPorId(dto.getIdProducto());
-		if (pedido == null || producto == null)
-			return ResponseEntity.badRequest().build();
+	    Pedido pedido = servicePedido.buscarPorId(id);
+	    Producto producto = serviceProductos.buscarPorId(dto.getIdProducto());
+	    if (pedido == null || producto == null)
+	        return ResponseEntity.badRequest().build();
 
-		// Guardar el detalle
-		DetallePedido detalle = new DetallePedido();
-		detalle.setPedido(pedido);
-		detalle.setProducto(producto);
-		detalle.setCantidad(dto.getCantidad());
-		detalle.setNotas(dto.getNotas());
-		detalle.setPrecioCongelado(
-				dto.getPrecioCongelado() != null ? dto.getPrecioCongelado() : producto.getPrecioBase());
-		System.out.println("idProducto recibido: " + dto.getIdProducto());
-		System.out.println("cantidad recibida: " + dto.getCantidad());
-		if (pedido.getDetalles() == null) {
-			pedido.setDetalles(new java.util.ArrayList<>());
-		}
-		pedido.getDetalles().add(detalle);
-		servicePedido.guardar(pedido);
+	    // Guardar el detalle
+	    DetallePedido detalle = new DetallePedido();
+	    detalle.setPedido(pedido);
+	    detalle.setProducto(producto);
+	    detalle.setCantidad(dto.getCantidad());
+	    detalle.setNotas(dto.getNotas());
+	    detalle.setPrecioCongelado(
+	            dto.getPrecioCongelado() != null ? dto.getPrecioCongelado() : producto.getPrecioBase());
+	    if (pedido.getDetalles() == null) {
+	        pedido.setDetalles(new java.util.ArrayList<>());
+	    }
+	    pedido.getDetalles().add(detalle);
+	    servicePedido.guardar(pedido);
 
-		// Generar tareas si el producto tiene plantilla
-		if (producto.getPlantillaProceso() != null) {
-			int idPlantilla = producto.getPlantillaProceso().getIdPlantilla();
-			List<ProcesoProduccion> procesos = serviceProcesos.buscarTodas().stream()
-					.filter(proc -> proc.getPlantillaProceso().getIdPlantilla() == idPlantilla)
-					.collect(java.util.stream.Collectors.toList());
+	    // Determinar plantilla a usar — primero del tamaño, luego del producto
+	    PlantillaProceso plantillaAUsar = null;
 
-			for (ProcesoProduccion proceso : procesos) {
-				java.util.Calendar cal = java.util.Calendar.getInstance();
-				cal.setTime(pedido.getFechaEntrega());
-				cal.add(java.util.Calendar.DAY_OF_MONTH, -proceso.getDiasAntesEntrega());
+	    if (dto.getIdRecetaTamaño() != null) {
+	        RecetaTamaño recetaTam = serviceRecetaTamaño.buscarPorId(dto.getIdRecetaTamaño());
+	        if (recetaTam != null && recetaTam.getPlantillaProceso() != null) {
+	            plantillaAUsar = recetaTam.getPlantillaProceso();
+	        }
+	    }
 
-				TareaProgramada tarea = new TareaProgramada();
-				tarea.setPedido(pedido);
-				tarea.setProcesoProduccion(proceso);
-				tarea.setFechaEjecucion(cal.getTime());
-				tarea.setEstado("Pendiente");
-				serviceTareas.guardar(tarea);
-			}
-		}
+	    // Fallback a plantilla del producto
+	    if (plantillaAUsar == null && producto.getPlantillaProceso() != null) {
+	        plantillaAUsar = producto.getPlantillaProceso();
+	    }
 
-		return ResponseEntity.status(201).body(toDetalleDTO(detalle));
+	    // Generar tareas — un set por cada unidad pedida
+	    if (plantillaAUsar != null) {
+	        int idPlantilla = plantillaAUsar.getIdPlantilla();
+	        List<ProcesoProduccion> procesos = serviceProcesos.buscarTodas().stream()
+	                .filter(proc -> proc.getPlantillaProceso().getIdPlantilla() == idPlantilla)
+	                .collect(java.util.stream.Collectors.toList());
+
+	        int cantidad = detalle.getCantidad() != null ? detalle.getCantidad() : 1;
+
+	        for (int u = 0; u < cantidad; u++) {
+	            for (ProcesoProduccion proceso : procesos) {
+	                java.util.Calendar cal = java.util.Calendar.getInstance();
+	                cal.setTime(pedido.getFechaEntrega());
+	                cal.add(java.util.Calendar.DAY_OF_MONTH, -proceso.getDiasAntesEntrega());
+	                TareaProgramada tarea = new TareaProgramada();
+	                tarea.setPedido(pedido);
+	                tarea.setProcesoProduccion(proceso);
+	                tarea.setFechaEjecucion(cal.getTime());
+	                tarea.setEstado("Pendiente");
+	                serviceTareas.guardar(tarea);
+	            }
+	        }
+	    }
+
+	    return ResponseEntity.status(201).body(toDetalleDTO(detalle));
+	}
+	
+	@DeleteMapping("/detalles/{idDetalle}")
+	public ResponseEntity<Void> eliminarDetalle(@PathVariable Integer idDetalle) {
+	    DetallePedido detalle = serviceDetalles.buscarPorId(idDetalle);
+	    if (detalle == null) return ResponseEntity.notFound().build();
+	    serviceDetalles.eliminar(idDetalle);
+	    return ResponseEntity.noContent().build();
 	}
 
 	// Helpers
