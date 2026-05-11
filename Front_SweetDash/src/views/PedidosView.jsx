@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import palette from "../theme/palette";
-import { pedidosApi, clientesApi, productosApi, tareasApi } from "../services/api";
+import { pedidosApi, clientesApi, productosApi, tareasApi, recetasTamañoApi } from "../services/api";
 import FilterSelect from "../components/FilterSelect";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -282,6 +282,7 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
 
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [tamanosMap, setTamanosMap] = useState({}); // { idProducto: [tamaños] }
   const [loadingData, setLoadingData] = useState(true);
 
   const [idCliente, setIdCliente] = useState(pedido?.idCliente || "");
@@ -304,15 +305,28 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
           cantidad: d.cantidad,
           precioCongelado: d.precioCongelado,
           notas: d.notas || "",
+          idRecetaTamaño: null,
         })));
-      }).catch(() => { });
+      }).catch(() => {});
     }
   }, []);
+
+  // Cargar tamaños de un producto si no los tenemos ya
+  const cargarTamanos = async (idProducto) => {
+    if (tamanosMap[idProducto]) return;
+    try {
+      const tams = await recetasTamañoApi.getByProducto(idProducto);
+      setTamanosMap(m => ({ ...m, [idProducto]: tams || [] }));
+    } catch {
+      setTamanosMap(m => ({ ...m, [idProducto]: [] }));
+    }
+  };
 
   const addLinea = () => {
     if (productos.length === 0) return;
     const p = productos[0];
-    setLineas((l) => [...l, { idProducto: p.idProducto, nombreProducto: p.nombre, cantidad: 1, precioCongelado: p.precioBase, notas: "" }]);
+    cargarTamanos(p.idProducto);
+    setLineas((l) => [...l, { idProducto: p.idProducto, nombreProducto: p.nombre, cantidad: 1, precioCongelado: p.precioBase, notas: "", idRecetaTamaño: null }]);
   };
 
   const removeLinea = (idx) => setLineas((l) => l.filter((_, i) => i !== idx));
@@ -322,14 +336,19 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
       if (i !== idx) return item;
       if (key === "idProducto") {
         const prod = productos.find((p) => p.idProducto === Number(value));
-        return { ...item, idProducto: Number(value), nombreProducto: prod?.nombre || "", precioCongelado: prod?.precioBase || 0 };
+        cargarTamanos(Number(value));
+        return { ...item, idProducto: Number(value), nombreProducto: prod?.nombre || "", precioCongelado: prod?.precioBase || 0, idRecetaTamaño: null };
+      }
+      if (key === "idRecetaTamaño") {
+        const tams = tamanosMap[item.idProducto] || [];
+        const tam = tams.find(t => t.id === Number(value));
+        return { ...item, idRecetaTamaño: Number(value), precioCongelado: tam?.precioVenta ?? item.precioCongelado };
       }
       return { ...item, [key]: value };
     }));
   };
 
   const handleSubmit = async () => {
-    console.log("handleSubmit ejecutado");
     if (!idCliente) { setError("Selecciona un cliente"); return; }
     if (!fechaEntrega) { setError("La fecha de entrega es obligatoria"); return; }
     if (lineas.length === 0) { setError("Añade al menos un producto"); return; }
@@ -351,12 +370,10 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
           cantidad: Number(l.cantidad),
           precioCongelado: Number(l.precioCongelado),
           notas: l.notas,
+          idRecetaTamaño: l.idRecetaTamaño || null,
         });
       }
-      console.log("Detalles añadidos, pedidoId:", pedidoId);
 
-      // Comprobar tareas en pasado
-      console.log("Detalles añadidos, pedidoId:", pedidoId);
       const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
       const tareas = await tareasApi.getByPedido(pedidoId);
       const tareasPasado = tareas.filter((t) => {
@@ -367,18 +384,11 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
       });
 
       if (tareasPasado.length > 0) {
-        onNecesitaAviso({
-          pedidoId: pedidoId,
-          idCliente: Number(idCliente),  // ← añadir esto
-          fechaEntrega,
-          tareas,
-          tareasPasado
-        });
+        onNecesitaAviso({ pedidoId, idCliente: Number(idCliente), fechaEntrega, tareas, tareasPasado });
       } else {
         onSaved();
       }
     } catch (e) {
-      console.error("ERROR en handleSubmit:", e);
       setError(e.message);
     } finally {
       setSaving(false);
@@ -449,46 +459,68 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
                 </div>
               )}
 
-              {lineas.map((l, idx) => (
-                <div key={idx} style={{ background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "12px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "start", marginBottom: 8 }}>
-                    <select value={l.idProducto || ""} onChange={(e) => updateLinea(idx, "idProducto", e.target.value)}
-                      style={{ ...inputStyle, fontSize: 12 }}
-                      onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                      onBlur={(e) => (e.target.style.borderColor = palette.border)}>
-                      {productos.map((p) => <option key={p.idProducto} value={p.idProducto}>{p.nombre}</option>)}
-                    </select>
-                    <button onClick={() => removeLinea(idx)} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
-                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                      <label style={{ ...labelStyle, fontSize: 10 }}>Cantidad</label>
-                      <input type="number" min="1" value={l.cantidad} onChange={(e) => updateLinea(idx, "cantidad", e.target.value)}
+              {lineas.map((l, idx) => {
+                const tamsLinea = tamanosMap[l.idProducto] || [];
+                return (
+                  <div key={idx} style={{ background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "12px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "start", marginBottom: 8 }}>
+                      <select value={l.idProducto || ""} onChange={(e) => updateLinea(idx, "idProducto", e.target.value)}
+                        style={{ ...inputStyle, fontSize: 12 }}
+                        onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                        onBlur={(e) => (e.target.style.borderColor = palette.border)}>
+                        {productos.map((p) => <option key={p.idProducto} value={p.idProducto}>{p.nombre}</option>)}
+                      </select>
+                      <button onClick={() => removeLinea(idx)} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
+                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    </div>
+
+                    {/* Selector de tamaño si el producto tiene tamaños */}
+                    {tamsLinea.length > 0 && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 8 }}>
+                        <label style={{ ...labelStyle, fontSize: 10 }}>Tamaño</label>
+                        <select value={l.idRecetaTamaño || ""} onChange={(e) => updateLinea(idx, "idRecetaTamaño", e.target.value)}
+                          style={{ ...inputStyle, fontSize: 12, appearance: "none" }}
+                          onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                          onBlur={(e) => (e.target.style.borderColor = palette.border)}>
+                          <option value="">Sin tamaño específico</option>
+                          {tamsLinea.map(t => (
+                            <option key={t.id} value={t.id}>
+                              {t.descripcionTamaño || `Tamaño ${t.id}`}{t.precioVenta ? ` — € ${Number(t.precioVenta).toFixed(2)}` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        <label style={{ ...labelStyle, fontSize: 10 }}>Cantidad</label>
+                        <input type="number" min="1" value={l.cantidad} onChange={(e) => updateLinea(idx, "cantidad", e.target.value)}
+                          style={{ ...inputStyle, fontSize: 12 }}
+                          onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                          onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        <label style={{ ...labelStyle, fontSize: 10 }}>Precio (€)</label>
+                        <input type="number" min="0" step="0.01" value={l.precioCongelado} onChange={(e) => updateLinea(idx, "precioCongelado", e.target.value)}
+                          style={{ ...inputStyle, fontSize: 12 }}
+                          onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
+                          onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+                      </div>
+                    </div>
+                    <div style={{ marginTop: 8 }}>
+                      <input type="text" placeholder="Notas (opcional)..." value={l.notas} onChange={(e) => updateLinea(idx, "notas", e.target.value)}
                         style={{ ...inputStyle, fontSize: 12 }}
                         onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
                         onBlur={(e) => (e.target.style.borderColor = palette.border)} />
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                      <label style={{ ...labelStyle, fontSize: 10 }}>Precio (€)</label>
-                      <input type="number" min="0" step="0.01" value={l.precioCongelado} onChange={(e) => updateLinea(idx, "precioCongelado", e.target.value)}
-                        style={{ ...inputStyle, fontSize: 12 }}
-                        onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                        onBlur={(e) => (e.target.style.borderColor = palette.border)} />
+                    <div style={{ marginTop: 6, textAlign: "right", fontSize: 12, fontWeight: 700, color: palette.primary }}>
+                      Subtotal: € {(Number(l.cantidad) * Number(l.precioCongelado)).toFixed(2)}
                     </div>
                   </div>
-                  <div style={{ marginTop: 8 }}>
-                    <input type="text" placeholder="Notas (opcional)..." value={l.notas} onChange={(e) => updateLinea(idx, "notas", e.target.value)}
-                      style={{ ...inputStyle, fontSize: 12 }}
-                      onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)}
-                      onBlur={(e) => (e.target.style.borderColor = palette.border)} />
-                  </div>
-                  <div style={{ marginTop: 6, textAlign: "right", fontSize: 12, fontWeight: 700, color: palette.primary }}>
-                    Subtotal: € {(Number(l.cantidad) * Number(l.precioCongelado)).toFixed(2)}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               {lineas.length > 0 && (
                 <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 4 }}>
