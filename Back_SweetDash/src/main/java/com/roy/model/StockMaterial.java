@@ -19,15 +19,15 @@ public class StockMaterial implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_stock")
-	private int idStock;
+	private Integer idStock;
 
 	@Column(name="cantidad_stock")
-	private int cantidadStock;
+	private Integer cantidadStock;
 
 	private String nombre;
 	
 	@Column(name="stock_maximo")
-	private int stockMaximo;
+	private Integer stockMaximo;
 	
 	@OneToMany(mappedBy="stockMaterial")
 	private List<MaterialPedido> usosEnPedidos;
@@ -35,19 +35,19 @@ public class StockMaterial implements Serializable {
 	public StockMaterial() {
 	}
 
-	public int getIdStock() {
+	public Integer getIdStock() {
 		return this.idStock;
 	}
 
-	public void setIdStock(int idStock) {
+	public void setIdStock(Integer idStock) {
 		this.idStock = idStock;
 	}
 
-	public int getCantidadStock() {
+	public Integer getCantidadStock() {
 		return this.cantidadStock;
 	}
 
-	public void setCantidadStock(int cantidadStock) {
+	public void setCantidadStock(Integer cantidadStock) {
 		this.cantidadStock = cantidadStock;
 	}
 
@@ -59,11 +59,11 @@ public class StockMaterial implements Serializable {
 		this.nombre = nombre;
 	}
 	
-	public int getStockMaximo() {
+	public Integer getStockMaximo() {
 	    return this.stockMaximo;
 	}
 	
-	public void setStockMaximo(int stockMaximo) {
+	public void setStockMaximo(Integer stockMaximo) {
 	    this.stockMaximo = stockMaximo;
 	}
 	

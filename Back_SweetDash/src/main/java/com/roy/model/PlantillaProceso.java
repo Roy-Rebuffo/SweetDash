@@ -18,7 +18,7 @@ public class PlantillaProceso implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_plantilla")
-	private int idPlantilla;
+	private Integer idPlantilla;
 
 	@Lob
 	private String descripcion;
@@ -38,11 +38,11 @@ public class PlantillaProceso implements Serializable {
 	public PlantillaProceso() {
 	}
 
-	public int getIdPlantilla() {
+	public Integer getIdPlantilla() {
 		return this.idPlantilla;
 	}
 
-	public void setIdPlantilla(int idPlantilla) {
+	public void setIdPlantilla(Integer idPlantilla) {
 		this.idPlantilla = idPlantilla;
 	}
 

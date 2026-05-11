@@ -18,7 +18,7 @@ public class Producto implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_producto")
-	private int idProducto;
+	private Integer idProducto;
 
 	private String nombre;
 	@Lob
@@ -50,11 +50,11 @@ public class Producto implements Serializable {
 	public Producto() {
 	}
 
-	public int getIdProducto() {
+	public Integer getIdProducto() {
 		return this.idProducto;
 	}
 
-	public void setIdProducto(int idProducto) {
+	public void setIdProducto(Integer idProducto) {
 		this.idProducto = idProducto;
 	}
 

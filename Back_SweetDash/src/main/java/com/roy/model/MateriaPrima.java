@@ -19,7 +19,7 @@ public class MateriaPrima implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_materia_prima")
-	private int idMateriaPrima;
+	private Integer idMateriaPrima;
 
 	@Column(name="cantidad_stock")
 	private double cantidadStock;
@@ -33,7 +33,7 @@ public class MateriaPrima implements Serializable {
 	private String unidad;
 	
 	@Column(name="stock_maximo")
-	private int stockMaximo;
+	private Integer stockMaximo;
 
 	//bi-directional many-to-one association to Receta
 	@OneToMany(mappedBy="materiaPrima")
@@ -48,11 +48,11 @@ public class MateriaPrima implements Serializable {
 	public MateriaPrima() {
 	}
 
-	public int getIdMateriaPrima() {
+	public Integer getIdMateriaPrima() {
 		return this.idMateriaPrima;
 	}
 
-	public void setIdMateriaPrima(int idMateriaPrima) {
+	public void setIdMateriaPrima(Integer idMateriaPrima) {
 		this.idMateriaPrima = idMateriaPrima;
 	}
 
@@ -88,11 +88,11 @@ public class MateriaPrima implements Serializable {
 		this.unidad = unidad;
 	}
 	
-	public int getStockMaximo() {
+	public Integer getStockMaximo() {
 	    return this.stockMaximo;
 	}
 	
-	public void setStockMaximo(int stockMaximo) {
+	public void setStockMaximo(Integer stockMaximo) {
 	    this.stockMaximo = stockMaximo;
 	}
 

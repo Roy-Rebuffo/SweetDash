@@ -16,7 +16,7 @@ public class Receta implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_receta")
-	private int idReceta;
+	private Integer idReceta;
 
 	@Column(name="cantidad_necesaria")
 	private double cantidadNecesaria;
@@ -34,11 +34,11 @@ public class Receta implements Serializable {
 	public Receta() {
 	}
 
-	public int getIdReceta() {
+	public Integer getIdReceta() {
 		return this.idReceta;
 	}
 
-	public void setIdReceta(int idReceta) {
+	public void setIdReceta(Integer idReceta) {
 		this.idReceta = idReceta;
 	}
 

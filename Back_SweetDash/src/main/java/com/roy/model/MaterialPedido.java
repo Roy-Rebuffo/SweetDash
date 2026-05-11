@@ -13,10 +13,10 @@ public class MaterialPedido implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_material_pedido")
-	private int idMaterialPedido;
+	private Integer idMaterialPedido;
 
 	@Column(name="cantidad_necesaria")
-	private int cantidadNecesaria;
+	private Integer cantidadNecesaria;
 
 	@Column(name="precio_venta")
 	private BigDecimal precioVenta;
@@ -34,19 +34,19 @@ public class MaterialPedido implements Serializable {
 	public MaterialPedido() {
 	}
 
-	public int getIdMaterialPedido() {
+	public Integer getIdMaterialPedido() {
 		return this.idMaterialPedido;
 	}
 
-	public void setIdMaterialPedido(int idMaterialPedido) {
+	public void setIdMaterialPedido(Integer idMaterialPedido) {
 		this.idMaterialPedido = idMaterialPedido;
 	}
 
-	public int getCantidadNecesaria() {
+	public Integer getCantidadNecesaria() {
 		return this.cantidadNecesaria;
 	}
 
-	public void setCantidadNecesaria(int cantidadNecesaria) {
+	public void setCantidadNecesaria(Integer cantidadNecesaria) {
 		this.cantidadNecesaria = cantidadNecesaria;
 	}
 

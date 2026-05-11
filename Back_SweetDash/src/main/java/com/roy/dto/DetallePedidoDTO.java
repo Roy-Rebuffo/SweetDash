@@ -9,6 +9,7 @@ public class DetallePedidoDTO {
     private Integer idPedido;
     private String nombreProducto; // Muy útil para React
     private Integer idProducto;
+    private Integer idRecetaTamaño;
 
     public DetallePedidoDTO() {}
 
@@ -75,6 +76,14 @@ public class DetallePedidoDTO {
 	}
 	public void setIdProducto(Integer idProducto) {
 	    this.idProducto = idProducto;
+	}
+	
+	public Integer getIdRecetaTamaño() {
+	    return idRecetaTamaño;
+	}
+
+	public void setIdRecetaTamaño(Integer idRecetaTamaño) {
+	    this.idRecetaTamaño = idRecetaTamaño;
 	}
     
 }

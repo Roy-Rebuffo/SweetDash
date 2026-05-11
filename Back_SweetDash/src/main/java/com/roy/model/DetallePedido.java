@@ -18,9 +18,9 @@ public class DetallePedido implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_detalle")
-	private int idDetalle;
+	private Integer idDetalle;
 
-	private int cantidad;
+	private Integer cantidad;
 	
     @Lob
 	private String notas;
@@ -28,12 +28,12 @@ public class DetallePedido implements Serializable {
 	@Column(name="precio_congelado")
 	private BigDecimal precioCongelado;
 
-	// CORRECCIÓN: En vez de idPedido (int), ponemos el Objeto
+	// CORRECCIÓN: En vez de idPedido (Integer), ponemos el Objeto
 	@ManyToOne
 	@JoinColumn(name="id_pedido")
 	private Pedido pedido;
 
-	// CORRECCIÓN: En vez de idProducto (int), ponemos el Objeto
+	// CORRECCIÓN: En vez de idProducto (Integer), ponemos el Objeto
 	@ManyToOne
 	@JoinColumn(name="id_producto")
 	private Producto producto;
@@ -41,19 +41,19 @@ public class DetallePedido implements Serializable {
 	public DetallePedido() {
 	}
 
-	public int getIdDetalle() {
+	public Integer getIdDetalle() {
 		return this.idDetalle;
 	}
 
-	public void setIdDetalle(int idDetalle) {
+	public void setIdDetalle(Integer idDetalle) {
 		this.idDetalle = idDetalle;
 	}
 
-	public int getCantidad() {
+	public Integer getCantidad() {
 		return this.cantidad;
 	}
 
-	public void setCantidad(int cantidad) {
+	public void setCantidad(Integer cantidad) {
 		this.cantidad = cantidad;
 	}
 

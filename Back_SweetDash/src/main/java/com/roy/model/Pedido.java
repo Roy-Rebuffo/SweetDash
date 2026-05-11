@@ -20,7 +20,7 @@ public class Pedido implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id_pedido")
-	private int idPedido;
+	private Integer idPedido;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="fecha_entrega")
@@ -28,7 +28,7 @@ public class Pedido implements Serializable {
 
 	private String estado;
 
-	// CORRECCIÓN: Usamos el Objeto, no el int
+	// CORRECCIÓN: Usamos el Objeto, no el Integer
 	@ManyToOne
 	@JoinColumn(name="id_cliente") // Esta es la FK en la BD
 	private Cliente cliente;
@@ -68,11 +68,11 @@ public class Pedido implements Serializable {
 	
 	public void setCliente(Cliente cliente) { this.cliente = cliente; }
 
-	public int getIdPedido() {
+	public Integer getIdPedido() {
 		return this.idPedido;
 	}
 
-	public void setIdPedido(int idPedido) {
+	public void setIdPedido(Integer idPedido) {
 		this.idPedido = idPedido;
 	}
 	
