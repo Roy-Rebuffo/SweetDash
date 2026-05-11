@@ -133,29 +133,41 @@ function SectionHeader({ title, onAdd, addLabel }) {
 }
 
 // ── Modal Vista (solo lectura) ────────────────────────────────────────────────
+// ── Modal Vista (solo lectura) ────────────────────────────────────────────────
 function VistaModal({ producto, onClose, onEditar }) {
   const [tamaños, setTamaños] = useState([]);
-  const [pasos, setPasos] = useState([]);
-  const [plantilla, setPlantilla] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [expandidos, setExpandidos] = useState({});
 
   useEffect(() => {
-    const promises = [recetasTamañoApi.getByProducto(producto.idProducto)];
-    if (producto.idPlantilla) {
-      promises.push(plantillasApi.getById(producto.idPlantilla));
-      promises.push(procesosApi.getByPlantilla(producto.idPlantilla));
-    }
-    Promise.all(promises)
-      .then(([tams, plant, procs]) => {
-        setTamaños(tams || []);
-        if (plant) setPlantilla(plant);
-        if (procs) setPasos([...procs].sort((a, b) => b.diasAntesEntrega - a.diasAntesEntrega));
+    recetasTamañoApi.getByProducto(producto.idProducto)
+      .then(async (tams) => {
+        if (!tams || tams.length === 0) { setTamaños([]); return; }
+        const tamañosConPasos = await Promise.all(
+          tams.map(async (t) => {
+            let pasos = [];
+            let nombrePlantilla = null;
+            if (t.idPlantilla) {
+              try {
+                const plantilla = await plantillasApi.getById(t.idPlantilla);
+                const procs = await procesosApi.getByPlantilla(t.idPlantilla);
+                pasos = [...procs].sort((a, b) => b.diasAntesEntrega - a.diasAntesEntrega);
+                nombrePlantilla = plantilla?.nombre || null;
+              } catch {}
+            }
+            return { ...t, pasos, nombrePlantilla };
+          })
+        );
+        setTamaños(tamañosConPasos);
       })
-      .catch(() => { })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const dif = getDificultad(pasos.length);
+  const toggleExpandido = (i) => setExpandidos(e => ({ ...e, [i]: !e[i] }));
+
+  const totalPasos = tamaños.reduce((acc, t) => acc + (t.pasos?.length || 0), 0);
+  const dif = getDificultad(totalPasos);
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "oklch(0% 0 0 / 0.4)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: 16, overflowY: "auto" }}
@@ -171,7 +183,6 @@ function VistaModal({ producto, onClose, onEditar }) {
               </svg>
             </div>
           )}
-          {/* Overlay botones */}
           <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 8 }}>
             <button onClick={() => { onClose(); onEditar(producto); }}
               style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 20, border: "none", background: palette.primary, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: `0 2px 8px ${palette.primary}55` }}>
@@ -183,12 +194,10 @@ function VistaModal({ producto, onClose, onEditar }) {
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-          {/* Badge tipo */}
           <div style={{ position: "absolute", bottom: 12, left: 16, background: "rgba(255,255,255,0.92)", borderRadius: 20, padding: "3px 12px", fontSize: 11, fontWeight: 700, color: palette.textMid }}>{producto.tipo}</div>
         </div>
 
         <div style={{ padding: 24 }}>
-          {/* Nombre + info básica */}
           <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 20, color: palette.textDark, marginBottom: 4 }}>{producto.nombre}</div>
           {producto.descripcion && <div style={{ fontSize: 13, color: palette.textMid, marginBottom: 16, lineHeight: 1.5 }}>{producto.descripcion}</div>}
 
@@ -204,7 +213,7 @@ function VistaModal({ producto, onClose, onEditar }) {
               </span>
             )}
             <span style={{ display: "inline-flex", padding: "4px 12px", borderRadius: 20, background: dif.bg, color: dif.color, fontSize: 12, fontWeight: 600 }}>
-              {pasos.length > 0 ? `${pasos.length} paso${pasos.length !== 1 ? "s" : ""} · ${dif.label}` : "Sin plantilla"}
+              {tamaños.length > 0 ? `${tamaños.length} tamaño${tamaños.length !== 1 ? "s" : ""}` : "Sin tamaños"}
             </span>
           </div>
 
@@ -212,33 +221,92 @@ function VistaModal({ producto, onClose, onEditar }) {
             <div style={{ textAlign: "center", padding: "24px 0", color: palette.textLight, fontSize: 13 }}>Cargando datos...</div>
           ) : (
             <>
-              {/* Escandallos */}
-              {tamaños.length > 0 && (
+              {/* Sección tamaños con escandallos y plantillas */}
+              {tamaños.length === 0 ? (
+                <div style={{ fontSize: 12, color: palette.textLight, background: palette.bg, borderRadius: 8, padding: "10px 14px", border: `1px dashed ${palette.border}` }}>
+                  Sin tamaños ni escandallos definidos
+                </div>
+              ) : (
                 <>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: palette.primary, letterSpacing: "0.8px", textTransform: "uppercase", paddingBottom: 4, borderBottom: `1px solid ${palette.border}`, marginBottom: 12 }}>Coste por tamaño</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: palette.primary, letterSpacing: "0.8px", textTransform: "uppercase", paddingBottom: 4, borderBottom: `1px solid ${palette.border}`, marginBottom: 12 }}>
+                    Tamaños y elaboración
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {tamaños.map((t, i) => {
                       const coste = t.costeTotal ?? 0;
                       const pvp = t.precioVenta ?? 0;
                       const margen = pvp > 0 ? ((pvp - coste) / pvp * 100).toFixed(0) : null;
-                      const ganancia = pvp - coste;
+                      const isExp = !!expandidos[i];
                       return (
-                        <div key={i} style={{ background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "12px 14px" }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: t.ingredientes?.length > 0 ? 8 : 0 }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>{t.descripcionTamaño || `Tamaño ${i + 1}`}</div>
+                        <div key={i} style={{ background: palette.bg, borderRadius: 12, border: `1px solid ${palette.border}`, overflow: "hidden" }}>
+
+                          {/* Cabecera del tamaño */}
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", cursor: "pointer" }}
+                            onClick={() => toggleExpandido(i)}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>{t.descripcionTamaño || `Tamaño ${i + 1}`}</div>
+                              {t.pasos?.length > 0 && (
+                                <span style={{ fontSize: 10.5, color: palette.textMid, background: palette.bgCard, border: `1px solid ${palette.border}`, borderRadius: 20, padding: "2px 8px" }}>
+                                  {t.pasos.length} paso{t.pasos.length !== 1 ? "s" : ""}
+                                </span>
+                              )}
+                            </div>
                             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                              <span style={{ fontSize: 11, color: palette.textMid }}>Coste <b style={{ color: palette.textDark }}>€ {coste.toFixed(2)}</b></span>
-                              <span style={{ fontSize: 11, color: palette.textMid }}>PVP <b style={{ color: palette.primary }}>€ {pvp.toFixed(2)}</b></span>
-                              {margen !== null && <span style={{ fontSize: 11, fontWeight: 700, color: Number(margen) >= 40 ? palette.accent3 : palette.accent2, background: Number(margen) >= 40 ? palette.accent3Lt : palette.accent2Lt, borderRadius: 20, padding: "2px 8px" }}>{margen}%</span>}
+                              <span style={{ fontSize: 11, color: palette.textMid }}>Coste <b style={{ color: palette.textDark }}>€ {Number(coste).toFixed(2)}</b></span>
+                              <span style={{ fontSize: 11, color: palette.textMid }}>PVP <b style={{ color: palette.primary }}>€ {Number(pvp).toFixed(2)}</b></span>
+                              {margen !== null && (
+                                <span style={{ fontSize: 11, fontWeight: 700, color: Number(margen) >= 40 ? palette.accent3 : palette.accent2, background: Number(margen) >= 40 ? palette.accent3Lt : palette.accent2Lt, borderRadius: 20, padding: "2px 8px" }}>
+                                  {margen}%
+                                </span>
+                              )}
+                              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke={palette.textLight} strokeWidth={2}
+                                style={{ transform: isExp ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s", flexShrink: 0 }}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                              </svg>
                             </div>
                           </div>
-                          {t.ingredientes?.length > 0 && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                              {t.ingredientes.map((ing, j) => (
-                                <span key={j} style={{ fontSize: 10.5, color: palette.textMid, background: palette.bgCard, border: `1px solid ${palette.border}`, borderRadius: 6, padding: "2px 8px" }}>
-                                  {ing.nombreMateriaPrima} · {ing.cantidadUsada} {ing.unidad || ""}
-                                </span>
-                              ))}
+
+                          {/* Contenido expandido */}
+                          {isExp && (
+                            <div style={{ borderTop: `1px solid ${palette.border}`, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+
+                              {/* Ingredientes */}
+                              {t.ingredientes?.length > 0 && (
+                                <div>
+                                  <div style={{ fontSize: 10, fontWeight: 700, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>Ingredientes</div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                                    {t.ingredientes.map((ing, j) => (
+                                      <span key={j} style={{ fontSize: 10.5, color: palette.textMid, background: palette.bgCard, border: `1px solid ${palette.border}`, borderRadius: 6, padding: "2px 8px" }}>
+                                        {ing.nombreMateriaPrima} · {ing.cantidadUsada} {ing.unidad || ""}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Plantilla del tamaño */}
+                              <div>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>
+                                  Plantilla{t.nombrePlantilla ? ` · ${t.nombrePlantilla}` : ""}
+                                </div>
+                                {!t.pasos || t.pasos.length === 0 ? (
+                                  <div style={{ fontSize: 11, color: palette.textLight, fontStyle: "italic" }}>Sin pasos definidos</div>
+                                ) : (
+                                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                    {t.pasos.map((paso, j) => (
+                                      <div key={j} style={{ display: "flex", alignItems: "center", gap: 10, background: palette.bgCard, borderRadius: 8, border: `1px solid ${palette.border}`, padding: "8px 12px" }}>
+                                        <div style={{ width: 26, height: 26, borderRadius: "50%", background: palette.primaryLt, border: `1px solid ${palette.primary}33`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                          <span style={{ fontSize: 9, fontWeight: 700, color: palette.primary }}>{paso.diasAntesEntrega}d</span>
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                          <div style={{ fontSize: 12, fontWeight: 600, color: palette.textDark }}>{paso.nombre}</div>
+                                          <div style={{ fontSize: 10.5, color: palette.textLight, marginTop: 1 }}>{paso.diasAntesEntrega} día{paso.diasAntesEntrega !== 1 ? "s" : ""} antes de la entrega</div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -246,37 +314,6 @@ function VistaModal({ producto, onClose, onEditar }) {
                     })}
                   </div>
                 </>
-              )}
-
-              {tamaños.length === 0 && (
-                <div style={{ fontSize: 12, color: palette.textLight, background: palette.bg, borderRadius: 8, padding: "10px 14px", marginBottom: 20, border: `1px dashed ${palette.border}` }}>
-                  Sin escandallos de coste definidos
-                </div>
-              )}
-
-              {/* Plantilla elaboración */}
-              <div style={{ fontSize: 11, fontWeight: 700, color: palette.primary, letterSpacing: "0.8px", textTransform: "uppercase", paddingBottom: 4, borderBottom: `1px solid ${palette.border}`, marginBottom: 12 }}>
-                Plantilla de elaboración {plantilla ? `· ${plantilla.nombre}` : ""}
-              </div>
-
-              {pasos.length === 0 ? (
-                <div style={{ fontSize: 12, color: palette.textLight, background: palette.bg, borderRadius: 8, padding: "10px 14px", border: `1px dashed ${palette.border}` }}>
-                  Sin plantilla de elaboración definida
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {pasos.map((paso, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: palette.bg, borderRadius: 9, border: `1px solid ${palette.border}`, padding: "10px 14px" }}>
-                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: palette.primaryLt, border: `1px solid ${palette.primary}33`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: palette.primary }}>{paso.diasAntesEntrega}d</span>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark }}>{paso.nombre}</div>
-                        <div style={{ fontSize: 11, color: palette.textLight, marginTop: 1 }}>{paso.diasAntesEntrega} día{paso.diasAntesEntrega !== 1 ? "s" : ""} antes de la entrega</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               )}
             </>
           )}
