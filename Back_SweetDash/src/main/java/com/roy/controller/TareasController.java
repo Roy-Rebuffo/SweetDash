@@ -56,7 +56,7 @@ public class TareasController {
         List<TareaProgramada> todas = serviceTareas.buscarTodas();
         List<TareaProgramadaDTO> resultado = new ArrayList<>();
         for (TareaProgramada t : todas) {
-            if (t.getPedido().getIdPedido() == idPedido) {
+            if (t.getPedido().getIdPedido().equals(idPedido)) {
                 resultado.add(new TareaProgramadaDTO(
                     t.getIdTarea(),
                     t.getEstado(),
@@ -115,21 +115,21 @@ public class TareasController {
 
         // Obtener los nuevos procesos de la plantilla
         List<ProcesoProduccion> procesos = serviceProcesos.buscarTodas().stream()
-            .filter(proc -> proc.getPlantillaProceso().getIdPlantilla() == idPlantilla)
+            .filter(proc -> proc.getPlantillaProceso().getIdPlantilla().equals(idPlantilla))
             .collect(java.util.stream.Collectors.toList());
 
         for (Pedido pedido : pedidosActivos) {
             // Comprobar si algún detalle del pedido usa esta plantilla
             boolean usaPlantilla = pedido.getDetalles().stream()
                 .anyMatch(d -> d.getProducto().getPlantillaProceso() != null &&
-                    d.getProducto().getPlantillaProceso().getIdPlantilla() == idPlantilla);
+                    d.getProducto().getPlantillaProceso().getIdPlantilla().equals(idPlantilla));
 
             if (!usaPlantilla) continue;
 
             // Borrar tareas antiguas asociadas a procesos de esta plantilla
             List<TareaProgramada> tareasAntiguas = serviceTareas.buscarTodas().stream()
                 .filter(t -> t.getPedido().getIdPedido() == pedido.getIdPedido() &&
-                    t.getProcesoProduccion().getPlantillaProceso().getIdPlantilla() == idPlantilla)
+                    t.getProcesoProduccion().getPlantillaProceso().getIdPlantilla().equals(idPlantilla))
                 .collect(java.util.stream.Collectors.toList());
             for (TareaProgramada t : tareasAntiguas) {
                 serviceTareas.eliminar(t.getIdTarea());

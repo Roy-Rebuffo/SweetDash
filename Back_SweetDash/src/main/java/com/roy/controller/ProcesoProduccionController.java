@@ -55,7 +55,7 @@ public class ProcesoProduccionController {
         List<ProcesoProduccion> todos = serviceProceso.buscarTodas();
         List<ProcesoProduccionDTO> resultado = new ArrayList<>();
         for (ProcesoProduccion p : todos) {
-            if (p.getPlantillaProceso().getIdPlantilla() == idPlantilla) {
+            if (p.getPlantillaProceso().getIdPlantilla().equals(idPlantilla)) {
                 resultado.add(new ProcesoProduccionDTO(
                     p.getIdProceso(),
                     p.getNombre(),
