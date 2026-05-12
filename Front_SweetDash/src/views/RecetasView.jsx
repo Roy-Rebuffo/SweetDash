@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import palette from "../theme/palette";
 import { productosApi, procesosApi, pedidosApi, detallesPedidosApi, materiasPrimasApi, plantillasApi, recetasTamañoApi, tareasApi } from "../services/api";
 import FilterSelect from "../components/FilterSelect";
@@ -322,8 +322,8 @@ function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove, onDuplic
 
   return (
     <div style={{ background: palette.bg, borderRadius: 12, border: `1px solid ${palette.border}`, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto auto auto", gap: 10, alignItems: "center" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "flex-end" }}>
+        <div style={{ flex: "1 1 140px", display: "flex", flexDirection: "column", gap: 4 }}>
           <label style={labelStyle}>Tamaño</label>
           <input type="text" value={tamaño.descripcionTamaño} onChange={e => onChange(idx, "descripcionTamaño", e.target.value)}
             placeholder="20cm · 8-10p / 450gr / 12 unidades..."
@@ -331,27 +331,29 @@ function TamañoRow({ tamaño, idx, materiasPrimas, onChange, onRemove, onDuplic
             onFocus={e => e.target.style.borderColor = palette.primaryMid}
             onBlur={e => e.target.style.borderColor = palette.border} />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ flex: "1 1 110px", display: "flex", flexDirection: "column", gap: 4 }}>
           <label style={labelStyle}>Precio venta (€)</label>
           <input type="number" min="0" step="0.01" value={tamaño.precioVenta} onChange={e => onChange(idx, "precioVenta", e.target.value)}
             placeholder="35.00" style={inputStyle}
             onFocus={e => e.target.style.borderColor = palette.primaryMid}
             onBlur={e => e.target.style.borderColor = palette.border} />
         </div>
-        <button onClick={() => setCollapsed(v => !v)}
-          style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.textMid, flexShrink: 0, marginTop: 16 }}>
-          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ transform: collapsed ? "rotate(-90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        <button onClick={() => onDuplicate(idx)} title="Duplicar tamaño"
-          style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.accent3, flexShrink: 0, marginTop: 16 }}>
-          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-        </button>
-        <button onClick={() => onRemove(idx)}
-          style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0, marginTop: 16 }}>
-          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setCollapsed(v => !v)}
+            style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.textMid, flexShrink: 0 }}>
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ transform: collapsed ? "rotate(-90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <button onClick={() => onDuplicate(idx)} title="Duplicar tamaño"
+            style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.accent3, flexShrink: 0 }}>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+          </button>
+          <button onClick={() => onRemove(idx)}
+            style={{ width: 30, height: 30, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", flexShrink: 0 }}>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
       </div>
 
       {!collapsed && (
@@ -466,7 +468,7 @@ const EMPTY_TAMAÑO = () => ({
   idPlantilla: null, nombrePlantilla: "", descripcionPlantilla: "", pasos: [], plantillaCollapsed: true,
 });
 
-function RecetaModal({ producto, onClose, onSaved }) {
+function RecetaModal({ producto, onClose, onSaved, isMobile = false }) {
   const isEdit = !!producto;
   const [materiasPrimas, setMateriasPrimas] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -479,6 +481,8 @@ function RecetaModal({ producto, onClose, onSaved }) {
   const [tamaños, setTamaños] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  // Tamaños que existían en BD al abrir el modal (para detectar cuáles se han eliminado)
+  const tamañosOriginales = React.useRef([]);
 
   useEffect(() => {
     const promises = [materiasPrimasApi.getAll()];
@@ -501,6 +505,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
           })
         );
         setTamaños(tamañosConPasos);
+        tamañosOriginales.current = tamañosConPasos;
       }
     }).finally(() => setLoadingData(false));
   }, []);
@@ -533,21 +538,52 @@ function RecetaModal({ producto, onClose, onSaved }) {
       else { const nuevo = await productosApi.create(payload); productoId = nuevo.idProducto; }
       if (imagenFile) await productosApi.subirImagen(productoId, imagenFile);
 
+      // Eliminar los tamaños que el usuario borró en el modal
+      const currentIds = new Set(tamaños.filter(t => t.id).map(t => t.id));
+      const removidos = tamañosOriginales.current.filter(t => t.id && !currentIds.has(t.id));
+      for (const tam of removidos) {
+        // Borrar RecetaTamaño primero para liberar la FK hacia plantilla_proceso
+        await recetasTamañoApi.delete(tam.id);
+        if (tam.idPlantilla) {
+          const pasos = await procesosApi.getByPlantilla(tam.idPlantilla);
+          for (const p of pasos) await procesosApi.delete(p.idProceso);
+          await plantillasApi.delete(tam.idPlantilla);
+        }
+      }
+
       for (const tam of tamaños) {
         if (!tam.precioVenta) continue;
         let plantillaId = tam.idPlantilla;
         if (tam.pasos.length > 0 || tam.nombrePlantilla.trim()) {
           if (plantillaId) {
+            // Actualizar metadatos de la plantilla
             await plantillasApi.update(plantillaId, { nombre: tam.nombrePlantilla || tam.descripcionTamaño, descripcion: tam.descripcionPlantilla });
-            const pasosActuales = await procesosApi.getByPlantilla(plantillaId);
-            for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
+
+            // Actualizar procesos en sitio para preservar la FK de las tareas
+            const pasosEnDB = await procesosApi.getByPlantilla(plantillaId);
+            const idsEnUI = new Set(tam.pasos.filter(p => p.idProceso).map(p => p.idProceso));
+
+            // Eliminar solo los pasos que el usuario ha borrado
+            for (const p of pasosEnDB) {
+              if (!idsEnUI.has(p.idProceso)) await procesosApi.delete(p.idProceso);
+            }
+
+            // Actualizar los existentes y crear los nuevos
+            for (const paso of tam.pasos) {
+              if (!paso.nombre.trim()) continue;
+              if (paso.idProceso) {
+                await procesosApi.update(paso.idProceso, { nombre: paso.nombre, diasAntesEntrega: Number(paso.diasAntesEntrega), plantillaProceso: { idPlantilla: plantillaId } });
+              } else {
+                await procesosApi.create({ nombre: paso.nombre, diasAntesEntrega: Number(paso.diasAntesEntrega), plantillaProceso: { idPlantilla: plantillaId } });
+              }
+            }
           } else {
             const nuevaPlantilla = await plantillasApi.create({ nombre: tam.nombrePlantilla || tam.descripcionTamaño || "Plantilla", descripcion: tam.descripcionPlantilla });
             plantillaId = nuevaPlantilla.idPlantilla;
-          }
-          for (const paso of tam.pasos) {
-            if (!paso.nombre.trim()) continue;
-            await procesosApi.create({ nombre: paso.nombre, diasAntesEntrega: Number(paso.diasAntesEntrega), plantillaProceso: { idPlantilla: plantillaId } });
+            for (const paso of tam.pasos) {
+              if (!paso.nombre.trim()) continue;
+              await procesosApi.create({ nombre: paso.nombre, diasAntesEntrega: Number(paso.diasAntesEntrega), plantillaProceso: { idPlantilla: plantillaId } });
+            }
           }
           if (plantillaId) await tareasApi.recalcularPorPlantilla(plantillaId);
         }
@@ -588,7 +624,7 @@ function RecetaModal({ producto, onClose, onSaved }) {
                 style={{ ...inputStyle, height: "auto", padding: "8px 12px", resize: "vertical" }}
                 onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)} onBlur={(e) => (e.target.style.borderColor = palette.border)} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: 12 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 <label style={labelStyle}>Tipo</label>
                 <input value={form.tipo} onChange={(e) => setForm(f => ({ ...f, tipo: e.target.value }))} placeholder="Tarta, Cupcake..." style={inputStyle} onFocus={(e) => (e.target.style.borderColor = palette.primaryMid)} onBlur={(e) => (e.target.style.borderColor = palette.border)} />
@@ -803,16 +839,16 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
 
   // Borra efectivamente el producto (ya sin conflictos activos)
   const ejecutarBorrado = async (producto, todosPedidos) => {
-    // 1. Borrar escandallos
+    // 1. Borrar escandallos y sus plantillas
+    // Orden: RecetaTamaño primero (libera FK), luego procesos y plantilla
     const tamañosExistentes = await recetasTamañoApi.getByProducto(producto.idProducto);
-    for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
-
-    // 2. Desvincular y borrar plantilla
-    if (producto.idPlantilla) {
-      await productosApi.desvincularPlantilla(producto.idProducto);
-      const pasosActuales = await procesosApi.getByPlantilla(producto.idPlantilla);
-      for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
-      await plantillasApi.delete(producto.idPlantilla);
+    for (const t of tamañosExistentes) {
+      await recetasTamañoApi.delete(t.id);
+      if (t.idPlantilla) {
+        const pasos = await procesosApi.getByPlantilla(t.idPlantilla);
+        for (const p of pasos) await procesosApi.delete(p.idProceso);
+        await plantillasApi.delete(t.idPlantilla);
+      }
     }
 
     // 3. Borrar detalles SOLO en pedidos NO entregados
@@ -903,7 +939,7 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
     <div style={{ maxWidth: 1150, margin: "0 auto", position: "relative" }}>
 
       {verProducto && <VistaModal producto={verProducto} onClose={() => setVerProducto(null)} onEditar={handleEditar} />}
-      {modalOpen && <RecetaModal producto={editProducto} onClose={() => setModalOpen(false)} onSaved={handleSaved} />}
+      {modalOpen && <RecetaModal producto={editProducto} onClose={() => setModalOpen(false)} onSaved={handleSaved} isMobile={isMobile} />}
       {deleteTarget && <ConfirmModal nombre={deleteTarget.nombre} onClose={() => setDeleteTarget(null)} onConfirm={handleEliminar} loading={deleting} />}
       {conflictoTarget && (
         <ConflictoRecetaModal

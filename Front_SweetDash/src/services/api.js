@@ -107,6 +107,7 @@ export const procesosApi = {
   getAll: () => request("/procesos"),
   getByPlantilla: (id) => request(`/procesos/plantilla/${id}`),
   create: (data) => request("/procesos", { method: "POST", body: JSON.stringify(data) }),
+  update: (id, data) => request(`/procesos/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   delete: (id) => fetch(`${BASE_URL}/procesos/${id}`, { method: "DELETE" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
   vincularProducto: (idProducto, idPlantilla) =>
     fetch(`${BASE_URL}/productos/${idProducto}/plantilla/${idPlantilla}`, { method: "PUT" }).then(r => r.ok ? {} : Promise.reject(new Error(r.statusText))),
