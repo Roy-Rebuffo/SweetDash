@@ -73,6 +73,21 @@ public class ProcesoProduccionController {
         return ResponseEntity.status(201).body(proceso);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProcesoProduccionDTO> actualizar(@PathVariable Integer id, @RequestBody ProcesoProduccion datos) {
+        ProcesoProduccion existente = serviceProceso.buscarPorId(id);
+        if (existente == null) return ResponseEntity.notFound().build();
+        existente.setNombre(datos.getNombre());
+        existente.setDiasAntesEntrega(datos.getDiasAntesEntrega());
+        serviceProceso.guardar(existente);
+        return ResponseEntity.ok(new ProcesoProduccionDTO(
+            existente.getIdProceso(),
+            existente.getNombre(),
+            existente.getDiasAntesEntrega(),
+            existente.getPlantillaProceso().getIdPlantilla()
+        ));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         ProcesoProduccion existente = serviceProceso.buscarPorId(id);

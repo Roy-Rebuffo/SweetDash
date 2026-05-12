@@ -12,9 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.roy.dto.TareaProgramadaDTO;
+import com.roy.model.RecetaTamaño;
 import com.roy.model.TareaProgramada;
 import com.roy.service.IPedidosService;
 import com.roy.service.IProcesosProduccionService;
+import com.roy.service.IRecetaTamañoService;
 import com.roy.service.ITareasProgramadasService;
 import com.roy.model.Pedido;
 import com.roy.model.ProcesoProduccion;
@@ -32,6 +34,9 @@ public class TareasController {
     
     @Autowired
     private IProcesosProduccionService serviceProcesos;
+
+    @Autowired
+    private IRecetaTamañoService serviceRecetaTamaño;
 
     @GetMapping
     public List<TareaProgramadaDTO> obtenerTodas() {
@@ -118,17 +123,47 @@ public class TareasController {
             .filter(proc -> proc.getPlantillaProceso().getIdPlantilla().equals(idPlantilla))
             .collect(java.util.stream.Collectors.toList());
 
-        for (Pedido pedido : pedidosActivos) {
-            // Comprobar si algún detalle del pedido usa esta plantilla
-            boolean usaPlantilla = pedido.getDetalles().stream()
-                .anyMatch(d -> d.getProducto().getPlantillaProceso() != null &&
-                    d.getProducto().getPlantillaProceso().getIdPlantilla().equals(idPlantilla));
+        // Mapa productId → Set<plantillaId> con TODAS las plantillas del producto
+        java.util.Map<Integer, java.util.Set<Integer>> plantillasPorProducto = new java.util.HashMap<>();
+        for (RecetaTamaño rt : serviceRecetaTamaño.buscarTodas()) {
+            if (rt.getProducto() == null || rt.getPlantillaProceso() == null) continue;
+            plantillasPorProducto
+                .computeIfAbsent(rt.getProducto().getIdProducto(), k -> new java.util.HashSet<>())
+                .add(rt.getPlantillaProceso().getIdPlantilla());
+        }
 
-            if (!usaPlantilla) continue;
+        // Productos que usan ESTA plantilla
+        java.util.Set<Integer> productoIdsConEstaPlantilla = plantillasPorProducto.entrySet().stream()
+            .filter(e -> e.getValue().contains(idPlantilla))
+            .map(java.util.Map.Entry::getKey)
+            .collect(java.util.stream.Collectors.toSet());
+
+        // Pedidos que ya tienen tareas de esta plantilla (camino de actualización)
+        java.util.Set<Integer> pedidosConTareasDeEstaPlantilla = serviceTareas.buscarTodas().stream()
+            .filter(t -> t.getProcesoProduccion().getPlantillaProceso().getIdPlantilla().equals(idPlantilla))
+            .map(t -> t.getPedido().getIdPedido())
+            .collect(java.util.stream.Collectors.toSet());
+
+        for (Pedido pedido : pedidosActivos) {
+            boolean yaTieneTareas = pedidosConTareasDeEstaPlantilla.contains(pedido.getIdPedido());
+
+            if (!yaTieneTareas) {
+                // Creación inicial: solo si el producto tiene EXACTAMENTE esta plantilla
+                // (sin otras plantillas en otros tamaños → sin ambigüedad sobre cuál aplicar)
+                boolean puedeCrearInicial = pedido.getDetalles().stream()
+                    .filter(d -> d.getProducto() != null &&
+                        productoIdsConEstaPlantilla.contains(d.getProducto().getIdProducto()))
+                    .anyMatch(d -> {
+                        java.util.Set<Integer> pls = plantillasPorProducto.getOrDefault(
+                            d.getProducto().getIdProducto(), java.util.Collections.emptySet());
+                        return pls.size() == 1;
+                    });
+                if (!puedeCrearInicial) continue;
+            }
 
             // Borrar tareas antiguas asociadas a procesos de esta plantilla
             List<TareaProgramada> tareasAntiguas = serviceTareas.buscarTodas().stream()
-                .filter(t -> t.getPedido().getIdPedido() == pedido.getIdPedido() &&
+                .filter(t -> t.getPedido().getIdPedido().equals(pedido.getIdPedido()) &&
                     t.getProcesoProduccion().getPlantillaProceso().getIdPlantilla().equals(idPlantilla))
                 .collect(java.util.stream.Collectors.toList());
             for (TareaProgramada t : tareasAntiguas) {
