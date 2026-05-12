@@ -640,6 +640,84 @@ function RecetaModal({ producto, onClose, onSaved }) {
   );
 }
 
+// ── Modal conflicto borrado (pedidos activos con tareas) ──────────────────────
+function ConflictoRecetaModal({ producto, conflictos, onCancelarBorrado, onCancelarPedidos, onEditarPedido, loading }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "oklch(0% 0 0 / 0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onCancelarBorrado(); }}>
+      <div style={{ background: palette.bgCard, borderRadius: 18, border: `1px solid ${palette.border}`, boxShadow: "0 8px 32px oklch(0% 0 0 / 0.16)", width: "100%", maxWidth: 460, padding: 28, margin: "auto" }}>
+
+        {/* Icono + título */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: palette.accent2Lt, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={palette.accent2} strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: palette.textDark }}>¡Esta receta está en pedidos activos!</div>
+            <div style={{ fontSize: 11.5, color: palette.textLight, marginTop: 2 }}>Hay tareas pendientes vinculadas a este producto</div>
+          </div>
+        </div>
+
+        <div style={{ fontSize: 13, color: palette.textMid, marginBottom: 14, lineHeight: 1.6 }}>
+          <b>{producto.nombre}</b> se usa en {conflictos.length} pedido{conflictos.length !== 1 ? "s" : ""} con tareas aún sin completar:
+        </div>
+
+        {/* Lista de pedidos afectados */}
+        <div style={{ background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "10px 14px", marginBottom: 20, display: "flex", flexDirection: "column", gap: 5 }}>
+          {conflictos.map((p) => (
+            <div key={p.idPedido} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+              <span style={{ fontWeight: 600, color: palette.textDark }}>Pedido #{String(p.idPedido).padStart(4, "0")}</span>
+              <span style={{ color: palette.textMid }}>{p.nombreCliente || ""} · <span style={{ color: palette.accent2, fontWeight: 600 }}>{p.estado}</span></span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 11.5, fontWeight: 700, color: palette.textLight, letterSpacing: "0.4px", textTransform: "uppercase", marginBottom: 10 }}>¿Qué quieres hacer?</div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Opción 1: Ir a editar el pedido */}
+          <button onClick={onEditarPedido}
+            style={{ padding: "11px 16px", borderRadius: 10, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 13, fontWeight: 600, color: palette.textDark, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 10 }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={palette.primary} strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <div>
+              <div style={{ color: palette.primary }}>Ir a editar el pedido</div>
+              <div style={{ fontSize: 11, fontWeight: 400, color: palette.textLight, marginTop: 1 }}>Cambia el producto del pedido y luego borra esta receta</div>
+            </div>
+          </button>
+
+          {/* Opción 2: Cancelar los pedidos afectados y borrar */}
+          <button onClick={onCancelarPedidos} disabled={loading}
+            style={{ padding: "11px 16px", borderRadius: 10, border: `1px solid #FECACA`, background: "#FEF2F2", fontSize: 13, fontWeight: 600, color: "#B91C1C", cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "'DM Sans', sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 10 }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#B91C1C" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <div>
+              <div>{loading ? "Eliminando..." : `Cancelar ${conflictos.length > 1 ? "los pedidos afectados" : "el pedido"} y borrar la receta`}</div>
+              <div style={{ fontSize: 11, fontWeight: 400, color: "#DC2626", marginTop: 1 }}>La receta ya no existirá y los pedidos quedarán eliminados</div>
+            </div>
+          </button>
+
+          {/* Opción 3: No borrar nada */}
+          <button onClick={onCancelarBorrado}
+            style={{ padding: "11px 16px", borderRadius: 10, border: `1px solid ${palette.border}`, background: palette.bg, fontSize: 13, fontWeight: 600, color: palette.textMid, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 10 }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={palette.textMid} strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <div>
+              <div>Cancelar el proceso de borrado</div>
+              <div style={{ fontSize: 11, fontWeight: 400, color: palette.textLight, marginTop: 1 }}>La receta y los pedidos seguirán como están</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Modal confirmar borrado ───────────────────────────────────────────────────
 function ConfirmModal({ nombre, onClose, onConfirm, loading }) {
   return (
@@ -660,7 +738,7 @@ function ConfirmModal({ nombre, onClose, onConfirm, loading }) {
 }
 
 // ── Vista principal ───────────────────────────────────────────────────────────
-export default function RecetasView({ isMobile = false, productoParaEditar = null, onClearEditar }) {
+export default function RecetasView({ isMobile = false, productoParaEditar = null, onClearEditar, onNavigate }) {
   const [productos, setProductos] = useState([]);
   const [tamañosMap, setTamañosMap] = useState({}); // { idProducto: count }
   const [pedidos, setPedidos] = useState([]);
@@ -673,6 +751,7 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
   const [editProducto, setEditProducto] = useState(null);
   const [verProducto, setVerProducto] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [conflictoTarget, setConflictoTarget] = useState(null); // { producto, conflictos: [pedidos] }
   const [deleting, setDeleting] = useState(false);
 
   const cargarDatos = async () => {
@@ -722,38 +801,86 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
   const handleEditar = (p) => { setVerProducto(null); setEditProducto(p); setModalOpen(true); };
   const handleSaved = () => { setModalOpen(false); cargarDatos(); };
 
+  // Borra efectivamente el producto (ya sin conflictos activos)
+  const ejecutarBorrado = async (producto, todosPedidos) => {
+    // 1. Borrar escandallos
+    const tamañosExistentes = await recetasTamañoApi.getByProducto(producto.idProducto);
+    for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
+
+    // 2. Desvincular y borrar plantilla
+    if (producto.idPlantilla) {
+      await productosApi.desvincularPlantilla(producto.idProducto);
+      const pasosActuales = await procesosApi.getByPlantilla(producto.idPlantilla);
+      for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
+      await plantillasApi.delete(producto.idPlantilla);
+    }
+
+    // 3. Borrar detalles SOLO en pedidos NO entregados
+    //    Los pedidos entregados conservan su historial gracias al snapshot en la BD
+    for (const ped of todosPedidos) {
+      if (ped.estado === "Entregado") continue;
+      try {
+        const detalles = await pedidosApi.getDetalles(ped.idPedido);
+        for (const det of detalles) {
+          if (det.idProducto === producto.idProducto) {
+            await pedidosApi.deleteDetalle(det.idDetalle);
+          }
+        }
+      } catch { }
+    }
+
+    // 4. Borrar el producto (la FK SET NULL preserva los detalles de pedidos entregados)
+    await productosApi.delete(producto.idProducto);
+    setDeleteTarget(null);
+    setConflictoTarget(null);
+    cargarDatos();
+  };
+
   const handleEliminar = async () => {
     setDeleting(true);
     try {
-      // 1. Borrar escandallos
-      const tamañosExistentes = await recetasTamañoApi.getByProducto(deleteTarget.idProducto);
-      for (const t of tamañosExistentes) await recetasTamañoApi.delete(t.id);
-
-      // 2. Desvincular y borrar plantilla
-      if (deleteTarget.idPlantilla) {
-        await productosApi.desvincularPlantilla(deleteTarget.idProducto);
-        const pasosActuales = await procesosApi.getByPlantilla(deleteTarget.idPlantilla);
-        for (const p of pasosActuales) await procesosApi.delete(p.idProceso);
-        await plantillasApi.delete(deleteTarget.idPlantilla);
-      }
-
-      // 3. Borrar detalles de pedido que referencian este producto
       const todosLosPedidos = await pedidosApi.getAll();
+
+      // Buscar pedidos NO entregados que usan este producto y tienen tareas activas
+      const conflictos = [];
       for (const ped of todosLosPedidos) {
+        if (ped.estado === "Entregado") continue;
         try {
           const detalles = await pedidosApi.getDetalles(ped.idPedido);
-          for (const det of detalles) {
-            if (det.idProducto === deleteTarget.idProducto) {
-              await pedidosApi.deleteDetalle(det.idDetalle);
-            }
+          if (!detalles.some((d) => d.idProducto === deleteTarget.idProducto)) continue;
+          const tareas = await tareasApi.getByPedido(ped.idPedido);
+          if (tareas.some((t) => t.estado === "Pendiente" || t.estado === "En proceso")) {
+            conflictos.push(ped);
           }
         } catch { }
       }
 
-      // 4. Borrar el producto
-      await productosApi.delete(deleteTarget.idProducto);
-      setDeleteTarget(null);
-      cargarDatos();
+      if (conflictos.length > 0) {
+        // Hay pedidos con tareas activas → mostrar modal de decisión
+        setDeleteTarget(null);
+        setConflictoTarget({ producto: deleteTarget, conflictos, todosPedidos: todosLosPedidos });
+        return;
+      }
+
+      await ejecutarBorrado(deleteTarget, todosLosPedidos);
+    } catch (e) {
+      alert("Error al eliminar: " + e.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCancelarPedidosYBorrar = async () => {
+    if (!conflictoTarget) return;
+    setDeleting(true);
+    try {
+      // Cancelar los pedidos con conflictos
+      for (const ped of conflictoTarget.conflictos) {
+        await pedidosApi.delete(ped.idPedido);
+      }
+      // Recargar pedidos tras la cancelación
+      const todosPedidos = await pedidosApi.getAll();
+      await ejecutarBorrado(conflictoTarget.producto, todosPedidos);
     } catch (e) {
       alert("Error al eliminar: " + e.message);
     } finally {
@@ -778,6 +905,16 @@ export default function RecetasView({ isMobile = false, productoParaEditar = nul
       {verProducto && <VistaModal producto={verProducto} onClose={() => setVerProducto(null)} onEditar={handleEditar} />}
       {modalOpen && <RecetaModal producto={editProducto} onClose={() => setModalOpen(false)} onSaved={handleSaved} />}
       {deleteTarget && <ConfirmModal nombre={deleteTarget.nombre} onClose={() => setDeleteTarget(null)} onConfirm={handleEliminar} loading={deleting} />}
+      {conflictoTarget && (
+        <ConflictoRecetaModal
+          producto={conflictoTarget.producto}
+          conflictos={conflictoTarget.conflictos}
+          loading={deleting}
+          onCancelarBorrado={() => setConflictoTarget(null)}
+          onCancelarPedidos={handleCancelarPedidosYBorrar}
+          onEditarPedido={() => { setConflictoTarget(null); onNavigate && onNavigate("pedidos"); }}
+        />
+      )}
 
       {loading && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, gap: 12, color: palette.textLight, fontSize: 14 }}>

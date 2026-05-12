@@ -45,7 +45,7 @@ export default function App() {
       case "pedidos":      return <PedidosView {...vp} />;
       case "clientes":     return <ClientesView {...vp} />;
       case "productos":    return <InventarioView {...vp} />;
-      case "recetas": return <RecetasView productoParaEditar={editarProducto} onClearEditar={() => setEditarProducto(null)} {...vp} />;
+      case "recetas": return <RecetasView productoParaEditar={editarProducto} onClearEditar={() => setEditarProducto(null)} onNavigate={navigate} {...vp} />;
       case "calendario":   return <CalendarioView {...vp} />;
       case "estadisticas": return <EstadisticasView {...vp} />;
       case "costes": return <CostesView onNavigate={navigate} onEditarReceta={(prod) => { setEditarProducto(prod); navigate("recetas"); }} {...vp} />;

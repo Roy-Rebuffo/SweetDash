@@ -548,6 +548,88 @@ function PedidoModal({ pedido, onClose, onSaved, onNecesitaAviso }) {
   );
 }
 
+// ── Modal Vista pedido (solo lectura) ─────────────────────────────────────────
+function VistaPedidoModal({ pedido, detalles, onClose, onEditar }) {
+  const es = estadoStyle[pedido.estado] || estadoStyle["Pendiente"];
+  const total = detalles.reduce((acc, d) => acc + Number(d.cantidad) * Number(d.precioCongelado || 0), 0);
+  const nombreCompleto = getNombreCompleto(pedido);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "oklch(0% 0 0 / 0.4)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: 16, overflowY: "auto" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background: palette.bgCard, borderRadius: 18, border: `1px solid ${palette.border}`, boxShadow: "0 8px 32px oklch(0% 0 0 / 0.14)", width: "100%", maxWidth: 520, margin: "auto" }}>
+
+        {/* Header */}
+        <div style={{ background: palette.primaryLt, borderRadius: "18px 18px 0 0", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 700, color: palette.textLight, letterSpacing: "0.7px", textTransform: "uppercase", marginBottom: 3 }}>Pedido</div>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 22, color: palette.textDark }}>#{String(pedido.idPedido).padStart(4, "0")}</div>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ display: "inline-flex", padding: "4px 12px", borderRadius: 20, background: es.bg, color: es.color, fontSize: 11.5, fontWeight: 600 }}>{pedido.estado}</span>
+            <button onClick={() => { onClose(); onEditar(pedido); }}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 20, border: "none", background: palette.primary, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", boxShadow: `0 2px 8px ${palette.primary}55` }}>
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              Editar
+            </button>
+            <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.1)", color: palette.textDark, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ padding: 24 }}>
+          {/* Info cliente + fecha */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 160 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>Cliente</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: palette.textDark }}>{nombreCompleto}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>Fecha de entrega</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: palette.textDark }}>{formatFecha(pedido.fechaEntrega)}</div>
+            </div>
+          </div>
+
+          {/* Productos */}
+          <div style={{ fontSize: 11, fontWeight: 700, color: palette.primary, letterSpacing: "0.8px", textTransform: "uppercase", paddingBottom: 4, borderBottom: `1px solid ${palette.border}`, marginBottom: 12 }}>
+            Productos
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+            {detalles.length === 0 ? (
+              <div style={{ fontSize: 12, color: palette.textLight, textAlign: "center", padding: "16px 0", fontStyle: "italic" }}>Sin productos registrados</div>
+            ) : (
+              detalles.map((d, i) => (
+                <div key={i} style={{ background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "10px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: palette.textDark, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {d.nombreProducto || "—"}
+                      </div>
+                      {d.notas && <div style={{ fontSize: 11, color: palette.textMid, marginTop: 2 }}>{d.notas}</div>}
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontSize: 11.5, color: palette.textMid }}>{d.cantidad} × € {Number(d.precioCongelado).toFixed(2)}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: palette.primary }}>€ {(Number(d.cantidad) * Number(d.precioCongelado)).toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {detalles.length > 0 && (
+            <div style={{ display: "flex", justifyContent: "flex-end", borderTop: `1px solid ${palette.border}`, paddingTop: 12 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: palette.textDark }}>Total: € {total.toFixed(2)}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Modal confirmar borrado ────────────────────────────────────────────────────
 function ConfirmModal({ texto, onClose, onConfirm, loading }) {
   return (
@@ -581,6 +663,7 @@ export default function PedidosView({ isMobile = false }) {
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [editPedido, setEditPedido] = useState(null);
+  const [verPedido, setVerPedido] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -614,7 +697,7 @@ export default function PedidosView({ isMobile = false }) {
   useEffect(() => { cargarPedidos(); }, []);
 
   const handleNuevo = () => { setEditPedido(null); setModalOpen(true); };
-  const handleEditar = (p) => { setEditPedido(p); setModalOpen(true); };
+  const handleEditar = (p) => { setVerPedido(null); setEditPedido(p); setModalOpen(true); };
 
   const handleNecesitaAviso = (data) => {
     setModalOpen(false);
@@ -722,6 +805,14 @@ export default function PedidosView({ isMobile = false }) {
   return (
     <div style={{ maxWidth: 1150, margin: "0 auto", position: "relative" }}>
 
+      {verPedido && (
+        <VistaPedidoModal
+          pedido={verPedido}
+          detalles={detallesMap[verPedido.idPedido] || []}
+          onClose={() => setVerPedido(null)}
+          onEditar={handleEditar}
+        />
+      )}
       {modalOpen && <PedidoModal pedido={editPedido} onClose={() => setModalOpen(false)} onSaved={handleSaved} onNecesitaAviso={handleNecesitaAviso} />}
 
       {avisoData && (
@@ -811,7 +902,7 @@ export default function PedidosView({ isMobile = false }) {
                   const total = calcularTotal(detalles);
                   const nombreCompleto = getNombreCompleto(p);
                   return (
-                    <div key={p.idPedido} style={{ background: palette.bgCard, borderRadius: 12, border: `1px solid ${palette.border}`, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div key={p.idPedido} onClick={() => setVerPedido(p)} style={{ background: palette.bgCard, borderRadius: 12, border: `1px solid ${palette.border}`, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8, cursor: "pointer" }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
                           <Avatar nombre={nombreCompleto} idx={i} />
@@ -829,10 +920,10 @@ export default function PedidosView({ isMobile = false }) {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div style={{ fontSize: 11, color: palette.textLight }}>{formatFecha(p.fechaEntrega)}</div>
                         <div style={{ display: "flex", gap: 6 }}>
-                          <button onClick={() => handleEditar(p)} title="Editar" style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.primary }}>
+                          <button onClick={(e) => { e.stopPropagation(); handleEditar(p); }} title="Editar" style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.primary }}>
                             <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                           </button>
-                          <button onClick={() => setDeleteTarget(p)} title="Eliminar" style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
+                          <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }} title="Eliminar" style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
                             <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                           </button>
                         </div>
@@ -864,7 +955,8 @@ export default function PedidosView({ isMobile = false }) {
                   const nombreCompleto = getNombreCompleto(p);
                   return (
                     <div key={p.idPedido}
-                      style={{ display: "grid", gridTemplateColumns: "0.7fr 2fr 2.2fr 1.3fr 1.6fr 0.8fr 1fr", padding: "13px 22px", alignItems: "center", borderTop: i > 0 ? `1px solid ${palette.border}` : "none", transition: "background 0.12s" }}
+                      onClick={() => setVerPedido(p)}
+                      style={{ display: "grid", gridTemplateColumns: "0.7fr 2fr 2.2fr 1.3fr 1.6fr 0.8fr 1fr", padding: "13px 22px", alignItems: "center", borderTop: i > 0 ? `1px solid ${palette.border}` : "none", transition: "background 0.12s", cursor: "pointer" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = palette.bg)}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                       <span style={{ fontSize: 11, color: palette.textLight, fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>#{String(p.idPedido).padStart(4, "0")}</span>
@@ -879,13 +971,13 @@ export default function PedidosView({ isMobile = false }) {
                       </div>
                       <span style={{ fontSize: 13, fontWeight: 700, color: palette.textDark }}>{total}</span>
                       <div style={{ display: "flex", gap: 6 }}>
-                        <button onClick={() => handleEditar(p)} title="Editar"
+                        <button onClick={(e) => { e.stopPropagation(); handleEditar(p); }} title="Editar"
                           style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: palette.primary, transition: "all 0.15s" }}
                           onMouseEnter={(e) => { e.currentTarget.style.background = palette.primaryLt; e.currentTarget.style.borderColor = palette.primary; }}
                           onMouseLeave={(e) => { e.currentTarget.style.background = palette.bgCard; e.currentTarget.style.borderColor = palette.border; }}>
                           <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                         </button>
-                        <button onClick={() => setDeleteTarget(p)} title="Eliminar"
+                        <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }} title="Eliminar"
                           style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${palette.border}`, background: palette.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444", transition: "all 0.15s" }}
                           onMouseEnter={(e) => { e.currentTarget.style.background = "#FEF2F2"; e.currentTarget.style.borderColor = "#EF4444"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.background = palette.bgCard; e.currentTarget.style.borderColor = palette.border; }}>
