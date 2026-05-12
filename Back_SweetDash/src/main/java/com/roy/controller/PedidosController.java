@@ -160,6 +160,7 @@ public class PedidosController {
 	    DetallePedido detalle = new DetallePedido();
 	    detalle.setPedido(pedido);
 	    detalle.setProducto(producto);
+	    detalle.setNombreProductoSnapshot(producto.getNombre());
 	    detalle.setCantidad(dto.getCantidad());
 	    detalle.setNotas(dto.getNotas());
 	    detalle.setPrecioCongelado(
@@ -232,7 +233,11 @@ public class PedidosController {
 	}
 
 	private DetallePedidoDTO toDetalleDTO(DetallePedido d) {
+		String nombreProducto = d.getProducto() != null
+				? d.getProducto().getNombre()
+				: (d.getNombreProductoSnapshot() != null ? d.getNombreProductoSnapshot() : "—");
+		Integer idProducto = d.getProducto() != null ? d.getProducto().getIdProducto() : null;
 		return new DetallePedidoDTO(d.getIdDetalle(), d.getCantidad(), d.getNotas(), d.getPrecioCongelado(),
-				d.getPedido().getIdPedido(), d.getProducto().getNombre(), d.getProducto().getIdProducto());
+				d.getPedido().getIdPedido(), nombreProducto, idProducto);
 	}
 }

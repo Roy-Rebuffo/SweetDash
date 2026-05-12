@@ -28,14 +28,17 @@ public class DetallePedido implements Serializable {
 	@Column(name="precio_congelado")
 	private BigDecimal precioCongelado;
 
+	@Column(name="nombre_producto_snapshot")
+	private String nombreProductoSnapshot;
+
 	// CORRECCIÓN: En vez de idPedido (Integer), ponemos el Objeto
 	@ManyToOne
 	@JoinColumn(name="id_pedido")
 	private Pedido pedido;
 
-	// CORRECCIÓN: En vez de idProducto (Integer), ponemos el Objeto
+	// nullable para poder borrar el producto y conservar el historial de pedidos entregados
 	@ManyToOne
-	@JoinColumn(name="id_producto")
+	@JoinColumn(name="id_producto", nullable = true)
 	private Producto producto;
 
 	public DetallePedido() {
@@ -71,6 +74,14 @@ public class DetallePedido implements Serializable {
 
 	public void setNotas(String notas) {
 		this.notas = notas;
+	}
+
+	public String getNombreProductoSnapshot() {
+		return nombreProductoSnapshot;
+	}
+
+	public void setNombreProductoSnapshot(String nombreProductoSnapshot) {
+		this.nombreProductoSnapshot = nombreProductoSnapshot;
 	}
 
 	public BigDecimal getPrecioCongelado() {
