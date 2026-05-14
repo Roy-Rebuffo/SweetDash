@@ -107,14 +107,14 @@ export default function EscandalloCard({ receta, isMobile = false }) {
           {isMobile ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {receta.ingredientes?.map((ing) => (
-                <div key={ing.id} style={{ background: palette.bg, border: `1px solid ${palette.border}`, borderRadius: 10, padding: "10px 12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: palette.textDark, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ing.nombreMateriaPrima}</div>
+                <div key={ing.id} style={{ background: palette.bg, border: `1px solid ${palette.border}`, borderRadius: 10, padding: "10px 12px", minWidth: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 6, marginBottom: 4, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: palette.textDark, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ing.nombreMateriaPrima}</div>
                     <div style={{ fontWeight: 700, fontSize: 13, color: palette.primary, flexShrink: 0 }}>{fmt(ing.costeIngrediente)}</div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: palette.textLight, gap: 8 }}>
-                    <span>{ing.cantidadUsada} {ing.unidad} · paq. {ing.unidadesPaquete} {ing.unidad}</span>
-                    <span>{fmt(ing.precioPaquete)}/paq.</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: palette.textLight, gap: 6, minWidth: 0 }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{ing.cantidadUsada} {ing.unidad} · paq. {ing.unidadesPaquete} {ing.unidad}</span>
+                    <span style={{ flexShrink: 0 }}>{fmt(ing.precioPaquete)}/paq.</span>
                   </div>
                 </div>
               ))}
@@ -139,7 +139,7 @@ export default function EscandalloCard({ receta, isMobile = false }) {
           )}
 
           {/* Resumen */}
-          <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${palette.border}`, display: "grid", gridTemplateColumns: isMobile ? "repeat(3,1fr)" : undefined, justifyContent: isMobile ? undefined : "flex-end", gap: isMobile ? 8 : 28, flexDirection: isMobile ? undefined : "row", ...(isMobile ? {} : { display: "flex" }) }}>
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${palette.border}`, ...(isMobile ? { display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 8 } : { display: "flex", justifyContent: "flex-end", gap: 28 }) }}>
             <div style={{ textAlign: isMobile ? "center" : "right" }}>
               <div style={{ fontSize: 10, color: palette.textLight, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Coste</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: palette.textDark }}>{fmt(receta.costeTotal)}</div>

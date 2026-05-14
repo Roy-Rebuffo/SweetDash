@@ -29,7 +29,7 @@ export default function CostesView({ isMobile = false, onNavigate, onEditarRecet
   );
 
   return (
-    <div style={{ maxWidth: 1150, margin: "0 auto", width: "100%", overflowX: "hidden", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "260px 1fr", gap: 20, alignItems: "start" }}>
+    <div style={{ maxWidth: 1150, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: isMobile ? "minmax(0,1fr)" : "260px 1fr", gap: 20, alignItems: "start" }}>
 
       {/* ── Panel izquierdo: lista de productos (solo desktop) ── */}
       {!isMobile && (
@@ -69,7 +69,7 @@ export default function CostesView({ isMobile = false, onNavigate, onEditarRecet
       )}
 
       {/* ── Panel derecho ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
 
         {/* Mobile: dropdown selector de producto */}
         {isMobile && (
@@ -172,38 +172,40 @@ export default function CostesView({ isMobile = false, onNavigate, onEditarRecet
 
         {/* Comparativa rápida si hay varios tamaños */}
         {recetas.length > 1 && (
-          <div style={{ background: palette.bgCard, borderRadius: 16, border: `1px solid ${palette.border}`, padding: isMobile ? "14px 0 14px" : "16px 20px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: isMobile ? "0 16px" : undefined }}>
+          <div style={{ background: palette.bgCard, borderRadius: 16, border: `1px solid ${palette.border}`, padding: isMobile ? "14px 14px" : "16px 20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: palette.textLight, letterSpacing: "0.7px", textTransform: "uppercase" }}>Comparativa de tamaños</div>
               {isMobile && (
                 <div style={{ fontSize: 11, fontWeight: 600, color: palette.textLight }}>{recetas.length} tamaño{recetas.length !== 1 ? "s" : ""}</div>
               )}
             </div>
-            <div style={{ display: "flex", gap: isMobile ? 10 : 8, flexWrap: isMobile ? "nowrap" : "wrap", overflowX: isMobile ? "auto" : undefined, scrollSnapType: isMobile ? "x mandatory" : undefined, WebkitOverflowScrolling: isMobile ? "touch" : undefined, paddingLeft: isMobile ? 16 : undefined, paddingRight: isMobile ? 16 : undefined, paddingBottom: isMobile ? 4 : undefined }}>
+            <div style={isMobile
+              ? { display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 8 }
+              : { display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[...recetas].sort((a, b) => (a.tamañoCm || 0) - (b.tamañoCm || 0)).map(r => {
                 const margen = r.margenPct ? Number(r.margenPct) : null;
                 const parts = (r.descripcionTamaño || "").split(" - ");
                 const mainLabel = parts[0] || (r.tamañoCm ? `${r.tamañoCm}cm` : "—");
                 const subLabel = parts.slice(1).join(" - ");
                 return (
-                  <div key={r.id} style={{ flex: isMobile ? "0 0 200px" : "1 1 110px", scrollSnapAlign: isMobile ? "start" : undefined, background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "12px 14px", textAlign: isMobile ? "left" : "center" }}>
-                    <div style={{ fontSize: isMobile ? 18 : 15, fontWeight: 800, color: palette.textDark }}>{mainLabel}</div>
+                  <div key={r.id} style={{ background: palette.bg, borderRadius: 10, border: `1px solid ${palette.border}`, padding: "12px 10px", textAlign: isMobile ? "left" : "center", ...(isMobile ? {} : { flex: "1 1 110px" }) }}>
+                    <div style={{ fontSize: isMobile ? 15 : 15, fontWeight: 800, color: palette.textDark, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mainLabel}</div>
                     {isMobile && subLabel ? (
-                      <div style={{ fontSize: 11, color: palette.textLight, marginBottom: 10, marginTop: 1 }}>{subLabel}</div>
+                      <div style={{ fontSize: 10, color: palette.textLight, marginBottom: 8, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{subLabel}</div>
                     ) : null}
                     {isMobile ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 10 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.4px" }}>Coste</span>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: palette.textDark }}>{fmt(r.costeTotal)}</span>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 8, marginTop: subLabel ? 0 : 6 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
+                          <span style={{ fontSize: 9, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.4px", flexShrink: 0 }}>Coste</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: palette.textDark, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fmt(r.costeTotal)}</span>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.4px" }}>PVP</span>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: palette.primary }}>{fmt(r.precioVenta)}</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
+                          <span style={{ fontSize: 9, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.4px", flexShrink: 0 }}>PVP</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: palette.primary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fmt(r.precioVenta)}</span>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 10, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.4px" }}>Ganancia</span>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: "#16A34A" }}>{fmt(r.ganancia)}</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
+                          <span style={{ fontSize: 9, fontWeight: 600, color: palette.textLight, textTransform: "uppercase", letterSpacing: "0.4px", flexShrink: 0 }}>Gan.</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#16A34A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fmt(r.ganancia)}</span>
                         </div>
                       </div>
                     ) : (
@@ -212,8 +214,8 @@ export default function CostesView({ isMobile = false, onNavigate, onEditarRecet
                         <div style={{ fontSize: 11, color: palette.primary, fontWeight: 600, marginBottom: 6 }}>PVP {fmt(r.precioVenta)}</div>
                       </>
                     )}
-                    <div style={{ display: isMobile ? "flex" : "inline-block", justifyContent: isMobile ? "flex-start" : undefined, background: margenBg(margen), borderRadius: 20, padding: "3px 10px" }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: margenColor(margen) }}>{pct(margen)}</span>
+                    <div style={{ display: "inline-block", background: margenBg(margen), borderRadius: 20, padding: "3px 8px" }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: margenColor(margen) }}>{pct(margen)}</span>
                     </div>
                   </div>
                 );
